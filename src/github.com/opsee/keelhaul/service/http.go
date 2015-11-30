@@ -28,7 +28,7 @@ func (s *service) StartHTTP(addr string) {
 	router.Handle("POST", "/bastions/authenticate", []opseetp.DecodeFunc{opseetp.RequestDecodeFunc(requestKey, AuthenticateBastionRequest{})}, s.authenticateBastion())
 
 	// websocket
-	router.Handler("GET", "/stream", websocket.Handler(s.websocketHandler()))
+	router.Handler("GET", "/stream/", websocket.Handler(s.websocketHandler()))
 
 	// set a big timeout bc aws be slow
 	router.Timeout(5 * time.Minute)

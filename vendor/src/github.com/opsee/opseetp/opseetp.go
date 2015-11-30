@@ -51,6 +51,7 @@ func NewHTTPRouter(rootCtx context.Context) *Router {
 
 	r.router.HandleMethodNotAllowed = true
 	r.router.PanicHandler = panicHandler
+	r.router.RedirectTrailingSlash = false
 
 	r.Handle("OPTIONS", "/*any", []DecodeFunc{decodeIdentity}, okHandler)
 	r.Handle("GET", "/health", []DecodeFunc{decodeIdentity}, okHandler)
