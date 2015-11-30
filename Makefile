@@ -20,8 +20,7 @@ docker: fmt
 		--link postgresql:postgresql \
 		--link nsqd:nsqd \
 		--link lookupd:lookupd \
-		--link etcd:etcd \
-		--env-file ./devenv \
+		--env-file ./$(APPENV) \
 		-e "TARGETS=linux/amd64" \
 		-v `pwd`:/build quay.io/opsee/build-go \
 		&& docker build -t quay.io/opsee/keelhaul:latest .
@@ -32,7 +31,7 @@ run: docker
 		--link nsqd:nsqd \
 		--link lookupd:lookupd \
 		--link etcd:etcd \
-		--env-file ./devenv \
+		--env-file ./$(APPENV) \
 		-e AWS_DEFAULT_REGION \
 		-e AWS_ACCESS_KEY_ID \
 		-e AWS_SECRET_ACCESS_KEY \

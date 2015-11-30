@@ -2,12 +2,6 @@
 	"version": 0,
 	"dependencies": [
 		{
-			"importpath": "github.com/Sirupsen/logrus",
-			"repository": "https://github.com/Sirupsen/logrus",
-			"revision": "a22723f16efea2e89b7bd67d10ed077c47c14eb4",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/aws/aws-sdk-go/aws",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",

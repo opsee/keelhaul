@@ -3,7 +3,6 @@
 *~
 build/*.log
 *.pem
-bastion-cf.template
 .DS_Store
 .tags*
 
