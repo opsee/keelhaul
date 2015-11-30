@@ -57,24 +57,24 @@ var swaggerMap = j{
 				},
 			},
 		},
-		"/bastions": j{
-			"get": j{
-				"tags": []string{
-					"bastions",
-				},
-				"operationId": "listBastions",
-				"summary":     "Lists bastions.",
-				"parameters":  []string{},
-				"responses": j{
-					"200": j{
-						"description": "Description was not specified",
-					},
-					"401": j{
-						"description": "Description was not specified",
-					},
-				},
-			},
-		},
+		// "/bastions": j{
+		// 	"get": j{
+		// 		"tags": []string{
+		// 			"bastions",
+		// 		},
+		// 		"operationId": "listBastions",
+		// 		"summary":     "Lists bastions.",
+		// 		"parameters":  []string{},
+		// 		"responses": j{
+		// 			"200": j{
+		// 				"description": "Description was not specified",
+		// 			},
+		// 			"401": j{
+		// 				"description": "Description was not specified",
+		// 			},
+		// 		},
+		// 	},
+		// },
 	},
 	"definitions": j{},
 	"consumes":    j{},
