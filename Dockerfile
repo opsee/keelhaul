@@ -1,6 +1,7 @@
 FROM quay.io/opsee/vinz:latest
 
 ENV POSTGRES_CONN ""
+ENV VAPE_KEYFILE ""
 ENV NSQLOOKUPD_ADDRS ""
 ENV NSQD_HOST ""
 ENV NSQ_TOPIC ""
