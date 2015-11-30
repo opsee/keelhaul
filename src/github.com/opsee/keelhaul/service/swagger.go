@@ -77,4 +77,6 @@ var swaggerMap = j{
 		},
 	},
 	"definitions": j{},
+	"consumes":    j{},
+	"produces":    j{},
 }
