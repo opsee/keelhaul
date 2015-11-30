@@ -24,7 +24,7 @@ docker: fmt
 		--env-file ./devenv \
 		-e "TARGETS=linux/amd64" \
 		-v `pwd`:/build quay.io/opsee/build-go \
-		&& docker build -t quay.io/opsee/keelhaul .
+		&& docker build -t quay.io/opsee/keelhaul:latest .
 
 run: docker
 	docker run \
@@ -38,6 +38,6 @@ run: docker
 		-e AWS_SECRET_ACCESS_KEY \
 		-p 9094:9094 \
 		--rm \
-		quay.io/opsee/keelhaul
+		quay.io/opsee/keelhaul:latest
 
 .PHONY: docker run migrate clean all
