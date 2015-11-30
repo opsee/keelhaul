@@ -1,0 +1,6 @@
+- use awscan master branch
+- update bastion config to use keelhaul for vpn auth
+- remove customer-id header from fieri requests
+- swagger
+- key log scrubber hook
+- readme

@@ -1,0 +1,276 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/Sirupsen/logrus",
+			"repository": "https://github.com/Sirupsen/logrus",
+			"revision": "a22723f16efea2e89b7bd67d10ed077c47c14eb4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/aws",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/aws"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/private/endpoints",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/private/endpoints"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/private/protocol/ec2query",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/private/protocol/ec2query"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/private/protocol/query",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/private/protocol/query"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/private/protocol/rest",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/private/protocol/rest"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/private/protocol/xml/xmlutil",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/private/protocol/xml/xmlutil"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/private/signer/v4",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/private/signer/v4"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/private/waiter",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/private/waiter"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/service/autoscaling",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/service/autoscaling"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/service/cloudformation",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/service/cloudformation"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/service/ec2",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/service/ec2"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/service/elb",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/service/elb"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/service/rds",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/service/rds"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/service/sns",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/service/sns"
+		},
+		{
+			"importpath": "github.com/aws/aws-sdk-go/service/sqs",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
+			"branch": "master",
+			"path": "/service/sqs"
+		},
+		{
+			"importpath": "github.com/codegangsta/cli",
+			"repository": "https://github.com/codegangsta/cli",
+			"revision": "0302d3914d2a6ad61404584cdae6e6dbc9c03599",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/ugorji/go/codec",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "2de9a5bbd08335017df580bb4faad2cad37d9772",
+			"branch": "master",
+			"path": "/Godeps/_workspace/src/github.com/ugorji/go/codec"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "2de9a5bbd08335017df580bb4faad2cad37d9772",
+			"branch": "master",
+			"path": "/Godeps/_workspace/src/golang.org/x/net/context"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/client",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "2de9a5bbd08335017df580bb4faad2cad37d9772",
+			"branch": "master",
+			"path": "/client"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/pkg/pathutil",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "2de9a5bbd08335017df580bb4faad2cad37d9772",
+			"branch": "master",
+			"path": "/pkg/pathutil"
+		},
+		{
+			"importpath": "github.com/coreos/etcd/pkg/types",
+			"repository": "https://github.com/coreos/etcd",
+			"revision": "2de9a5bbd08335017df580bb4faad2cad37d9772",
+			"branch": "master",
+			"path": "/pkg/types"
+		},
+		{
+			"importpath": "github.com/go-ini/ini",
+			"repository": "https://github.com/go-ini/ini",
+			"revision": "2e44421e256d82ebbf3d4d4fcabe8930b905eff3",
+			"branch": "v1"
+		},
+		{
+			"importpath": "github.com/hoisie/mustache",
+			"repository": "https://github.com/hoisie/mustache",
+			"revision": "af524a16a1b1bd467c342969bf37db23433466c4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/jmespath/go-jmespath",
+			"repository": "https://github.com/jmespath/go-jmespath",
+			"revision": "3433f3ea46d9f8019119e7dd41274e112a2359a9",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/jmoiron/sqlx",
+			"repository": "https://github.com/jmoiron/sqlx",
+			"revision": "54aec3fd91a2b2129ffaca0d652b8a9223ee2d9e",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/julienschmidt/httprouter",
+			"repository": "https://github.com/julienschmidt/httprouter",
+			"revision": "77a895ad01ebc98a4dc95d8355bc825ce80a56f6",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/lib/pq",
+			"repository": "https://github.com/lib/pq",
+			"revision": "83c4f410d0aed80a0f44bac6a576a7f2435791f3",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mreiferson/go-snappystream",
+			"repository": "https://github.com/mreiferson/go-snappystream",
+			"revision": "028eae7ab5c4c9e2d1cb4c4ca1e53259bbe7e504",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/nsqio/go-nsq",
+			"repository": "https://github.com/nsqio/go-nsq",
+			"revision": "2118015c120962edc5d03325c680daf3163a8b5f",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/opsee/awscan",
+			"repository": "ssh://github.com/opsee/awscan",
+			"revision": "7392c8bd0338d1e9d11f17df00049d5943f0ef70",
+			"branch": "mark/new-sdk"
+		},
+		{
+			"importpath": "github.com/opsee/notification-templates/dist/go/slack",
+			"repository": "https://github.com/opsee/notification-templates",
+			"revision": "3c4ee6a25dd4b2623c4afd427f89e45acca39130",
+			"branch": "master",
+			"path": "/dist/go/slack"
+		},
+		{
+			"importpath": "github.com/opsee/opseetp",
+			"repository": "https://github.com/opsee/opseetp",
+			"revision": "68407a5ee5c7d6dff2e340d62c602f2ae35f8bf8",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/satori/go.uuid",
+			"repository": "https://github.com/satori/go.uuid",
+			"revision": "d41af8bb6a7704f00bc3b7cba9355ae6a5a80048",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/sirupsen/logrus",
+			"repository": "https://github.com/sirupsen/logrus",
+			"revision": "a22723f16efea2e89b7bd67d10ed077c47c14eb4",
+			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/crypto/bcrypt",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
+			"branch": "master",
+			"path": "/bcrypt"
+		},
+		{
+			"importpath": "golang.org/x/crypto/blowfish",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "beef0f4390813b96e8e68fd78570396d0f4751fc",
+			"branch": "master",
+			"path": "/blowfish"
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "4f2fc6c1e69d41baf187332ee08fbd2b296f21ed",
+			"branch": "master",
+			"path": "/context"
+		},
+		{
+			"importpath": "golang.org/x/net/websocket",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "4f2fc6c1e69d41baf187332ee08fbd2b296f21ed",
+			"branch": "master",
+			"path": "/websocket"
+		},
+		{
+			"importpath": "gopkg.in/airbrake/gobrake.v2",
+			"repository": "https://gopkg.in/airbrake/gobrake.v2",
+			"revision": "e5efbe565a5a63d8aafee7efa2f4fdd7f42b7bd3",
+			"branch": "master"
+		},
+		{
+			"importpath": "gopkg.in/gemnasium/logrus-airbrake-hook.v2",
+			"repository": "https://gopkg.in/gemnasium/logrus-airbrake-hook.v2",
+			"revision": "31e6fd4bd5a98d8ee7673d24bc54ec73c31810dd",
+			"branch": "master"
+		}
+	]
+}
