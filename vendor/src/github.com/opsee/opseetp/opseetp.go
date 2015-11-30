@@ -118,13 +118,14 @@ func (r *Router) wrapHandler(decoders []DecodeFunc, handler HandleFunc) httprout
 				return
 			}
 
-			encoder := r.getEncoder(req.Header.Get("accept"))
+			contentType, encoder := r.getEncoder(req.Header.Get("accept"))
 			encodedResponse, err := encoder(rf.response)
 			if err != nil {
 				serverError(rw, req, http.StatusInternalServerError, err)
 				return
 			}
 
+			rw.Header().Set("Content-Type", contentType)
 			rw.WriteHeader(rf.status)
 			rw.Write(encodedResponse)
 			log.WithFields(log.Fields{
@@ -141,18 +142,19 @@ func (r *Router) wrapHandler(decoders []DecodeFunc, handler HandleFunc) httprout
 	}
 }
 
-func (r *Router) getEncoder(accept string) EncodeFunc {
+func (r *Router) getEncoder(accept string) (string, EncodeFunc) {
 	contentTypes := strings.Split(accept, ",")
 	for _, v := range contentTypes {
 		ct := strings.Split(v, ";")
 		if ct[0] != "" {
-			enc, ok := r.encoders[strings.TrimSpace(ct[0])]
+			contentType := strings.TrimSpace(ct[0])
+			enc, ok := r.encoders[contentType]
 			if ok {
-				return enc
+				return contentType, enc
 			}
 		}
 	}
-	return r.encoders[defaultAccept]
+	return defaultContentType, r.encoders[defaultAccept]
 }
 
 func serverError(rw http.ResponseWriter, req *http.Request, status int, err error) {

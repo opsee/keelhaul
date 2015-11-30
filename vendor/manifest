@@ -211,7 +211,7 @@
 		{
 			"importpath": "github.com/opsee/opseetp",
 			"repository": "https://github.com/opsee/opseetp",
-			"revision": "68407a5ee5c7d6dff2e340d62c602f2ae35f8bf8",
+			"revision": "298ac8acb031a19b3bcec1848ed86284287b4316",
 			"branch": "master"
 		},
 		{
