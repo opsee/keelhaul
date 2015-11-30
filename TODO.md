@@ -1,4 +1,7 @@
 - use awscan master branch
+- put bastion config in etcd
+- add keelhaul to motorn streaming backend
+- remove bartnet /bastions swagger
 - update bastion config to use keelhaul for vpn auth
 - remove customer-id header from fieri requests
 - swagger
