@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/vaper"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/websocket"
 	"time"
@@ -28,10 +29,17 @@ func (s *service) websocketHandler() func(ws *websocket.Conn) {
 				return
 			}
 
-			user := &com.User{}
-			err = decodeBasicToken(token, user)
+			decodedToken, err := vaper.Unmarshal(token)
 			if err != nil {
-				log.WithError(err).Error("failed to decode basic user token")
+				log.Errorf("couldn't unmarshal token: %s", token)
+				return
+			}
+
+			user := &com.User{}
+			err = decodedToken.Reify(user)
+			if err != nil {
+				log.WithError(err).Error("failed to decode bearer user token")
+				return
 			}
 
 			sub := s.bus.Subscribe(user)

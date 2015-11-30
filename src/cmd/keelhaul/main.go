@@ -8,7 +8,9 @@ import (
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/service"
 	"github.com/opsee/keelhaul/store"
+	"github.com/opsee/vaper"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"os"
 	"time"
 )
@@ -21,12 +23,20 @@ func main() {
 		BastionConfigKey:  mustEnvString("BASTION_CONFIG_KEY"),
 		BastionCFTemplate: mustEnvString("BASTION_CF_TEMPLATE"),
 		VapeEndpoint:      mustEnvString("VAPE_ENDPOINT"),
+		VapeKey:           mustEnvString("VAPE_KEYFILE"),
 		FieriEndpoint:     mustEnvString("FIERI_ENDPOINT"),
 		SlackEndpoint:     mustEnvString("SLACK_ENDPOINT"),
 		NSQDAddr:          mustEnvString("NSQD_HOST"),
 		NSQTopic:          mustEnvString("NSQ_TOPIC"),
 		NSQLookupds:       mustEnvString("NSQLOOKUPD_ADDRS"),
 	}
+
+	key, err := ioutil.ReadFile(cfg.VapeKey)
+	if err != nil {
+		log.Error("Unable to read keyfile:", cfg.VapeKey)
+		log.Fatal(err)
+	}
+	vaper.Init(key)
 
 	db, err := store.NewPostgres(cfg.PostgresConn)
 	if err != nil {

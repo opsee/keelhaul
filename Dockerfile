@@ -28,6 +28,7 @@ COPY run.sh /
 COPY target/linux/amd64/bin/* /
 COPY migrations /migrations
 COPY etc/bastion-cf.template /
+COPY vape.test.key /
 
 EXPOSE 9092
 CMD ["/keelhaul"]

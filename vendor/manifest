@@ -148,6 +148,12 @@
 			"path": "/pkg/types"
 		},
 		{
+			"importpath": "github.com/dvsekhvalnov/jose2go",
+			"repository": "https://github.com/dvsekhvalnov/jose2go",
+			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/go-ini/ini",
 			"repository": "https://github.com/go-ini/ini",
 			"revision": "2e44421e256d82ebbf3d4d4fcabe8930b905eff3",
@@ -212,6 +218,12 @@
 			"importpath": "github.com/opsee/opseetp",
 			"repository": "https://github.com/opsee/opseetp",
 			"revision": "298ac8acb031a19b3bcec1848ed86284287b4316",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/opsee/vaper",
+			"repository": "https://github.com/opsee/vaper",
+			"revision": "14fea3b4439014c4429adf260e17ccd9ef5b6dae",
 			"branch": "master"
 		},
 		{

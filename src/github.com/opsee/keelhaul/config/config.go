@@ -7,6 +7,7 @@ type Config struct {
 	BastionConfigKey  string
 	BastionCFTemplate string
 	VapeEndpoint      string
+	VapeKey           string
 	FieriEndpoint     string
 	SlackEndpoint     string
 	NSQDAddr          string
