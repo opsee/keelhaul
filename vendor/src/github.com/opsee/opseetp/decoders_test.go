@@ -37,12 +37,12 @@ func (u *user) Validate() error {
 
 func TestCORS(t *testing.T) {
 	router := NewHTTPRouter(context.Background())
-	corsDecoder := CORSRegexpDecodeFunc(
+	router.CORS(
 		[]string{"GET"},
 		[]string{`http://(\w+\.)?(opsy\.co|opsee\.co|opsee)`},
 	)
 
-	router.Handle("GET", "/", []DecodeFunc{corsDecoder}, func(ctx context.Context) (interface{}, int, error) {
+	router.Handle("GET", "/", []DecodeFunc{}, func(ctx context.Context) (interface{}, int, error) {
 		return map[string]interface{}{"ok": true}, http.StatusOK, nil
 	})
 

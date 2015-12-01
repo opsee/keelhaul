@@ -22,6 +22,7 @@ type Router struct {
 	encoders   map[string]EncodeFunc
 	encoderMut *sync.Mutex
 	timeout    time.Duration
+	corsFunc   DecodeFunc
 }
 
 type MessageResponse struct {
@@ -81,6 +82,10 @@ func (r *Router) Encoder(contentType string, encodeFunc EncodeFunc) {
 	r.encoders[contentType] = encodeFunc
 }
 
+func (r *Router) CORS(methods, origins []string) {
+	r.corsFunc = CORSRegexpDecodeFunc(methods, origins)
+}
+
 func (r *Router) Timeout(timeout time.Duration) {
 	r.timeout = timeout
 }
@@ -96,6 +101,14 @@ func (r *Router) wrapHandler(decoders []DecodeFunc, handler HandleFunc) httprout
 
 		ctx, cancel = context.WithTimeout(r.rootCtx, r.timeout)
 		defer cancel()
+
+		if r.corsFunc != nil {
+			ctx, status, err = r.corsFunc(ctx, rw, req, params)
+			if err != nil {
+				serverError(rw, req, status, err)
+				return
+			}
+		}
 
 		for _, decoder := range decoders {
 			ctx, status, err = decoder(ctx, rw, req, params)

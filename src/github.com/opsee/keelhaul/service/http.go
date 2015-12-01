@@ -18,6 +18,11 @@ const (
 func (s *service) StartHTTP(addr string) {
 	router := opseetp.NewHTTPRouter(context.Background())
 
+	router.CORS(
+		[]string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+		[]string{`https?://localhost:8080`, `https://(\w+\.)?(opsy\.co|opsee\.co|opsee\.com)`},
+	)
+
 	// swagger
 	router.Handle("GET", "/api/swagger.json", []opseetp.DecodeFunc{}, s.swagger())
 
@@ -38,10 +43,6 @@ func (s *service) StartHTTP(addr string) {
 
 func decoders(userType interface{}, requestType interface{}) []opseetp.DecodeFunc {
 	return []opseetp.DecodeFunc{
-		opseetp.CORSRegexpDecodeFunc(
-			[]string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
-			[]string{`https?://localhost:8080`, `https://(\w+\.)?(opsy\.co|opsee\.co|opsee\.com)`},
-		),
 		opseetp.AuthorizationDecodeFunc(userKey, userType),
 		opseetp.RequestDecodeFunc(requestKey, requestType),
 	}
