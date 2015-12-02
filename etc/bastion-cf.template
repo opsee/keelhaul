@@ -177,7 +177,7 @@
                 ]
             }
           }
-        }
+        },
         "BastionInstance": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
