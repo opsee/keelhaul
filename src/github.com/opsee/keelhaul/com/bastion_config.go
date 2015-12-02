@@ -19,20 +19,20 @@ type BastionConfig struct {
 
 const userdata = `#cloud-config
 write_files:
-  path: "/etc/opsee/bastion-env.sh"
-  permissions: "0644"
-  owner: root
-  content: |
-    CUSTOMER_ID={{.User.CustomerID}}
-    CUSTOMER_EMAIL={{.User.Email}}
-    BASTION_VERSION={{.Config.Tag}}
-    BASTION_ID={{.Bastion.ID}}
-    VPN_PASSWORD={{.Bastion.Password}}
-    VPN_REMOTE={{.Config.VPNRemote}}
-    DNS_SERVER={{.Config.DNSServer}}
-    NSQD_HOST={{.Config.NSQDHost}}
-    BARTNET_HOST={{.Config.BartnetHost}}
-    BASTION_AUTH_TYPE={{.Config.AuthType}}
+  - path: "/etc/opsee/bastion-env.sh"
+    permissions: "0644"
+    owner: root
+    content: |
+      CUSTOMER_ID={{.User.CustomerID}}
+      CUSTOMER_EMAIL={{.User.Email}}
+      BASTION_VERSION={{.Config.Tag}}
+      BASTION_ID={{.Bastion.ID}}
+      VPN_PASSWORD={{.Bastion.Password}}
+      VPN_REMOTE={{.Config.VPNRemote}}
+      DNS_SERVER={{.Config.DNSServer}}
+      NSQD_HOST={{.Config.NSQDHost}}
+      BARTNET_HOST={{.Config.BartnetHost}}
+      BASTION_AUTH_TYPE={{.Config.AuthType}}
 coreos:
   update:
     reboot-strategy: etcd-lock
