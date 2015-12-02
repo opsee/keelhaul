@@ -59,7 +59,7 @@ func (s *service) websocketHandler() func(ws *websocket.Conn) {
 					err = websocket.JSON.Send(ws, bmsg)
 					if err != nil {
 						log.WithError(err).Error("can't sent to websocket")
-						break
+						return
 					}
 
 				case t := <-heartbeat.C:
@@ -73,7 +73,7 @@ func (s *service) websocketHandler() func(ws *websocket.Conn) {
 					})
 					if err != nil {
 						log.WithError(err).Error("can't sent to websocket")
-						break
+						return
 					}
 				}
 			}
