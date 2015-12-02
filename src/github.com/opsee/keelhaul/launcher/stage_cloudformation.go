@@ -311,34 +311,43 @@ func (s createStack) Execute(launch *Launch) {
 		return
 	}
 
+	stackParameters := []*cloudformation.Parameter{
+		{
+			ParameterKey:   aws.String("ImageId"),
+			ParameterValue: aws.String(launch.imageID),
+		},
+		{
+			ParameterKey:   aws.String("InstanceType"),
+			ParameterValue: aws.String(launch.Bastion.InstanceType),
+		},
+		{
+			ParameterKey:   aws.String("UserData"),
+			ParameterValue: aws.String(base64.StdEncoding.EncodeToString(userdata)),
+		},
+		{
+			ParameterKey:   aws.String("VpcId"),
+			ParameterValue: aws.String(launch.Bastion.VPCID),
+		},
+		{
+			ParameterKey:   aws.String("SubnetId"),
+			ParameterValue: aws.String(launch.Bastion.SubnetID),
+		},
+	}
+
+	if launch.User.Admin {
+		stackParameters = append(stackParameters, &cloudformation.Parameter{
+			ParameterKey:   aws.String("KeyName"),
+			ParameterValue: aws.String("bastion-testing"),
+		})
+	}
+
 	stack, err := launch.cloudformationClient.CreateStack(&cloudformation.CreateStackInput{
 		StackName:    aws.String("opsee-bastion-" + launch.Bastion.ID),
 		TemplateBody: aws.String(string(templateBytes)),
 		Capabilities: []*string{
 			aws.String("CAPABILITY_IAM"),
 		},
-		Parameters: []*cloudformation.Parameter{
-			{
-				ParameterKey:   aws.String("ImageId"),
-				ParameterValue: aws.String(launch.imageID),
-			},
-			{
-				ParameterKey:   aws.String("InstanceType"),
-				ParameterValue: aws.String(launch.Bastion.InstanceType),
-			},
-			{
-				ParameterKey:   aws.String("UserData"),
-				ParameterValue: aws.String(base64.StdEncoding.EncodeToString(userdata)),
-			},
-			{
-				ParameterKey:   aws.String("VpcId"),
-				ParameterValue: aws.String(launch.Bastion.VPCID),
-			},
-			{
-				ParameterKey:   aws.String("SubnetId"),
-				ParameterValue: aws.String(launch.Bastion.SubnetID),
-			},
-		},
+		Parameters: stackParameters,
 		Tags: []*cloudformation.Tag{
 			{
 				Key:   aws.String("Name"),
