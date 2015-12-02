@@ -26,6 +26,11 @@ var BastionStates = []string{
 	BastionStateDeleted,
 }
 
+type BastionUser struct {
+	Username string
+	Key      string
+}
+
 type Bastion struct {
 	ID           string         `json:"id"`
 	CustomerID   string         `json:"customer_id" db:"customer_id"`
