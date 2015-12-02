@@ -53,8 +53,44 @@ func (s *service) websocketHandler() func(ws *websocket.Conn) {
 			heartbeat := time.NewTicker(10 * time.Second)
 			defer heartbeat.Stop()
 
+			bastionBeat := time.NewTicker(30 * time.Second)
+			defer bastionBeat.Stop()
+
 			for {
 				select {
+				case <-bastionBeat.C:
+					var msg *com.Message
+
+					bastionsResponse, err := s.ListBastions(user, &ListBastionsRequest{
+						State: []string{"active"},
+					})
+
+					if err != nil {
+						log.WithError(err).Error("failed listing bastions")
+
+						msg = &com.Message{
+							Command:    "bastions",
+							State:      "error",
+							CustomerID: user.CustomerID,
+							Message:    "error listing bastions",
+						}
+					} else {
+						msg = &com.Message{
+							Command:    "bastions",
+							State:      "ok",
+							CustomerID: user.CustomerID,
+							Attributes: map[string]interface{}{
+								"bastions": bastionsResponse.Bastions,
+							},
+						}
+					}
+
+					err = websocket.JSON.Send(ws, msg)
+					if err != nil {
+						log.WithError(err).Error("can't sent to websocket")
+						return
+					}
+
 				case bmsg := <-sub.Chan:
 					err = websocket.JSON.Send(ws, bmsg)
 					if err != nil {
@@ -79,6 +115,10 @@ func (s *service) websocketHandler() func(ws *websocket.Conn) {
 			}
 		}
 	}
+}
+
+func (s *service) bastions() {
+
 }
 
 func decodeBasicToken(token string, user *com.User) error {
