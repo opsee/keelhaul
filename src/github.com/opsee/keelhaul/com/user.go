@@ -13,13 +13,13 @@ var (
 )
 
 type User struct {
-	ID         int    `json:"id"`
-	CustomerID string `json:"customer_id"`
-	Email      string `json:"email"`
-	Name       string `json:"name"`
-	Verified   bool   `json:"verified"`
-	Admin      bool   `json:"admin"`
-	Active     bool   `json:"active"`
+	ID         int    `json:"id" token:"id"`
+	CustomerID string `json:"customer_id" token:"customer_id"`
+	Email      string `json:"email" token:"email"`
+	Name       string `json:"name" token:"name"`
+	Verified   bool   `json:"verified" token:"verified"`
+	Admin      bool   `json:"admin" token:"admin"`
+	Active     bool   `json:"active" token:"active"`
 }
 
 func (user *User) Validate() error {

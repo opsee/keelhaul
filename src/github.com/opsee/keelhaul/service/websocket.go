@@ -42,6 +42,11 @@ func (s *service) websocketHandler() func(ws *websocket.Conn) {
 				return
 			}
 
+			log.WithFields(log.Fields{
+				"customer-id": user.CustomerID,
+				"user-id":     user.ID,
+			}).Info("authenticated user via websocket")
+
 			sub := s.bus.Subscribe(user)
 			defer s.bus.Unsubscribe(sub)
 
