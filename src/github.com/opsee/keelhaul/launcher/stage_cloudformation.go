@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
+	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -70,7 +71,9 @@ func (s getLatestImageID) Execute(launch *Launch) {
 	// reason, customers can't find our AMIs like this even when they're public.
 	creds := credentials.NewChainCredentials(
 		[]credentials.Provider{
-			&ec2rolecreds.EC2RoleProvider{},
+			&ec2rolecreds.EC2RoleProvider{
+				Client: ec2metadata.New(session.New()),
+			},
 			&credentials.EnvProvider{},
 		},
 	)
