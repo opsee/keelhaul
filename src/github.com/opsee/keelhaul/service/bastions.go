@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/opsee/keelhaul/com"
 	"github.com/opsee/keelhaul/store"
+	log "github.com/sirupsen/logrus"
 )
 
 type LaunchBastionsRequest struct {
@@ -148,12 +149,15 @@ func (s *service) AuthenticateBastion(request *AuthenticateBastionRequest) (*Aut
 		State: "active",
 	})
 
+	log.Infof("bastion id: %s - password: %s", request.ID, request.Password)
 	if err != nil {
+		log.WithError(err).Error("not found in database")
 		return nil, errUnauthorized
 	}
 
 	err = response.Bastion.Authenticate(request.Password)
 	if err != nil {
+		log.WithError(err).Error("bcrypt comparison failed")
 		return nil, errUnauthorized
 	}
 
