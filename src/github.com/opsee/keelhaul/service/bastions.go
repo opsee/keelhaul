@@ -150,13 +150,13 @@ func (s *service) AuthenticateBastion(request *AuthenticateBastionRequest) (*Aut
 	})
 
 	if err != nil {
-		log.WithError(err).Error("not found in database")
+		log.WithError(err).WithField("bastion_id", request.ID).Error("not found in database")
 		return nil, errUnauthorized
 	}
 
 	err = response.Bastion.Authenticate(request.Password)
 	if err != nil {
-		log.WithError(err).Error("bcrypt comparison failed")
+		log.WithError(err).WithField("bastion_id", request.ID).Error("bcrypt comparison failed")
 		return nil, errUnauthorized
 	}
 
