@@ -203,14 +203,14 @@
 		},
 		{
 			"importpath": "github.com/opsee/awscan",
-			"repository": "ssh://github.com/opsee/awscan",
-			"revision": "7392c8bd0338d1e9d11f17df00049d5943f0ef70",
-			"branch": "mark/new-sdk"
+			"repository": "https://github.com/opsee/awscan",
+			"revision": "02799cf3038690403e5b0b7617c7bd2e996624ab",
+			"branch": "mark/tests"
 		},
 		{
 			"importpath": "github.com/opsee/notification-templates/dist/go/slack",
 			"repository": "https://github.com/opsee/notification-templates",
-			"revision": "3c4ee6a25dd4b2623c4afd427f89e45acca39130",
+			"revision": "7b30a86afe19914d8949dd38f192d948ee05f87e",
 			"branch": "master",
 			"path": "/dist/go/slack"
 		},

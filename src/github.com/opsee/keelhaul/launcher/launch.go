@@ -112,6 +112,10 @@ func (launch *Launch) NotifyVars() interface{} {
 		CustomerID string `json:"customer_id"`
 		Region     string `json:"region"`
 		ImageID    string `json:"image_id"`
+		VPCID      string `json:"vpc_id"`
+		SubnetID   string `json:"subnet_id"`
+		InstanceID string `json:"instance_id"`
+		GroupID    string `json:"group_id"`
 		Error      string `json:"error"`
 	}{
 		VPCEnvironment: launch.VPCEnvironment,
@@ -120,6 +124,10 @@ func (launch *Launch) NotifyVars() interface{} {
 		CustomerID:     launch.User.CustomerID,
 		Region:         *launch.session.Config.Region,
 		ImageID:        launch.Bastion.ImageID,
+		VPCID:          launch.Bastion.VPCID,
+		SubnetID:       launch.Bastion.SubnetID,
+		InstanceID:     launch.Bastion.InstanceID,
+		GroupID:        launch.Bastion.GroupID,
 	}
 
 	if launch.Err != nil {

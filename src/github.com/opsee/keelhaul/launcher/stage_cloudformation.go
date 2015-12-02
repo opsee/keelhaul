@@ -129,7 +129,7 @@ type createTopic struct{}
 
 func (s createTopic) Execute(launch *Launch) {
 	topic, err := launch.snsClient.CreateTopic(&sns.CreateTopicInput{
-		Name: aws.String("opsee-bastion-launch-sns-" + launch.Bastion.ID),
+		Name: aws.String(launch.Bastion.StackName()),
 	})
 
 	if err != nil {
@@ -532,7 +532,42 @@ func parseCloudFormation(cf *cfMessage, message string) error {
 type bastionActiveState struct{}
 
 func (s bastionActiveState) Execute(launch *Launch) {
-	err := launch.db.UpdateBastion(launch.Bastion.Activate())
+	var (
+		instanceID *string
+		groupID    *string
+		nextToken  *string
+	)
+
+	for {
+		stackResourcesOutput, err := launch.cloudformationClient.ListStackResources(&cloudformation.ListStackResourcesInput{
+			StackName: aws.String(launch.Bastion.StackName()),
+			NextToken: nextToken,
+		})
+
+		if err != nil {
+			launch.error(err, &com.Message{
+				Command: commandLaunchBastion,
+				Message: "failed retrieving launched stack info",
+			})
+			return
+		}
+
+		for _, s := range stackResourcesOutput.StackResourceSummaries {
+			switch *s.ResourceType {
+			case "AWS::EC2::Instance":
+				instanceID = s.PhysicalResourceId
+			case "AWS::EC2::SecurityGroup":
+				groupID = s.PhysicalResourceId
+			}
+		}
+
+		nextToken = stackResourcesOutput.NextToken
+		if nextToken == nil {
+			break
+		}
+	}
+
+	err := launch.db.UpdateBastion(launch.Bastion.Activate(*instanceID, *groupID))
 	if err != nil {
 		launch.error(err, &com.Message{
 			Command: commandLaunchBastion,

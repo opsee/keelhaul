@@ -31,6 +31,8 @@ type Bastion struct {
 	UserID       int       `json:"user_id" db:"user_id"`
 	StackID      string    `json:"stack_id" db:"stack_id"`
 	ImageID      string    `json:"image_id" db:"image_id"`
+	InstanceID   string    `json:"instance_id" db:"instance_id"`
+	GroupID      string    `json:"group_id" db:"group_id"`
 	InstanceType string    `json:"instance_type" db:"instance_type"`
 	VPCID        string    `json:"vpc_id" db:"vpc_id"`
 	SubnetID     string    `json:"subnet_id" db:"subnet_id"`
@@ -66,6 +68,10 @@ func NewBastion(userID int, customerID, vpcID, subnetID, instanceType string) (*
 	}, nil
 }
 
+func (bastion *Bastion) StackName() string {
+	return "opsee-bastion-" + bastion.ID
+}
+
 func (bastion *Bastion) Fail() *Bastion {
 	bastion.State = BastionStateFailed
 	return bastion
@@ -78,8 +84,10 @@ func (bastion *Bastion) Launch(stackID, imageID string) *Bastion {
 	return bastion
 }
 
-func (bastion *Bastion) Activate() *Bastion {
+func (bastion *Bastion) Activate(instanceID, groupID string) *Bastion {
 	bastion.State = BastionStateActive
+	bastion.InstanceID = instanceID
+	bastion.GroupID = groupID
 	return bastion
 }
 

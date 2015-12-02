@@ -95,7 +95,8 @@ func (pg *Postgres) putBastion(q sqlx.Queryer, bastion *com.Bastion) error {
 func (pg *Postgres) updateBastion(x sqlx.Ext, bastion *com.Bastion) error {
 	_, err := sqlx.NamedExec(
 		x,
-		`update bastions set stack_id = :stack_id, image_id = :image_id, state = :state where id = :id`,
+		`update bastions set stack_id = :stack_id, image_id = :image_id,
+		 instance_id = :instance_id, group_id = :group_id, state = :state where id = :id`,
 		bastion,
 	)
 
