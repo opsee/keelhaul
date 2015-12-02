@@ -70,8 +70,8 @@ func (s getLatestImageID) Execute(launch *Launch) {
 	// reason, customers can't find our AMIs like this even when they're public.
 	creds := credentials.NewChainCredentials(
 		[]credentials.Provider{
-			&credentials.EnvProvider{},
 			&ec2rolecreds.EC2RoleProvider{},
+			&credentials.EnvProvider{},
 		},
 	)
 
