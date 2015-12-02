@@ -166,6 +166,18 @@
                 "Roles": [{"Ref": "BastionRole"}]
             }
         },
+        "BastionNetworkInterface": {
+          "Type": "AWS::EC2::NetworkInterface",
+          "Properties": {
+            "SubnetId": {
+                "Fn::If": [
+                    "NoSubnet",
+                    {"Ref": "AWS::NoValue"},
+                    {"Ref":"SubnetId"}
+                ]
+            }
+          }
+        }
         "BastionInstance": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
@@ -179,14 +191,13 @@
                         {"Ref":"KeyName"}
                     ]
                 },
-                "SubnetId": {
-                    "Fn::If": [
-                        "NoSubnet",
-                        {"Ref": "AWS::NoValue"},
-                        {"Ref":"SubnetId"}
-                    ]
-                },
-                "AssociatePublicIpAddress": true,
+                "NetworkInterfaces": [
+                  {
+                    "NetworkInterfaceId": { "Ref": "BastionNetworkInterface" },
+                    "DeviceIndex": "0",
+                    "AssociatePublicIpAddress": true
+                  }
+                ],
                 "SecurityGroupIds": [{"Ref": "BastionSecurityGroup"}],
                 "UserData": {"Ref":"UserData"}
             }
