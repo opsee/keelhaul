@@ -2,6 +2,7 @@ package com
 
 import (
 	"crypto/rand"
+	"database/sql"
 	"encoding/base64"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -26,22 +27,22 @@ var BastionStates = []string{
 }
 
 type Bastion struct {
-	ID           string    `json:"id"`
-	CustomerID   string    `json:"customer_id" db:"customer_id"`
-	UserID       int       `json:"user_id" db:"user_id"`
-	StackID      string    `json:"stack_id" db:"stack_id"`
-	ImageID      string    `json:"image_id" db:"image_id"`
-	InstanceID   string    `json:"instance_id" db:"instance_id"`
-	GroupID      string    `json:"group_id" db:"group_id"`
-	InstanceType string    `json:"instance_type" db:"instance_type"`
-	VPCID        string    `json:"vpc_id" db:"vpc_id"`
-	SubnetID     string    `json:"subnet_id" db:"subnet_id"`
-	State        string    `json:"state"`
-	Connected    bool      `json:"connected"`
-	Password     string    `json:"-"`
-	PasswordHash string    `json:"-" db:"password_hash"`
-	CreatedAt    time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+	ID           string         `json:"id"`
+	CustomerID   string         `json:"customer_id" db:"customer_id"`
+	UserID       int            `json:"user_id" db:"user_id"`
+	StackID      sql.NullString `json:"stack_id" db:"stack_id"`
+	ImageID      sql.NullString `json:"image_id" db:"image_id"`
+	InstanceID   sql.NullString `json:"instance_id" db:"instance_id"`
+	GroupID      sql.NullString `json:"group_id" db:"group_id"`
+	InstanceType string         `json:"instance_type" db:"instance_type"`
+	VPCID        string         `json:"vpc_id" db:"vpc_id"`
+	SubnetID     string         `json:"subnet_id" db:"subnet_id"`
+	State        string         `json:"state"`
+	Connected    bool           `json:"connected"`
+	Password     string         `json:"-"`
+	PasswordHash string         `json:"-" db:"password_hash"`
+	CreatedAt    time.Time      `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at" db:"updated_at"`
 }
 
 func NewBastion(userID int, customerID, vpcID, subnetID, instanceType string) (*Bastion, error) {
@@ -65,6 +66,10 @@ func NewBastion(userID int, customerID, vpcID, subnetID, instanceType string) (*
 		State:        BastionStateNew,
 		VPCID:        vpcID,
 		SubnetID:     subnetID,
+		StackID:      sql.NullString{},
+		ImageID:      sql.NullString{},
+		InstanceID:   sql.NullString{},
+		GroupID:      sql.NullString{},
 	}, nil
 }
 
@@ -79,15 +84,15 @@ func (bastion *Bastion) Fail() *Bastion {
 
 func (bastion *Bastion) Launch(stackID, imageID string) *Bastion {
 	bastion.State = BastionStateLaunching
-	bastion.StackID = stackID
-	bastion.ImageID = imageID
+	bastion.StackID = sql.NullString{stackID, stackID != ""}
+	bastion.ImageID = sql.NullString{imageID, imageID != ""}
 	return bastion
 }
 
 func (bastion *Bastion) Activate(instanceID, groupID string) *Bastion {
 	bastion.State = BastionStateActive
-	bastion.InstanceID = instanceID
-	bastion.GroupID = groupID
+	bastion.InstanceID = sql.NullString{instanceID, instanceID != ""}
+	bastion.GroupID = sql.NullString{groupID, groupID != ""}
 	return bastion
 }
 

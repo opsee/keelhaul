@@ -123,11 +123,11 @@ func (launch *Launch) NotifyVars() interface{} {
 		UserEmail:      launch.User.Email,
 		CustomerID:     launch.User.CustomerID,
 		Region:         *launch.session.Config.Region,
-		ImageID:        launch.Bastion.ImageID,
 		VPCID:          launch.Bastion.VPCID,
 		SubnetID:       launch.Bastion.SubnetID,
-		InstanceID:     launch.Bastion.InstanceID,
-		GroupID:        launch.Bastion.GroupID,
+		ImageID:        launch.Bastion.ImageID.String,
+		InstanceID:     launch.Bastion.InstanceID.String,
+		GroupID:        launch.Bastion.GroupID.String,
 	}
 
 	if launch.Err != nil {

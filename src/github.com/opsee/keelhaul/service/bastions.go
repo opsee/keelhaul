@@ -149,7 +149,6 @@ func (s *service) AuthenticateBastion(request *AuthenticateBastionRequest) (*Aut
 		State: "active",
 	})
 
-	log.Infof("bastion id: %s - password: %s", request.ID, request.Password)
 	if err != nil {
 		log.WithError(err).Error("not found in database")
 		return nil, errUnauthorized
