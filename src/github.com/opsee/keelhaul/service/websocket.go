@@ -56,36 +56,17 @@ func (s *service) websocketHandler() func(ws *websocket.Conn) {
 			bastionBeat := time.NewTicker(30 * time.Second)
 			defer bastionBeat.Stop()
 
+			// initial messages
+			err = websocket.JSON.Send(ws, s.bastionMessage(user))
+			if err != nil {
+				log.WithError(err).Error("can't sent to websocket")
+				return
+			}
+
 			for {
 				select {
 				case <-bastionBeat.C:
-					var msg *com.Message
-
-					bastionsResponse, err := s.ListBastions(user, &ListBastionsRequest{
-						State: []string{"active"},
-					})
-
-					if err != nil {
-						log.WithError(err).Error("failed listing bastions")
-
-						msg = &com.Message{
-							Command:    "bastions",
-							State:      "error",
-							CustomerID: user.CustomerID,
-							Message:    "error listing bastions",
-						}
-					} else {
-						msg = &com.Message{
-							Command:    "bastions",
-							State:      "ok",
-							CustomerID: user.CustomerID,
-							Attributes: map[string]interface{}{
-								"bastions": bastionsResponse.Bastions,
-							},
-						}
-					}
-
-					err = websocket.JSON.Send(ws, msg)
+					err = websocket.JSON.Send(ws, s.bastionMessage(user))
 					if err != nil {
 						log.WithError(err).Error("can't sent to websocket")
 						return
@@ -117,8 +98,34 @@ func (s *service) websocketHandler() func(ws *websocket.Conn) {
 	}
 }
 
-func (s *service) bastions() {
+func (s *service) bastionMessage(user *com.User) *com.Message {
+	var msg *com.Message
 
+	bastionsResponse, err := s.ListBastions(user, &ListBastionsRequest{
+		State: []string{"active"},
+	})
+
+	if err != nil {
+		log.WithError(err).Error("failed listing bastions")
+
+		msg = &com.Message{
+			Command:    "bastions",
+			State:      "error",
+			CustomerID: user.CustomerID,
+			Message:    "error listing bastions",
+		}
+	} else {
+		msg = &com.Message{
+			Command:    "bastions",
+			State:      "ok",
+			CustomerID: user.CustomerID,
+			Attributes: map[string]interface{}{
+				"bastions": bastionsResponse.Bastions,
+			},
+		}
+	}
+
+	return msg
 }
 
 func decodeBasicToken(token string, user *com.User) error {

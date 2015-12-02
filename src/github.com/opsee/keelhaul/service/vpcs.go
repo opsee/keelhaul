@@ -3,11 +3,11 @@ package service
 import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/keelhaul/util"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -64,6 +64,37 @@ func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsR
 			MaxRetries:  aws.Int(11),
 		}))
 
+		var (
+			nextToken    *string
+			vpcCounts    = make(map[string]int)
+			subnetCounts = make(map[string]int)
+		)
+
+		for {
+			instancesOutput, err := ec2Client.DescribeInstances(&ec2.DescribeInstancesInput{
+				MaxResults: aws.Int64(1000),
+				NextToken:  nextToken,
+			})
+
+			if err != nil {
+				return nil, err
+			}
+
+			nextToken = instancesOutput.NextToken
+			for _, res := range instancesOutput.Reservations {
+				for _, instance := range res.Instances {
+					if *instance.State.Name != ec2.InstanceStateNameTerminated {
+						vpcCounts[*instance.VpcId]++
+						subnetCounts[*instance.SubnetId]++
+					}
+				}
+			}
+
+			if nextToken == nil {
+				break
+			}
+		}
+
 		vpcOutput, err := ec2Client.DescribeVpcs(nil)
 		if err != nil {
 			return nil, err
@@ -71,8 +102,14 @@ func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsR
 
 		vpcs := make([]*com.VPC, len(vpcOutput.Vpcs))
 		for vi, v := range vpcOutput.Vpcs {
+			tags := make([]*com.Tag, len(v.Tags))
+			copyTags(tags, v.Tags)
+
 			vpc := &com.VPC{}
-			awsutil.Copy(vpc, v)
+			util.Copy(vpc, v)
+
+			vpc.Tags = tags
+			vpc.InstanceCount = vpcCounts[*vpc.VpcId]
 			vpcs[vi] = vpc
 		}
 
@@ -83,8 +120,14 @@ func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsR
 
 		subnets := make([]*com.Subnet, len(subnetOutput.Subnets))
 		for si, s := range subnetOutput.Subnets {
+			tags := make([]*com.Tag, len(s.Tags))
+			copyTags(tags, s.Tags)
+
 			subnet := &com.Subnet{}
-			awsutil.Copy(subnet, s)
+			util.Copy(subnet, s)
+
+			subnet.Tags = tags
+			subnet.InstanceCount = subnetCounts[*subnet.SubnetId]
 			subnets[si] = subnet
 		}
 
@@ -129,4 +172,13 @@ func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsR
 	return &ScanVPCsResponse{
 		Regions: vpcRegions,
 	}, nil
+}
+
+func copyTags(tags []*com.Tag, eTags []*ec2.Tag) {
+	for i, t := range eTags {
+		tags[i] = &com.Tag{
+			Key:   t.Key,
+			Value: t.Value,
+		}
+	}
 }

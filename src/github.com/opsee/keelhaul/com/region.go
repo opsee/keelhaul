@@ -1,5 +1,7 @@
 package com
 
+import ()
+
 type Region struct {
 	CustomerID         string    `json:"-" db:"customer_id"`
 	Region             string    `json:"region"`
@@ -15,6 +17,8 @@ type VPC struct {
 	IsDefault       *bool   `json:"is_default"`
 	State           *string `json:"state"`
 	VpcId           *string `json:"vpc_id"`
+	Tags            []*Tag  `json:"tags"`
+	InstanceCount   int     `json:"instance_count"`
 }
 
 type Subnet struct {
@@ -26,4 +30,11 @@ type Subnet struct {
 	State                   *string `json:"state"`
 	SubnetId                *string `json:"subnet_id"`
 	VpcId                   *string `json:"vpc_id"`
+	Tags                    []*Tag  `json:"tags"`
+	InstanceCount           int     `json:"instance_count"`
+}
+
+type Tag struct {
+	Key   *string `json:"key"`
+	Value *string `json:"value"`
 }
