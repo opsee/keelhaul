@@ -17,8 +17,7 @@ type BastionConfig struct {
 	ModifiedIndex uint64 `json:"modified_index"`
 }
 
-const userdata = `
-#cloud-config
+const userdata = `#cloud-config
 write_files:
   path: "/etc/opsee/bastion-env.sh"
   permissions: "0644"
