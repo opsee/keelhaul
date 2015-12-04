@@ -32,25 +32,26 @@ type BastionUser struct {
 }
 
 type Bastion struct {
-	ID           string         `json:"id"`
-	CustomerID   string         `json:"customer_id" db:"customer_id"`
-	UserID       int            `json:"user_id" db:"user_id"`
-	StackID      sql.NullString `json:"stack_id" db:"stack_id"`
-	ImageID      sql.NullString `json:"image_id" db:"image_id"`
-	InstanceID   sql.NullString `json:"instance_id" db:"instance_id"`
-	GroupID      sql.NullString `json:"group_id" db:"group_id"`
-	InstanceType string         `json:"instance_type" db:"instance_type"`
-	VPCID        string         `json:"vpc_id" db:"vpc_id"`
-	SubnetID     string         `json:"subnet_id" db:"subnet_id"`
-	State        string         `json:"state"`
-	Connected    bool           `json:"connected"`
-	Password     string         `json:"-"`
-	PasswordHash string         `json:"-" db:"password_hash"`
-	CreatedAt    time.Time      `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time      `json:"updated_at" db:"updated_at"`
+	ID            string         `json:"id"`
+	CustomerID    string         `json:"customer_id" db:"customer_id"`
+	UserID        int            `json:"user_id" db:"user_id"`
+	StackID       sql.NullString `json:"stack_id" db:"stack_id"`
+	ImageID       sql.NullString `json:"image_id" db:"image_id"`
+	InstanceID    sql.NullString `json:"instance_id" db:"instance_id"`
+	GroupID       sql.NullString `json:"group_id" db:"group_id"`
+	InstanceType  string         `json:"instance_type" db:"instance_type"`
+	SubnetRouting string         `json:"subnet_routing" db:"subnet_routing"`
+	VPCID         string         `json:"vpc_id" db:"vpc_id"`
+	SubnetID      string         `json:"subnet_id" db:"subnet_id"`
+	State         string         `json:"state"`
+	Connected     bool           `json:"connected"`
+	Password      string         `json:"-"`
+	PasswordHash  string         `json:"-" db:"password_hash"`
+	CreatedAt     time.Time      `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at" db:"updated_at"`
 }
 
-func NewBastion(userID int, customerID, vpcID, subnetID, instanceType string) (*Bastion, error) {
+func NewBastion(userID int, customerID, vpcID, subnetID, subnetRouting, instanceType string) (*Bastion, error) {
 	pwbytes := make([]byte, 18)
 	if _, err := rand.Read(pwbytes); err != nil {
 		return nil, err
@@ -63,18 +64,19 @@ func NewBastion(userID int, customerID, vpcID, subnetID, instanceType string) (*
 	}
 
 	return &Bastion{
-		Password:     pw,
-		PasswordHash: string(pwhash),
-		CustomerID:   customerID,
-		UserID:       userID,
-		InstanceType: instanceType,
-		State:        BastionStateNew,
-		VPCID:        vpcID,
-		SubnetID:     subnetID,
-		StackID:      sql.NullString{},
-		ImageID:      sql.NullString{},
-		InstanceID:   sql.NullString{},
-		GroupID:      sql.NullString{},
+		Password:      pw,
+		PasswordHash:  string(pwhash),
+		CustomerID:    customerID,
+		UserID:        userID,
+		InstanceType:  instanceType,
+		SubnetRouting: subnetRouting,
+		State:         BastionStateNew,
+		VPCID:         vpcID,
+		SubnetID:      subnetID,
+		StackID:       sql.NullString{},
+		ImageID:       sql.NullString{},
+		InstanceID:    sql.NullString{},
+		GroupID:       sql.NullString{},
 	}, nil
 }
 

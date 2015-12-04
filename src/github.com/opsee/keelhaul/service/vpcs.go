@@ -5,9 +5,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/opsee/keelhaul/com"
-	"github.com/opsee/keelhaul/util"
+	"github.com/opsee/keelhaul/scanner"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -58,103 +57,18 @@ func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsR
 	vpcRegions := make([]*com.Region, len(request.Regions))
 
 	for ri, region := range request.Regions {
-		ec2Client := ec2.New(session.New(&aws.Config{
+		r, err := scanner.ScanRegion(region, session.New(&aws.Config{
 			Credentials: creds,
 			Region:      aws.String(region),
 			MaxRetries:  aws.Int(11),
 		}))
 
-		var (
-			nextToken    *string
-			vpcCounts    = make(map[string]int)
-			subnetCounts = make(map[string]int)
-		)
-
-		for {
-			instancesOutput, err := ec2Client.DescribeInstances(&ec2.DescribeInstancesInput{
-				MaxResults: aws.Int64(1000),
-				NextToken:  nextToken,
-			})
-
-			if err != nil {
-				return nil, err
-			}
-
-			nextToken = instancesOutput.NextToken
-			for _, res := range instancesOutput.Reservations {
-				for _, instance := range res.Instances {
-					if *instance.State.Name != ec2.InstanceStateNameTerminated {
-						vpcCounts[*instance.VpcId]++
-						subnetCounts[*instance.SubnetId]++
-					}
-				}
-			}
-
-			if nextToken == nil {
-				break
-			}
-		}
-
-		vpcOutput, err := ec2Client.DescribeVpcs(nil)
 		if err != nil {
+			logger.WithError(err).Errorf("error scanning region: %s", region)
 			return nil, err
 		}
 
-		vpcs := make([]*com.VPC, len(vpcOutput.Vpcs))
-		for vi, v := range vpcOutput.Vpcs {
-			tags := make([]*com.Tag, len(v.Tags))
-			copyTags(tags, v.Tags)
-
-			vpc := &com.VPC{}
-			util.Copy(vpc, v)
-
-			vpc.Tags = tags
-			vpc.InstanceCount = vpcCounts[*vpc.VpcId]
-			vpcs[vi] = vpc
-		}
-
-		subnetOutput, err := ec2Client.DescribeSubnets(nil)
-		if err != nil {
-			return nil, err
-		}
-
-		subnets := make([]*com.Subnet, len(subnetOutput.Subnets))
-		for si, s := range subnetOutput.Subnets {
-			tags := make([]*com.Tag, len(s.Tags))
-			copyTags(tags, s.Tags)
-
-			subnet := &com.Subnet{}
-			util.Copy(subnet, s)
-
-			subnet.Tags = tags
-			subnet.InstanceCount = subnetCounts[*subnet.SubnetId]
-			subnets[si] = subnet
-		}
-
-		accountOutput, err := ec2Client.DescribeAccountAttributes(&ec2.DescribeAccountAttributesInput{
-			AttributeNames: []*string{
-				aws.String("supported-platforms"),
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		supportedPlatforms := make([]*string, 0)
-		for _, a := range accountOutput.AccountAttributes {
-			if *a.AttributeName == "supported-platforms" {
-				for _, v := range a.AttributeValues {
-					supportedPlatforms = append(supportedPlatforms, v.AttributeValue)
-				}
-			}
-		}
-
-		vpcRegions[ri] = &com.Region{
-			Region:             region,
-			SupportedPlatforms: supportedPlatforms,
-			VPCs:               vpcs,
-			Subnets:            subnets,
-		}
+		vpcRegions[ri] = r
 	}
 
 	// let's save this data, but we'll have to ignore errors
@@ -172,13 +86,4 @@ func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsR
 	return &ScanVPCsResponse{
 		Regions: vpcRegions,
 	}, nil
-}
-
-func copyTags(tags []*com.Tag, eTags []*ec2.Tag) {
-	for i, t := range eTags {
-		tags[i] = &com.Tag{
-			Key:   t.Key,
-			Value: t.Value,
-		}
-	}
 }
