@@ -58,11 +58,11 @@ func (s getBastionConfig) Execute(launch *Launch) {
 	})
 }
 
-type imageList []*ec2.Image
+type ImageList []*ec2.Image
 
-func (l imageList) Len() int           { return len(l) }
-func (l imageList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
-func (l imageList) Less(i, j int) bool { return *l[i].Name > *l[j].Name }
+func (l ImageList) Len() int           { return len(l) }
+func (l ImageList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
+func (l ImageList) Less(i, j int) bool { return *l[i].Name > *l[j].Name }
 
 type getLatestImageID struct{}
 
@@ -119,7 +119,7 @@ func (s getLatestImageID) Execute(launch *Launch) {
 	}
 
 	// sort in descending order
-	sort.Sort(imageList(imageOutput.Images))
+	sort.Sort(ImageList(imageOutput.Images))
 	launch.imageID = *imageOutput.Images[0].ImageId
 	launch.event(&com.Message{
 		State:   stateInProgress,

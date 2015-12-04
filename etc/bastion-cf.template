@@ -5,7 +5,7 @@
         "InstanceType" : {
             "Description" : "EC2 Instance type (m3.medium, etc).",
             "Type": "String",
-            "Default": "m3.medium",
+            "Default": "t2.micro",
             "ConstraintDescription" : "Must be a valid EC2 instance type."
         },
         "ImageId" : {
@@ -31,6 +31,12 @@
             "Description" : "The subnet in which to deploy the instance (optional)",
             "Default": "",
             "Type": "String"
+        },
+        "AssociatePublicIpAddress": {
+          "Description": "Whether or not a public IP address should be associated (optional)",
+          "Default": "True",
+          "Type": "String",
+          "AllowedValues": ["True", "False"]
         }
     },
     "Conditions": {
@@ -45,6 +51,12 @@
                 {"Ref": "SubnetId"},
                 ""
             ]
+        },
+        "AssociatePublicIp": {
+          "Fn::Equals": [
+            {"Ref": "AssociatePublicIpAddress"},
+            "True"
+          ]
         }
     },
     "Resources" : {
@@ -179,20 +191,44 @@
                         {"Ref":"KeyName"}
                     ]
                 },
-                "NetworkInterfaces": [
-                  {
-                    "DeviceIndex": "0",
-                    "AssociatePublicIpAddress": true,
-                    "SubnetId": {
-                        "Fn::If": [
-                            "NoSubnet",
-                            {"Ref": "AWS::NoValue"},
-                            {"Ref":"SubnetId"}
-                        ]
-                    }
-                  }
-                ],
-                "SecurityGroupIds": [{"Ref": "BastionSecurityGroup"}],
+                "NetworkInterfaces": {
+                  "Fn::If": [
+                    "AssociatePublicIp",
+                    [{
+                      "DeviceIndex": "0",
+                      "AssociatePublicIpAddress": true,
+                      "SubnetId": {
+                          "Fn::If": [
+                              "NoSubnet",
+                              {"Ref": "AWS::NoValue"},
+                              {"Ref": "SubnetId"}
+                          ]
+                      },
+                      "GroupSet": [
+                        {"Ref": "BastionSecurityGroup"}
+                      ]
+                    }],
+                    {"Ref": "AWS::NoValue"}
+                  ]
+                },
+                "SubnetId": {
+                  "Fn::If": [
+                    "AssociatePublicIp",
+                    {"Ref": "AWS::NoValue"},
+                    {"Fn::If": [
+                        "NoSubnet",
+                        {"Ref": "AWS::NoValue"},
+                        {"Ref": "SubnetId"}
+                    ]}
+                  ]
+                },
+                "SecurityGroupIds": {
+                  "Fn::If": [
+                    "AssociatePublicIp",
+                    {"Ref": "AWS::NoValue"},
+                    [{"Ref": "BastionSecurityGroup"}]
+                  ]
+                },
                 "UserData": {"Ref":"UserData"}
             }
         }
