@@ -34,9 +34,9 @@ write_files:
       BARTNET_HOST={{.Config.BartnetHost}}
       BASTION_AUTH_TYPE={{.Config.AuthType}}
 {{ with .BastionUsers }}users:{{ range . }}
-		- name: {{ .Username }}
-		  ssh-authorized-keys:
-				- {{ .Key }}{{ end }}{{ end }}
+  - name: {{ .Username }}
+    ssh-authorized-keys:
+      - {{ .Key }}{{ end }}{{ end }}
 coreos:
   update:
     reboot-strategy: off
