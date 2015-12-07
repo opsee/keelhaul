@@ -23,9 +23,10 @@ type LaunchRegion struct {
 }
 
 type LaunchVPC struct {
-	ID        string `json:"id"`
-	SubnetID  string `json:"subnet_id"`
-	BastionID string `json:"bastion_id"`
+	ID            string `json:"id"`
+	SubnetID      string `json:"subnet_id"`
+	SubnetRouting string `json:"subnet_routing"`
+	BastionID     string `json:"bastion_id"`
 }
 
 type LaunchBastionsResponse struct {
@@ -52,7 +53,20 @@ func (r *LaunchBastionsRequest) Validate() error {
 
 		for _, vpc := range reg.VPCs {
 			if vpc.ID == "" {
-				return fmt.Errorf("vpc_id is missing.")
+				return fmt.Errorf("vpc id is required.")
+			}
+
+			if vpc.SubnetID == "" {
+				return fmt.Errorf("vpc subnet_id is required.")
+			}
+
+			if vpc.SubnetRouting == "" {
+				return fmt.Errorf("vpc subnet_routing is required.")
+			}
+
+			_, ok := com.RoutingPreference[vpc.SubnetRouting]
+			if !ok {
+				return fmt.Errorf("vpc subnet_routing: %s is not valid.", vpc.SubnetRouting)
 			}
 		}
 	}
@@ -79,7 +93,7 @@ func (s *service) LaunchBastions(user *com.User, request *LaunchBastionsRequest)
 		})
 
 		for _, vpc := range region.VPCs {
-			launch, err := s.launcher.LaunchBastion(sess, user, vpc.ID, vpc.SubnetID, request.InstanceSize)
+			launch, err := s.launcher.LaunchBastion(sess, user, vpc.ID, vpc.SubnetID, vpc.SubnetRouting, request.InstanceSize)
 			if err != nil {
 				// multiple region launch isn't going to be atomic rn
 				return nil, err

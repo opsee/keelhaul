@@ -314,6 +314,11 @@ func (s createStack) Execute(launch *Launch) {
 		return
 	}
 
+	associateIP := "False"
+	if launch.Bastion.SubnetRouting == com.RoutingStatePublic {
+		associateIP = "True"
+	}
+
 	stackParameters := []*cloudformation.Parameter{
 		{
 			ParameterKey:   aws.String("ImageId"),
@@ -334,6 +339,10 @@ func (s createStack) Execute(launch *Launch) {
 		{
 			ParameterKey:   aws.String("SubnetId"),
 			ParameterValue: aws.String(launch.Bastion.SubnetID),
+		},
+		{
+			ParameterKey:   aws.String("AssociatePublicIpAddress"),
+			ParameterValue: aws.String(associateIP),
 		},
 	}
 

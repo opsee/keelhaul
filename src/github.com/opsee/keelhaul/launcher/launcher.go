@@ -11,7 +11,7 @@ import (
 )
 
 type Launcher interface {
-	LaunchBastion(*session.Session, *com.User, string, string, string) (*Launch, error)
+	LaunchBastion(*session.Session, *com.User, string, string, string, string) (*Launch, error)
 }
 
 type launcher struct {
@@ -32,12 +32,12 @@ func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bu
 	}
 }
 
-func (l *launcher) LaunchBastion(sess *session.Session, user *com.User, vpcID, subnetID string, instanceType string) (*Launch, error) {
+func (l *launcher) LaunchBastion(sess *session.Session, user *com.User, vpcID, subnetID, subnetRouting, instanceType string) (*Launch, error) {
 	launch := NewLaunch(l.db, l.router, l.etcd, l.config, sess, user)
 	go l.watchLaunch(launch)
 
 	// this is done synchronously so that we can return the bastion id
-	err := launch.CreateBastion(vpcID, subnetID, instanceType)
+	err := launch.CreateBastion(vpcID, subnetID, subnetRouting, instanceType)
 	if err != nil {
 		return nil, err
 	}

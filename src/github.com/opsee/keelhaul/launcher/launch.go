@@ -138,8 +138,8 @@ func (launch *Launch) NotifyVars() interface{} {
 }
 
 // these events happen synchronously in the request cycle, so they are not part of launch stages
-func (launch *Launch) CreateBastion(vpcID, subnetID, instanceType string) error {
-	bastion, err := com.NewBastion(launch.User.ID, launch.User.CustomerID, vpcID, subnetID, instanceType)
+func (launch *Launch) CreateBastion(vpcID, subnetID, subnetRouting, instanceType string) error {
+	bastion, err := com.NewBastion(launch.User.ID, launch.User.CustomerID, vpcID, subnetID, subnetRouting, instanceType)
 	if err != nil {
 		launch.error(err, &com.Message{
 			Command: commandLaunchBastion,
