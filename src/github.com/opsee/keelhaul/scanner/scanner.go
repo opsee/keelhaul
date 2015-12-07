@@ -41,15 +41,15 @@ func ScanRegion(region string, session *session.Session) (*com.Region, error) {
 		nextToken = instancesOutput.NextToken
 		for _, res := range instancesOutput.Reservations {
 			for _, instance := range res.Instances {
-				if *instance.State.Name != ec2.InstanceStateNameTerminated {
-					vips, ok := vpcIPs[*instance.VpcId]
+				if aws.StringValue(instance.State.Name) != ec2.InstanceStateNameTerminated {
+					vips, ok := vpcIPs[aws.StringValue(instance.VpcId)]
 					if !ok {
 						vips = make([]string, 0)
 					}
 
-					vpcIPs[*instance.VpcId] = append(vips, *instance.PrivateIpAddress)
-					vpcCounts[*instance.VpcId]++
-					subnetCounts[*instance.SubnetId]++
+					vpcIPs[aws.StringValue(instance.VpcId)] = append(vips, aws.StringValue(instance.PrivateIpAddress))
+					vpcCounts[aws.StringValue(instance.VpcId)]++
+					subnetCounts[aws.StringValue(instance.SubnetId)]++
 				}
 			}
 		}
@@ -66,14 +66,14 @@ func ScanRegion(region string, session *session.Session) (*com.Region, error) {
 
 	for _, igw := range internetGatewaysOutput.InternetGateways {
 		for _, igwatt := range igw.Attachments {
-			st := *igwatt.State
+			st := aws.StringValue(igwatt.State)
 			if st == attachmentStatusAvailable || st == ec2.AttachmentStatusAttached {
-				vigw, ok := vpcGateways[*igwatt.VpcId]
+				vigw, ok := vpcGateways[aws.StringValue(igwatt.VpcId)]
 				if !ok {
 					vigw = make([]*ec2.InternetGateway, 0)
 				}
 
-				vpcGateways[*igwatt.VpcId] = append(vigw, igw)
+				vpcGateways[aws.StringValue(igwatt.VpcId)] = append(vigw, igw)
 			}
 		}
 	}
@@ -84,12 +84,12 @@ func ScanRegion(region string, session *session.Session) (*com.Region, error) {
 	}
 
 	for _, rt := range routeTablesOutput.RouteTables {
-		vrts, ok := vpcRouteTables[*rt.VpcId]
+		vrts, ok := vpcRouteTables[aws.StringValue(rt.VpcId)]
 		if !ok {
 			vrts = make([]*ec2.RouteTable, 0)
 		}
 
-		vpcRouteTables[*rt.VpcId] = append(vrts, rt)
+		vpcRouteTables[aws.StringValue(rt.VpcId)] = append(vrts, rt)
 	}
 
 	vpcOutput, err := ec2Client.DescribeVpcs(nil)
@@ -106,7 +106,7 @@ func ScanRegion(region string, session *session.Session) (*com.Region, error) {
 		util.Copy(vpc, v)
 
 		vpc.Tags = tags
-		vpc.InstanceCount = vpcCounts[*vpc.VpcId]
+		vpc.InstanceCount = vpcCounts[aws.StringValue(vpc.VpcId)]
 		vpcs[vi] = vpc
 	}
 
@@ -124,9 +124,9 @@ func ScanRegion(region string, session *session.Session) (*com.Region, error) {
 		util.Copy(subnet, s)
 
 		subnet.Tags = tags
-		subnet.InstanceCount = subnetCounts[*subnet.SubnetId]
+		subnet.InstanceCount = subnetCounts[aws.StringValue(subnet.SubnetId)]
 
-		routing, err := determineRouting(s, vpcRouteTables[*s.VpcId], vpcIPs[*s.VpcId], vpcGateways[*s.VpcId])
+		routing, err := determineRouting(s, vpcRouteTables[aws.StringValue(s.VpcId)], vpcIPs[aws.StringValue(s.VpcId)], vpcGateways[aws.StringValue(s.VpcId)])
 		if err != nil {
 			return nil, err
 		}
@@ -149,7 +149,7 @@ func ScanRegion(region string, session *session.Session) (*com.Region, error) {
 
 	supportedPlatforms := make([]*string, 0)
 	for _, a := range accountOutput.AccountAttributes {
-		if *a.AttributeName == "supported-platforms" {
+		if aws.StringValue(a.AttributeName) == "supported-platforms" {
 			for _, v := range a.AttributeValues {
 				supportedPlatforms = append(supportedPlatforms, v.AttributeValue)
 			}
@@ -165,7 +165,6 @@ func ScanRegion(region string, session *session.Session) (*com.Region, error) {
 }
 
 func determineRouting(subnet *ec2.Subnet, routeTables []*ec2.RouteTable, instanceIPs []string, gateways []*ec2.InternetGateway) (string, error) {
-	// RouteTable.Associations.{Main(*bool),RouteTableId(*string),SubnetId(*string)}
 	var (
 		associatedTable *ec2.RouteTable
 		mainTable       *ec2.RouteTable
@@ -176,11 +175,11 @@ func determineRouting(subnet *ec2.Subnet, routeTables []*ec2.RouteTable, instanc
 
 	for _, rt := range routeTables {
 		for _, asso := range rt.Associations {
-			if *asso.Main {
+			if aws.BoolValue(asso.Main) {
 				mainTable = rt
 			}
 
-			if asso.SubnetId != nil && *asso.SubnetId == *subnet.SubnetId {
+			if asso.SubnetId != nil && aws.StringValue(asso.SubnetId) == aws.StringValue(subnet.SubnetId) {
 				associatedTable = rt
 			}
 		}
@@ -190,17 +189,26 @@ func determineRouting(subnet *ec2.Subnet, routeTables []*ec2.RouteTable, instanc
 		associatedTable = mainTable
 	}
 
+	// there is no main table or associated tables, so who knows what is going on
+	if associatedTable == nil {
+		return com.RoutingStatePrivate, nil
+	}
+
 	for _, route := range associatedTable.Routes {
-		if *route.State != ec2.RouteStateActive {
+		if aws.StringValue(route.State) != ec2.RouteStateActive {
 			continue
 		}
 
-		if *route.DestinationCidrBlock == theInternet {
+		if route.DestinationCidrBlock == nil {
+			continue
+		}
+
+		if aws.StringValue(route.DestinationCidrBlock) == theInternet {
 			internetRoute = route
 			continue
 		}
 
-		cidrs = append(cidrs, *route.DestinationCidrBlock)
+		cidrs = append(cidrs, aws.StringValue(route.DestinationCidrBlock))
 	}
 
 	// no route to 0.0.0.0/0, so we're private. no need to check if
@@ -241,7 +249,7 @@ func determineRouting(subnet *ec2.Subnet, routeTables []*ec2.RouteTable, instanc
 	// since the only case we'll need a public ip is if we're going through an internet gateway
 	if internetRoute.GatewayId != nil {
 		for _, igw := range gateways {
-			if *internetRoute.GatewayId == *igw.InternetGatewayId {
+			if aws.StringValue(internetRoute.GatewayId) == aws.StringValue(igw.InternetGatewayId) {
 				return com.RoutingStatePublic, nil
 			}
 		}
