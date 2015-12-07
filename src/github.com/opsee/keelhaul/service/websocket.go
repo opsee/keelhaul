@@ -92,6 +92,9 @@ func (s *service) websocketHandler() func(ws *websocket.Conn) {
 						log.WithError(err).Error("can't sent to websocket")
 						return
 					}
+				case <-time.After(time.Minute):
+					log.Warn("websocket timed out")
+					return
 				}
 			}
 		}
