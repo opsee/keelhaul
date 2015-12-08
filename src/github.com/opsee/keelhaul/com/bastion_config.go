@@ -35,6 +35,8 @@ write_files:
       BASTION_AUTH_TYPE={{.Config.AuthType}}
 {{ with .BastionUsers }}users:{{ range . }}
   - name: {{ .Username }}
+    groups:
+      - sudo
     ssh-authorized-keys:
       - {{ .Key }}{{ end }}{{ end }}
 coreos:

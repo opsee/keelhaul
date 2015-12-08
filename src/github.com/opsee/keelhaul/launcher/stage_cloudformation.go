@@ -346,13 +346,6 @@ func (s createStack) Execute(launch *Launch) {
 		},
 	}
 
-	if launch.User.Admin {
-		stackParameters = append(stackParameters, &cloudformation.Parameter{
-			ParameterKey:   aws.String("KeyName"),
-			ParameterValue: aws.String("bastion-testing"),
-		})
-	}
-
 	stack, err := launch.cloudformationClient.CreateStack(&cloudformation.CreateStackInput{
 		StackName:    aws.String("opsee-bastion-" + launch.Bastion.ID),
 		TemplateBody: aws.String(string(templateBytes)),
