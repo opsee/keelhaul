@@ -6,8 +6,9 @@ import (
 	//"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
 	//"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/golang/protobuf/proto/jsonpb"
-	"github.com/opsee/keelhaul/checker_proto"
+	"github.com/golang/protobuf/proto"
+	"github.com/opsee/keelhaul/auth"
+	"github.com/opsee/keelhaul/checker"
 	"github.com/opsee/keelhaul/util"
 	"math/rand"
 	"net/http"
@@ -80,7 +81,7 @@ func (requestPool *RequestPool) DrainRequests(send bool) *map[string]*Response {
 		if send {
 			go func() {
 				client := &http.Client{}
-				resp, err = client.Do(Requests[k])
+				resp, err = client.Do(Requests[k].Request)
 				if err != nil {
 					Responses[k] = &Response{Err: err.Err, ResponseValue: resp}
 					return
@@ -140,7 +141,7 @@ func (elbFactory *ELBCheckFactory) ProduceCheckRequest(awsobj *AWSObject) []*Cre
 
 	requests := make([]CreateCheckRequest, len(lb.ListenerDescriptions))
 
-	for listenerDescription := range lb.ListenerDescriptions {
+	for i, listenerDescription := range lb.ListenerDescriptions {
 		switch listenerDescription.Protocol {
 
 		case "HTTP":
@@ -167,6 +168,39 @@ func (elbFactory *ELBCheckFactory) ProduceCheckRequest(awsobj *AWSObject) []*Cre
 				CheckSpec: spec,
 			}
 
+			pb, err := proto.Marshal(check)
+			if err != nil {
+				fmt.Errorf("Couldn't Marshal check")
+				continue
+			}
+
+			auth := &auth.BastionAuthTokenRequest{
+				TokenType:        tokenType,
+				CustomerEmail:    os.Getenv("CUSTOMER_EMAIL"),
+				CustomerPassword: os.Getenv("CUSTOMER_PASSWORD"),
+				CustomerID:       os.Getenv("CUSTOMER_ID"),
+				TargetEndpoint:   os.Getenv("BARTNET_HOST") + "/checks",
+				AuthEndpoint:     os.Getenv("BASTION_AUTH_ENDPOINT"),
+			}
+
+			if token, err := cache.GetToken(request); err != nil || token == nil {
+				logrus.WithFields(logrus.Fields{"service": "checker", "Error": err.Error()}).Fatal("Error check request creation")
+				continue
+			} else {
+				theauth, header := token.AuthHeader()
+				logrus.WithFields(logrus.Fields{"service": "checker", "Auth header:": theauth + " " + header}).Info("Creating check request.")
+
+				req, err := http.NewRequest("POST", request.TargetEndpoint, nil)
+				if err != nil {
+					logrus.WithFields(logrus.Fields{"service": "checker", "error": err, "response": resp}).Warn("Couldn't sychronize checks")
+					continue
+				} else {
+					req.Header.Set("Content-Type", "application/x-protobuf")
+					req.Header.Set(theauth, header)
+
+					requests[i] = &CreateCheckRequest{Request: req}
+				}
+			}
 		}
 	}
 }
