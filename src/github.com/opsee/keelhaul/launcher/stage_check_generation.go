@@ -3,10 +3,11 @@ package launcher
 import (
 	"bytes"
 	"fmt"
-	"github.com/aws/aws-sdk-go/service/ec2"
+	//"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
-	"github.com/aws/aws-sdk-go/service/rds"
-	pb "github.com/opsee/bastion_proto"
+	//"github.com/aws/aws-sdk-go/service/rds"
+	"github.com/golang/protobuf/proto/jsonpb"
+	"github.com/opsee/keelhaul/checker_proto"
 	"github.com/opsee/keelhaul/util"
 	"math/rand"
 	"net/http"
@@ -50,13 +51,17 @@ type AWSObject struct {
 	Object     []byte
 }
 
+type CreateCheckRequest struct {
+	Request *http.Request
+}
+
 type Response struct {
 	Err           error
 	ResponseValue *http.Response
 }
 
 type RequestPool struct {
-	Requests  map[string]*http.Request
+	Requests  map[string]*CreateCheckRequest
 	Responses map[string]*Response
 }
 
@@ -125,6 +130,43 @@ type CheckRequestFactory interface {
 
 type ELBCheckFactory struct{}
 
-func (elbFactory *ELBCheckFactory) ProduceCheckRequest(awsobj *AWSObject) {
-	// produce check request
+func (elbFactory *ELBCheckFactory) ProduceCheckRequest(awsobj *AWSObject) []*CreateCheckRequest {
+
+	lb := elb.LoadBalancerDescription{}
+
+	// unmarshal awsobj based on objtype (prombly json)
+
+	// get listeners
+
+	requests := make([]CreateCheckRequest, len(lb.ListenerDescriptions))
+
+	for listenerDescription := range lb.ListenerDescriptions {
+		switch listenerDescription.Protocol {
+
+		case "HTTP":
+			target := &checker_proto.Target{
+				Name: lb.LoadBalancerName,
+				Type: "elb",
+			}
+
+			httpcheck := &checker_proto.HttpCheck{
+				Name:     util.RandomString(5, "asdfglkhpoiuqwerAEMWX"),
+				Path:     "/",
+				Protocol: listenDescription.Protocol,
+				Port:     listenerDesription.InstancePort,
+				Verb:     "GET",
+				Headers:  []*Header{},
+			}
+
+			spec, _ := checker_proto.MarshalAny
+
+			check = &Check{
+				Id:        "",
+				Interval:  30,
+				Target:    target,
+				CheckSpec: spec,
+			}
+
+		}
+	}
 }
