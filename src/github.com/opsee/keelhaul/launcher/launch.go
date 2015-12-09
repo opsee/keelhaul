@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
 	etcd "github.com/coreos/etcd/client"
+	"github.com/opsee/keelhaul/checkgen"
 	"github.com/opsee/keelhaul/com"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/router"
@@ -25,6 +26,7 @@ type Stage interface {
 type Launch struct {
 	Bastion                  *com.Bastion
 	User                     *com.User
+	CheckRequestFactory      *checkgen.CheckRequestFactory
 	EventChan                chan *Event
 	Err                      error
 	VPCEnvironment           *VPCEnvironment
@@ -97,6 +99,7 @@ func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, cfg 
 		snsClient:            sns.New(sess),
 		cloudformationClient: cloudformation.New(sess),
 		connectAttempts:      float64(1),
+		CheckRequestFactory:  checkgen.NewCheckRequestFactoryWithConfig(cfg, user),
 	}
 }
 
@@ -107,6 +110,7 @@ func (launch *Launch) UserID() int {
 func (launch *Launch) NotifyVars() interface{} {
 	vars := struct {
 		*VPCEnvironment
+		Error        string `json:"error"`
 		UserID       int    `json:"user_id"`
 		UserEmail    string `json:"user_email"`
 		CustomerID   string `json:"customer_id"`
@@ -118,7 +122,7 @@ func (launch *Launch) NotifyVars() interface{} {
 		GroupID      string `json:"group_id"`
 		InstanceName string `json:"instance_name"`
 		GroupName    string `json:"group_name"`
-		Error        string `json:"error"`
+		CheckCount   int    `json:"check_count"`
 	}{
 		VPCEnvironment: launch.VPCEnvironment,
 		UserID:         launch.User.ID,
@@ -130,8 +134,7 @@ func (launch *Launch) NotifyVars() interface{} {
 		ImageID:        launch.Bastion.ImageID.String,
 		InstanceID:     launch.Bastion.InstanceID.String,
 		GroupID:        launch.Bastion.GroupID.String,
-		InstanceName:   launch.Bastion.Name(),
-		GroupName:      "Opsee Bastion Security Group",
+		CheckCount:     launch.CheckRequestFactory.CheckRequestPool.SuccessfulRequests,
 	}
 
 	if launch.Err != nil {
@@ -187,6 +190,7 @@ func (launch *Launch) Launch() {
 	launch.stage(bastionActiveState{})
 	go launch.stage(vpcDiscovery{})
 	go launch.stage(waitConnect{})
+	//TODO add stage post launch
 }
 
 func (launch *Launch) State() string {

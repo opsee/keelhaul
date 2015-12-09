@@ -19,7 +19,7 @@ func (s *service) StartHTTP(addr string) {
 
 	router.CORS(
 		[]string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
-		[]string{`https?://localhost:8080`, `https://(\w+\.)?(opsy\.co|opsee\.co|opsee\.com)`},
+		[]string{`https?://localhost:8080`, `https?://localhost:8008`, `https://(\w+\.)?(opsy\.co|opsee\.co|opsee\.com)`},
 	)
 
 	// swagger

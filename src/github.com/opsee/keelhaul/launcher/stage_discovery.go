@@ -109,12 +109,14 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 				launch.VPCEnvironment.AutoscalingGroupCount++
 
 			case awscan.LoadBalancerType:
+				launch.CheckRequestFactory.ProduceCheckRequests(&com.AWSObject{Type: messageType, Object: event.Result})
 				launch.VPCEnvironment.LoadBalancerCount++
 			}
 
 			launch.logger.WithField("resource-type", messageType).Info("resource discovery")
 		}
 	}
+	close(launch.CheckRequestFactory.CheckRequestPool.RequestsChan)
 
 	if launch.VPCEnvironment.tooManyErrors() {
 		launch.error(launch.VPCEnvironment.LastError, &com.Message{

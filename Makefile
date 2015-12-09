@@ -4,7 +4,7 @@ build:
 	gb build
 
 clean:
-	rm -fr target bin pkg
+	rm -fr target bin pkg proto/bastion_proto
 
 fmt:
 	@gofmt -w ./
@@ -22,7 +22,7 @@ docker: fmt
 		--link lookupd:lookupd \
 		--env-file ./$(APPENV) \
 		-e "TARGETS=linux/amd64" \
-		-v `pwd`:/build quay.io/opsee/build-go \
+		-v `pwd`:/build quay.io/opsee/build-go:go15 \
 		&& docker build -t quay.io/opsee/keelhaul .
 
 run: docker

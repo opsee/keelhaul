@@ -13,4 +13,6 @@ type Config struct {
 	NSQDAddr          string
 	NSQTopic          string
 	NSQLookupds       string
+	BartnetEndpoint   string
+	BeavisEndpoint    string
 }
