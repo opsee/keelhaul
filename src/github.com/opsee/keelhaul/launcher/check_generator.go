@@ -3,9 +3,7 @@ package launcher
 import (
 	"bytes"
 	"fmt"
-	//"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
-	//"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/golang/protobuf/proto"
 	"github.com/opsee/keelhaul/auth"
 	"github.com/opsee/keelhaul/checker"
@@ -57,7 +55,7 @@ type CreateCheckRequest struct {
 	Request *http.Request
 }
 
-type Response struct {
+type CreateCheckResponse struct {
 	Err           error
 	ResponseValue *http.Response
 }
@@ -76,23 +74,22 @@ func (requestPool *RequestPool) AddRequest(id string, req *http.Request) (*http.
 	return req, nil
 }
 
-// todo, make sure drain is complete, actually use like a pool?
-func (requestPool *RequestPool) DrainRequests(send bool) *map[string]*Response {
-	for k := range Requests {
+func (requestPool *RequestPool) DrainRequests(send bool) *map[string]*CheckRequestResponse {
+	for k := range requestPool.Requests {
 		if send {
 			go func() {
 				client := &http.Client{}
-				resp, err = client.Do(Requests[k].Request)
+				resp, err = client.Do(requestPool.Requests[k].Request)
 				if err != nil {
-					Responses[k] = &Response{Err: err.Err, ResponseValue: resp}
+					Responses[k] = &CheckRequestResponse{Err: err.Err, ResponseValue: resp}
 					return
 				} else {
-					Responses[k] = &Response{Err: nil, ResponseValue: resp}
-					delete(Requests, k)
+					Responses[k] = &CheckRequestResponse{Err: nil, ResponseValue: resp}
+					delete(requestPool.Requests, k)
 				}
 			}()
 		} else {
-			delete(Requests, k)
+			delete(requestPool.Requests, k)
 		}
 	}
 
