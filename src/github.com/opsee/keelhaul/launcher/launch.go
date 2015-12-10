@@ -25,6 +25,7 @@ type Stage interface {
 type Launch struct {
 	Bastion                  *com.Bastion
 	User                     *com.User
+	CheckRequestFactory      *CheckRequestFactory
 	EventChan                chan *Event
 	Err                      error
 	VPCEnvironment           *VPCEnvironment
@@ -48,7 +49,6 @@ type Launch struct {
 	setQueueAttributesOutput *sqs.SetQueueAttributesOutput
 	createStackOutput        *cloudformation.CreateStackOutput
 	connectAttempts          float64
-	checkRequestFactory      *CheckRequestFactory
 }
 
 type Event struct {
@@ -185,6 +185,7 @@ func (launch *Launch) Launch() {
 	launch.stage(bastionActiveState{})
 	go launch.stage(vpcDiscovery{})
 	go launch.stage(waitConnect{})
+	//TODO add stage post launch
 }
 
 func (launch *Launch) State() string {

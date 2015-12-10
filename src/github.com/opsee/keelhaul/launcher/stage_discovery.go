@@ -107,7 +107,8 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 				launch.VPCEnvironment.AutoscalingGroupCount++
 
 			case awscan.LoadBalancerType:
-
+				// marshal event aws obj to json, then pass to the launch's CheckRequestFactory
+				launch.CheckRequestFactory.ProduceRequest(AWSObject{Type: "LoadBalancerDescription", ObjectType: JSON, Object: []byte{}})
 				launch.VPCEnvironment.LoadBalancerCount++
 			}
 
