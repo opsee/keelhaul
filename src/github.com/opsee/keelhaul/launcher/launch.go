@@ -107,18 +107,18 @@ func (launch *Launch) UserID() int {
 func (launch *Launch) NotifyVars() interface{} {
 	vars := struct {
 		*VPCEnvironment
-		UserID     int    `json:"user_id"`
-		UserEmail  string `json:"user_email"`
-		CustomerID string `json:"customer_id"`
-		Region     string `json:"region"`
-		ImageID    string `json:"image_id"`
-		VPCID      string `json:"vpc_id"`
-		SubnetID   string `json:"subnet_id"`
-		InstanceID string `json:"instance_id"`
-		GroupID    string `json:"group_id"`
-		Name       string `json:"name"`
-		GroupName  string `json:"group_name"`
-		Error      string `json:"error"`
+		UserID       int    `json:"user_id"`
+		UserEmail    string `json:"user_email"`
+		CustomerID   string `json:"customer_id"`
+		Region       string `json:"region"`
+		ImageID      string `json:"image_id"`
+		VPCID        string `json:"vpc_id"`
+		SubnetID     string `json:"subnet_id"`
+		InstanceID   string `json:"instance_id"`
+		GroupID      string `json:"group_id"`
+		InstanceName string `json:"instance_name"`
+		GroupName    string `json:"group_name"`
+		Error        string `json:"error"`
 	}{
 		VPCEnvironment: launch.VPCEnvironment,
 		UserID:         launch.User.ID,
