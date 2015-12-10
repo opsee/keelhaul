@@ -23,7 +23,7 @@ docker: fmt
 		--env-file ./$(APPENV) \
 		-e "TARGETS=linux/amd64" \
 		-v `pwd`:/build quay.io/opsee/build-go \
-		&& docker build -t quay.io/opsee/keelhaul:latest .
+		&& docker build -t quay.io/opsee/keelhaul .
 
 run: docker
 	docker run \

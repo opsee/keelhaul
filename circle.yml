@@ -7,6 +7,7 @@ dependencies:
   cache_directories: []
   override:
     - docker info
+    - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD quay.io
     - docker pull sameersbn/postgresql:9.4-3
     - docker run --name postgresql -d -e PSQL_TRUST_LOCALNET=true -e DB_USER=postgres -e DB_PASS= -e DB_NAME=keelhaul_test sameersbn/postgresql:9.4-3
     - docker pull nsqio/nsq:latest
@@ -15,10 +16,12 @@ dependencies:
 test:
   override:
     - APPENV=testenv make docker
+    - docker tag quay.io/opsee/keelhaul quay.io/opsee/keelhaul:$CIRCLE_SHA1
+    - docker push quay.io/opsee/keelhaul:$CIRCLE_SHA1
 deployment:
   production:
     branch: master
     owner: opsee
     commands:
-      - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD quay.io
+      - docker tag -f quay.io/opsee/keelhaul:$CIRCLE_SHA1 quay.io/opsee/keelhaul:latest
       - docker push quay.io/opsee/keelhaul:latest
