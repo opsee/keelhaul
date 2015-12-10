@@ -116,6 +116,8 @@ func (launch *Launch) NotifyVars() interface{} {
 		SubnetID   string `json:"subnet_id"`
 		InstanceID string `json:"instance_id"`
 		GroupID    string `json:"group_id"`
+		Name       string `json:"name"`
+		GroupName  string `json:"group_name"`
 		Error      string `json:"error"`
 	}{
 		VPCEnvironment: launch.VPCEnvironment,
@@ -128,6 +130,8 @@ func (launch *Launch) NotifyVars() interface{} {
 		ImageID:        launch.Bastion.ImageID.String,
 		InstanceID:     launch.Bastion.InstanceID.String,
 		GroupID:        launch.Bastion.GroupID.String,
+		Name:           launch.Bastion.Name(),
+		GroupName:      "Opsee Bastion Security Group",
 	}
 
 	if launch.Err != nil {

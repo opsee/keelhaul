@@ -356,7 +356,7 @@ func (s createStack) Execute(launch *Launch) {
 		Tags: []*cloudformation.Tag{
 			{
 				Key:   aws.String("Name"),
-				Value: aws.String("Opsee Bastion " + launch.Bastion.ID),
+				Value: aws.String(launch.Bastion.Name()),
 			},
 		},
 		NotificationARNs: []*string{
