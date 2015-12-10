@@ -130,7 +130,7 @@ func (launch *Launch) NotifyVars() interface{} {
 		ImageID:        launch.Bastion.ImageID.String,
 		InstanceID:     launch.Bastion.InstanceID.String,
 		GroupID:        launch.Bastion.GroupID.String,
-		Name:           launch.Bastion.Name(),
+		InstanceName:   launch.Bastion.Name(),
 		GroupName:      "Opsee Bastion Security Group",
 	}
 
