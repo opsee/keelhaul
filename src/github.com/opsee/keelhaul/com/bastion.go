@@ -84,6 +84,10 @@ func (bastion *Bastion) StackName() string {
 	return "opsee-bastion-" + bastion.ID
 }
 
+func (bastion *Bastion) Name() string {
+	return "Opsee Bastion " + bastion.ID
+}
+
 func (bastion *Bastion) Fail() *Bastion {
 	bastion.State = BastionStateFailed
 	return bastion
