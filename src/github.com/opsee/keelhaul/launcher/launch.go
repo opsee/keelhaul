@@ -48,6 +48,7 @@ type Launch struct {
 	setQueueAttributesOutput *sqs.SetQueueAttributesOutput
 	createStackOutput        *cloudformation.CreateStackOutput
 	connectAttempts          float64
+	checkRequestFactory      *CheckRequestFactory
 }
 
 type Event struct {
@@ -97,6 +98,7 @@ func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, cfg 
 		snsClient:            sns.New(sess),
 		cloudformationClient: cloudformation.New(sess),
 		connectAttempts:      float64(1),
+		checkRequestFactory:  &CheckRequestFactory{},
 	}
 }
 

@@ -107,6 +107,7 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 				launch.VPCEnvironment.AutoscalingGroupCount++
 
 			case awscan.LoadBalancerType:
+
 				launch.VPCEnvironment.LoadBalancerCount++
 			}
 

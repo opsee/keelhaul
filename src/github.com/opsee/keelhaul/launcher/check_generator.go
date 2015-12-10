@@ -9,6 +9,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/opsee/keelhaul/auth"
 	"github.com/opsee/keelhaul/checker"
+	"github.com/opsee/keelhaul/com"
 	"github.com/opsee/keelhaul/util"
 	"math/rand"
 	"net/http"
@@ -98,40 +99,75 @@ func (requestPool *RequestPool) DrainRequests(send bool) *map[string]*Response {
 	return req, nil
 }
 
-type RequestFactory struct {
+type CheckRequestFactory struct {
+	User                *com.User
 	ConcreteRequestPool *RequestPool
-	ConcreteFactories   map[AWSType]CheckRequestFactory
+	ConcreteFactories   map[AWSType]ChecksFactory
 }
 
-func (checkRequestFactory *RequestFactory) ProduceRequest(obj *AWSObject) (*http.Request, error) {
+func (checkRequestFactory *CheckRequestFactory) ProduceRequest(obj *AWSObject) (*http.Request, error) {
 	if obj == nil {
 		return nil, fmt.Errorf("Nil pointer to AWSObject.  Cannot Produce CheckRequest")
 	}
 	if concreteFactory, ok := Factories[*awsobj.Type]; ok {
-		request := concreteFactory.ProduceCheckRequest(awsobj), nil
-		requestPool.addRequest(util.RandomString(10, "asdfPOIUqwerzxcv"), request)
+		checksChan := concreteFactory.ProduceCheckRequest(awsobj), nil
+
+		for _, check := range checksChan {
+			select {
+			case newCheck := <-checksChan:
+				createCheckRequest := checkRequestFactory.buildRequest(newCheck)
+				checkRequestFactory.ConcreteRequestPool.AddRequest(util.RandomString(8, "asdfkjhqwerpoiu12340987"))
+			default:
+				break
+			}
+		}
+		requestPool.addRequest()
+
 	}
 	return nil, fmt.Errorf("No suitable factory found to produce %s", *AWSObject.Type)
 }
 
-func (checkRequestFactory *RequestFactory) ProduceRequest(awsobj *AWSObject) (*http.Request, error) {
-	if awsobj == nil {
-		return nil, fmt.Errorf("Nil pointer to AWSObject.  Cannot Produce CheckRequest")
+func (checkRequestFactory *CheckRequestFactory) buildRequest(check *checker.Check) *CreateCheckRequest {
+	pb, err := proto.Marshal(check)
+	if err != nil {
+		return nil, err
 	}
-	if concreteFactory, ok := Factories[*awsobj.Type]; ok {
-		request := concreteFactory.ProduceCheckRequest(awsobj), nil
-		requestPool.addRequest(util.RandomString(10, "asdfPOIUqwerzxcv"), request)
+
+	auth := &auth.BastionAuthTokenRequest{
+		TokenType:      tokenType,
+		CustomerEmail:  checkRequestFactory.User.email,
+		CustomerID:     checkRequestFactory.User.Id,
+		TargetEndpoint: "https://bartnet.in.opsee.com/checks",
 	}
-	return nil, fmt.Errorf("No suitable factory found to produce %s", *AWSObject.Type)
+
+	if token, err := cache.GetToken(request); err != nil || token == nil {
+		logrus.WithFields(logrus.Fields{"service": "checker", "Error": err.Error()}).Fatal("Error check request creation")
+		return nil, err
+	} else {
+		theauth, header := token.AuthHeader()
+		logrus.WithFields(logrus.Fields{"service": "checker", "Auth header:": theauth + " " + header}).Info("Creating check request.")
+
+		req, err := http.NewRequest("POST", request.TargetEndpoint, nil)
+		if err != nil {
+			logrus.WithFields(logrus.Fields{"service": "checker", "error": err, "response": resp}).Warn("Couldn't sychronize checks")
+			return nil, err
+		} else {
+			req.Header.Set("Content-Type", "application/x-protobuf")
+			req.Header.Set(theauth, header)
+			logrus.WithFields(logrus.Fields{"service": "checker", "Auth header:": theauth + " " + header}).Info("Created check request.")
+			return &CreateCheckRequest{Request: req}, nil
+		}
+	}
+	return nil, fmt.Errorf("Check Request creation failed.")
 }
 
-type CheckRequestFactory interface {
-	ProduceCheckRequest(awsobj *AWSObject) (*http.Request, error)
+type ChecksFactory interface {
+	ProduceCheckRequests(awsobj *AWSObject) chan *checker.Check
 }
 
 type ELBCheckFactory struct{}
 
-func (elbFactory *ELBCheckFactory) ProduceCheckRequest(awsobj *AWSObject) []*CreateCheckRequest {
+func (elbFactory *ELBCheckFactory) ProduceCheckRequests(awsobj *AWSObject) chan *checker.Check {
 
 	lb := elb.LoadBalancerDescription{}
 
@@ -139,7 +175,7 @@ func (elbFactory *ELBCheckFactory) ProduceCheckRequest(awsobj *AWSObject) []*Cre
 
 	// get listeners
 
-	requests := make([]CreateCheckRequest, len(lb.ListenerDescriptions))
+	requests := make(chan checker.Check, len(lb.ListenerDescriptions))
 
 	for i, listenerDescription := range lb.ListenerDescriptions {
 		switch listenerDescription.Protocol {
@@ -168,39 +204,8 @@ func (elbFactory *ELBCheckFactory) ProduceCheckRequest(awsobj *AWSObject) []*Cre
 				CheckSpec: spec,
 			}
 
-			pb, err := proto.Marshal(check)
-			if err != nil {
-				fmt.Errorf("Couldn't Marshal check")
-				continue
-			}
-
-			auth := &auth.BastionAuthTokenRequest{
-				TokenType:        tokenType,
-				CustomerEmail:    os.Getenv("CUSTOMER_EMAIL"),
-				CustomerPassword: os.Getenv("CUSTOMER_PASSWORD"),
-				CustomerID:       os.Getenv("CUSTOMER_ID"),
-				TargetEndpoint:   os.Getenv("BARTNET_HOST") + "/checks",
-				AuthEndpoint:     os.Getenv("BASTION_AUTH_ENDPOINT"),
-			}
-
-			if token, err := cache.GetToken(request); err != nil || token == nil {
-				logrus.WithFields(logrus.Fields{"service": "checker", "Error": err.Error()}).Fatal("Error check request creation")
-				continue
-			} else {
-				theauth, header := token.AuthHeader()
-				logrus.WithFields(logrus.Fields{"service": "checker", "Auth header:": theauth + " " + header}).Info("Creating check request.")
-
-				req, err := http.NewRequest("POST", request.TargetEndpoint, nil)
-				if err != nil {
-					logrus.WithFields(logrus.Fields{"service": "checker", "error": err, "response": resp}).Warn("Couldn't sychronize checks")
-					continue
-				} else {
-					req.Header.Set("Content-Type", "application/x-protobuf")
-					req.Header.Set(theauth, header)
-
-					requests[i] = &CreateCheckRequest{Request: req}
-				}
-			}
+			requests <- check
 		}
 	}
+	return requests
 }
