@@ -136,7 +136,7 @@ func (s vpcDiscovery) handleError(err error, launch *Launch) {
 }
 
 func (v *VPCEnvironment) tooManyErrors() bool {
-	total := v.InstanceCount + v.DBInstanceCount
+	total := v.InstanceCount // + v.DBInstanceCount
 	if total == 0 {
 		return v.GroupErrorCount > 0
 	}
