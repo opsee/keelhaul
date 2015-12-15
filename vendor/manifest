@@ -204,8 +204,8 @@
 		{
 			"importpath": "github.com/opsee/awscan",
 			"repository": "https://github.com/opsee/awscan",
-			"revision": "02799cf3038690403e5b0b7617c7bd2e996624ab",
-			"branch": "mark/tests"
+			"revision": "3e8875046466e0feaedb1e20548a54ba80591412",
+			"branch": "master"
 		},
 		{
 			"importpath": "github.com/opsee/notification-templates/dist/go/slack",

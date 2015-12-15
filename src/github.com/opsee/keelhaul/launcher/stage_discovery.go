@@ -22,7 +22,7 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 	var (
 		instances   = make(map[string]bool)
 		dbInstances = make(map[string]bool)
-		disco       = awscan.NewDiscoverer(awscan.NewScanner(launch.session))
+		disco       = awscan.NewDiscoverer(awscan.NewScanner(launch.session, launch.Bastion.VPCID))
 		httpclient  = &http.Client{}
 	)
 
@@ -37,8 +37,10 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 			switch event.Err.(*awscan.DiscoveryError).Type {
 			case awscan.InstanceType, awscan.DBInstanceType:
 				launch.VPCEnvironment.InstanceErrorCount++
-			default:
+			case awscan.SecurityGroupType, awscan.DBSecurityGroupType, awscan.AutoScalingGroupType, awscan.LoadBalancerType:
 				launch.VPCEnvironment.GroupErrorCount++
+			default:
+				continue
 			}
 
 			s.handleError(event.Err, launch)
@@ -136,7 +138,7 @@ func (s vpcDiscovery) handleError(err error, launch *Launch) {
 }
 
 func (v *VPCEnvironment) tooManyErrors() bool {
-	total := v.InstanceCount // + v.DBInstanceCount
+	total := v.InstanceCount + v.DBInstanceCount
 	if total == 0 {
 		return v.GroupErrorCount > 0
 	}
