@@ -1,5 +1,3 @@
-- use awscan master branch
-- add keelhaul to motorn streaming backend
 - remove customer-id header from fieri requests
 - swagger
 - key log scrubber hook
