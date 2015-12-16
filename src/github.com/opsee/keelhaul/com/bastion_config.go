@@ -33,6 +33,7 @@ write_files:
       NSQD_HOST={{.Config.NSQDHost}}
       BARTNET_HOST={{.Config.BartnetHost}}
       BASTION_AUTH_TYPE={{.Config.AuthType}}
+      GODEBUG=netdns=cgo
 {{ with .BastionUsers }}users:{{ range . }}
   - name: {{ .Username }}
     groups:
