@@ -10,7 +10,7 @@ import (
 const (
 	connectWaitTimeout = 1 * time.Minute
 	connectWaitDecay   = float64(0.1)
-	connectAttempts    = 25
+	connectAttempts    = 50
 )
 
 type waitConnect struct{}
