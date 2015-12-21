@@ -1,6 +1,7 @@
 package store
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
@@ -69,7 +70,7 @@ func (pg *Postgres) ListBastions(request *ListBastionsRequest) (*ListBastionsRes
 		args...,
 	)
 
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
 
