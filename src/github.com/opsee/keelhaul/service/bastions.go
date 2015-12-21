@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
 	log "github.com/sirupsen/logrus"
 )
@@ -129,12 +130,20 @@ func (s *service) ListBastions(user *com.User, request *ListBastionsRequest) (*L
 	})
 
 	if err != nil {
+		log.WithError(err).WithFields(log.Fields{"customer_id": user.CustomerID, "state": request.State}).Errorf("error querying database")
 		return nil, err
 	}
 
 	for _, bastion := range response.Bastions {
-		_, err = s.router.GetServices(bastion)
-		if err == nil {
+		_, err := s.router.GetServices(bastion)
+
+		if err != nil {
+			if err != router.ErrNotFound {
+				log.WithError(err).WithFields(log.Fields{"customer_id": user.CustomerID, "bastion_id": bastion.ID}).Error("bastion router error")
+			} else {
+				log.WithFields(log.Fields{"customer_id": user.CustomerID, "bastion_id": bastion.ID}).Warn("bastion not found in router")
+			}
+		} else {
 			bastion.Connected = true
 		}
 	}
@@ -173,6 +182,8 @@ func (s *service) AuthenticateBastion(request *AuthenticateBastionRequest) (*Aut
 		log.WithError(err).WithField("bastion_id", request.ID).Error("bcrypt comparison failed")
 		return nil, errUnauthorized
 	}
+
+	log.WithField("bastion_id", request.ID).Info("bastion auth successful")
 
 	return &AuthenticateBastionResponse{}, nil
 }
