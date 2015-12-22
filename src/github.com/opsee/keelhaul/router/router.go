@@ -39,7 +39,7 @@ func (c *router) GetServices(bastion *com.Bastion) (map[string]interface{}, erro
 		err      error
 	)
 
-	err = backoff.Retry(func() error {
+	backoff.Retry(func() error {
 		services, err = c.getServices(bastion)
 		if err != nil && err != ErrNotFound {
 			return err
