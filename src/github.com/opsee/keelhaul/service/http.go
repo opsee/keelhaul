@@ -4,7 +4,6 @@ import (
 	"github.com/opsee/keelhaul/com"
 	"github.com/opsee/opseetp"
 	"golang.org/x/net/context"
-	"golang.org/x/net/websocket"
 	"net/http"
 	"time"
 )
@@ -33,7 +32,7 @@ func (s *service) StartHTTP(addr string) {
 	router.Handle("POST", "/bastions/authenticate", []opseetp.DecodeFunc{opseetp.RequestDecodeFunc(requestKey, AuthenticateBastionRequest{})}, s.authenticateBastion())
 
 	// websocket
-	router.Handler("GET", "/stream/", websocket.Handler(s.websocketHandler()))
+	router.HandlerFunc("GET", "/stream/", s.websocketHandlerFunc)
 
 	// set a big timeout bc aws be slow
 	router.Timeout(5 * time.Minute)

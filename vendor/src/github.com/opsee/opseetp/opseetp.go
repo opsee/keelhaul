@@ -76,6 +76,10 @@ func (r *Router) Handler(method, path string, handler http.Handler) {
 	r.router.Handler(method, path, handler)
 }
 
+func (r *Router) HandlerFunc(method, path string, handler http.HandlerFunc) {
+	r.router.HandlerFunc(method, path, handler)
+}
+
 func (r *Router) Encoder(contentType string, encodeFunc EncodeFunc) {
 	r.encoderMut.Lock()
 	defer r.encoderMut.Unlock()
