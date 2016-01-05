@@ -5,6 +5,7 @@ ETCD_ADDR=http://etcd:2379
 FIERI_ENDPOINT=none
 BASTION_CONFIG_KEY=/opsee.co/config/bastion
 BASTION_CF_TEMPLATE=/bastion-cf.template
+BARTNET_ENDPOINT=none
 VAPE_ENDPOINT=none
 SLACK_ENDPOINT=none
 NSQD_HOST=nsqd:4150
