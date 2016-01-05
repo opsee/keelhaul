@@ -2,7 +2,7 @@ package launcher
 
 import (
 	"fmt"
-	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/basic/com"
 	"math"
 	"time"
 )

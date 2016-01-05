@@ -1,7 +1,7 @@
 package store
 
 import (
-	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/basic/com"
 )
 
 type Store interface {

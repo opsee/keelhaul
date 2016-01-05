@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"github.com/opsee/keelhaul/bus"
-	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/launcher"
 	"github.com/opsee/keelhaul/router"

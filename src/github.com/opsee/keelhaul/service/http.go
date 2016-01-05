@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/opsee/keelhaul/com"
-	"github.com/opsee/opseetp"
+	"github.com/opsee/basic/tp"
+	"github.com/opsee/basic/com"
 	"golang.org/x/net/context"
 	"net/http"
 	"time"
@@ -15,7 +15,7 @@ const (
 )
 
 func (s *service) StartHTTP(addr string) {
-	router := opseetp.NewHTTPRouter(context.Background())
+	router := tp.NewHTTPRouter(context.Background())
 
 	router.CORS(
 		[]string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
@@ -23,13 +23,13 @@ func (s *service) StartHTTP(addr string) {
 	)
 
 	// swagger
-	router.Handle("GET", "/api/swagger.json", []opseetp.DecodeFunc{}, s.swagger())
+	router.Handle("GET", "/api/swagger.json", []tp.DecodeFunc{}, s.swagger())
 
 	// json api
 	router.Handle("POST", "/vpcs/scan", decoders(com.User{}, ScanVPCsRequest{}), s.scanVPCs())
 	router.Handle("POST", "/vpcs/launch", decoders(com.User{}, LaunchBastionsRequest{}), s.launchBastions())
 	router.Handle("GET", "/vpcs/bastions", decoders(com.User{}, ListBastionsRequest{}), s.listBastions())
-	router.Handle("POST", "/bastions/authenticate", []opseetp.DecodeFunc{opseetp.RequestDecodeFunc(requestKey, AuthenticateBastionRequest{})}, s.authenticateBastion())
+	router.Handle("POST", "/bastions/authenticate", []tp.DecodeFunc{tp.RequestDecodeFunc(requestKey, AuthenticateBastionRequest{})}, s.authenticateBastion())
 
 	// websocket
 	router.HandlerFunc("GET", "/stream/", s.websocketHandlerFunc)
@@ -40,20 +40,20 @@ func (s *service) StartHTTP(addr string) {
 	http.ListenAndServe(addr, router)
 }
 
-func decoders(userType interface{}, requestType interface{}) []opseetp.DecodeFunc {
-	return []opseetp.DecodeFunc{
-		opseetp.AuthorizationDecodeFunc(userKey, userType),
-		opseetp.RequestDecodeFunc(requestKey, requestType),
+func decoders(userType interface{}, requestType interface{}) []tp.DecodeFunc {
+	return []tp.DecodeFunc{
+		tp.AuthorizationDecodeFunc(userKey, userType),
+		tp.RequestDecodeFunc(requestKey, requestType),
 	}
 }
 
-func (s *service) swagger() opseetp.HandleFunc {
+func (s *service) swagger() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
 		return swaggerMap, http.StatusOK, nil
 	}
 }
 
-func (s *service) scanVPCs() opseetp.HandleFunc {
+func (s *service) scanVPCs() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
 		request, ok := ctx.Value(requestKey).(*ScanVPCsRequest)
 		if !ok {
@@ -74,7 +74,7 @@ func (s *service) scanVPCs() opseetp.HandleFunc {
 	}
 }
 
-func (s *service) launchBastions() opseetp.HandleFunc {
+func (s *service) launchBastions() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
 		request, ok := ctx.Value(requestKey).(*LaunchBastionsRequest)
 		if !ok {
@@ -95,7 +95,7 @@ func (s *service) launchBastions() opseetp.HandleFunc {
 	}
 }
 
-func (s *service) listBastions() opseetp.HandleFunc {
+func (s *service) listBastions() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
 		request, ok := ctx.Value(requestKey).(*ListBastionsRequest)
 		if !ok {
@@ -116,7 +116,7 @@ func (s *service) listBastions() opseetp.HandleFunc {
 	}
 }
 
-func (s *service) authenticateBastion() opseetp.HandleFunc {
+func (s *service) authenticateBastion() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
 		request, ok := ctx.Value(requestKey).(*AuthenticateBastionRequest)
 		if !ok {

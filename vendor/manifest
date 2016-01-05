@@ -241,17 +241,17 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/opsee/basic",
+			"repository": "https://github.com/opsee/basic",
+			"revision": "e9ef94b2fdbf2699319e8ddeeabe01652b351fa7",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/opsee/notification-templates/dist/go/slack",
 			"repository": "https://github.com/opsee/notification-templates",
 			"revision": "7b30a86afe19914d8949dd38f192d948ee05f87e",
 			"branch": "master",
 			"path": "/dist/go/slack"
-		},
-		{
-			"importpath": "github.com/opsee/opseetp",
-			"repository": "https://github.com/opsee/opseetp",
-			"revision": "c100571d17f4199ca5a342f12fd962f31f67ce09",
-			"branch": "master"
 		},
 		{
 			"importpath": "github.com/opsee/vaper",

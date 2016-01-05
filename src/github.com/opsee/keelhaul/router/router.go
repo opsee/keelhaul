@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/cenkalti/backoff"
 	etcd "github.com/coreos/etcd/client"
-	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/basic/com"
 	"golang.org/x/net/context"
 	"path"
 	"time"

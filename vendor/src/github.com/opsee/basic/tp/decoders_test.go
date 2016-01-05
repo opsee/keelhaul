@@ -1,10 +1,11 @@
-package opseetp
+package tp
 
 import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
 	"net/http"
@@ -69,6 +70,59 @@ func TestCORS(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rw.Code)
 	assert.Equal(t, "http://potata.opsee", rw.Header().Get("Access-Control-Allow-Origin"))
+}
+
+func TestParams(t *testing.T) {
+	paramsKey := 0
+
+	router := NewHTTPRouter(context.Background())
+	paramDecoder := ParamsDecoder(paramsKey)
+
+	type response struct {
+		Id string `json:"id"`
+	}
+
+	router.Handle("GET", "/foo/:id", []DecodeFunc{paramDecoder}, func(ctx context.Context) (interface{}, int, error) {
+		paramsValue := ctx.Value(paramsKey)
+		if paramsValue == nil {
+			return nil, http.StatusBadRequest, fmt.Errorf("No parameters found in context")
+		}
+
+		params, ok := paramsValue.(httprouter.Params)
+		if !ok {
+			return nil, http.StatusBadRequest, fmt.Errorf("Error reading params in context")
+		}
+
+		response := response{params.ByName("id")}
+
+		return response, http.StatusOK, nil
+	})
+
+	req, err := http.NewRequest("GET", "http://localhost/foo/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rw := httptest.NewRecorder()
+	router.ServeHTTP(rw, req)
+
+	assert.Equal(t, http.StatusOK, rw.Code)
+	r := &response{}
+	err = json.NewDecoder(rw.Body).Decode(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "1", r.Id)
+
+	req, err = http.NewRequest("GET", "http://localhost/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rw = httptest.NewRecorder()
+	router.ServeHTTP(rw, req)
+	assert.Equal(t, http.StatusMethodNotAllowed, rw.Code)
 }
 
 func TestAuthorization(t *testing.T) {
