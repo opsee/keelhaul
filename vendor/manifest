@@ -2,6 +2,12 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/Sirupsen/logrus",
+			"repository": "https://github.com/Sirupsen/logrus",
+			"revision": "446d1c146faa8ed3f4218f056fcd165f6bcfda81",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/aws/aws-sdk-go/aws",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"revision": "328e030f73f66922cb9c1357de794ee1bf0ca2b5",
@@ -107,18 +113,6 @@
 			"path": "/service/sqs"
 		},
 		{
-			"importpath": "github.com/cenkalti/backoff",
-			"repository": "https://github.com/cenkalti/backoff",
-			"revision": "4dc77674aceaabba2c7e3da25d4c823edfb73f99",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/codegangsta/cli",
-			"repository": "https://github.com/codegangsta/cli",
-			"revision": "0302d3914d2a6ad61404584cdae6e6dbc9c03599",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/ugorji/go/codec",
 			"repository": "https://github.com/coreos/etcd",
 			"revision": "2de9a5bbd08335017df580bb4faad2cad37d9772",
@@ -166,9 +160,36 @@
 			"branch": "v1"
 		},
 		{
-			"importpath": "github.com/gorilla/websocket",
-			"repository": "https://github.com/gorilla/websocket",
-			"revision": "3986be78bf859e01f01af631ad76da5b269d270c",
+			"importpath": "github.com/golang/glog",
+			"repository": "https://github.com/golang/glog",
+			"revision": "fca8c8854093a154ff1eb580aae10276ad6b1b5f",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/golang/protobuf/jsonpb",
+			"repository": "https://github.com/golang/protobuf",
+			"revision": "68415e7123da32b07eab49c96d2c4d6158360e9b",
+			"branch": "master",
+			"path": "/jsonpb"
+		},
+		{
+			"importpath": "github.com/golang/protobuf/proto",
+			"repository": "https://github.com/golang/protobuf",
+			"revision": "68415e7123da32b07eab49c96d2c4d6158360e9b",
+			"branch": "master",
+			"path": "/proto"
+		},
+		{
+			"importpath": "github.com/golang/protobuf/protoc-gen-go/descriptor",
+			"repository": "https://github.com/golang/protobuf",
+			"revision": "68415e7123da32b07eab49c96d2c4d6158360e9b",
+			"branch": "master",
+			"path": "/protoc-gen-go/descriptor"
+		},
+		{
+			"importpath": "github.com/grpc/grpc-go",
+			"repository": "https://github.com/grpc/grpc-go",
+			"revision": "3463c93e2ba1a80e3372fbf41aaeabe63615ca84",
 			"branch": "master"
 		},
 		{
@@ -229,7 +250,7 @@
 		{
 			"importpath": "github.com/opsee/opseetp",
 			"repository": "https://github.com/opsee/opseetp",
-			"revision": "19f334468ff8e3e1605cb7657b8adc0898c03471",
+			"revision": "c100571d17f4199ca5a342f12fd962f31f67ce09",
 			"branch": "master"
 		},
 		{
@@ -270,6 +291,60 @@
 			"revision": "4f2fc6c1e69d41baf187332ee08fbd2b296f21ed",
 			"branch": "master",
 			"path": "/context"
+		},
+		{
+			"importpath": "golang.org/x/net/http2",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "d75b1902409c457a51e4bd1895031872c370983a",
+			"branch": "master",
+			"path": "/http2"
+		},
+		{
+			"importpath": "golang.org/x/net/internal/timeseries",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "d75b1902409c457a51e4bd1895031872c370983a",
+			"branch": "master",
+			"path": "/internal/timeseries"
+		},
+		{
+			"importpath": "golang.org/x/net/trace",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "d75b1902409c457a51e4bd1895031872c370983a",
+			"branch": "master",
+			"path": "/trace"
+		},
+		{
+			"importpath": "golang.org/x/net/websocket",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "4f2fc6c1e69d41baf187332ee08fbd2b296f21ed",
+			"branch": "master",
+			"path": "/websocket"
+		},
+		{
+			"importpath": "golang.org/x/oauth2",
+			"repository": "https://go.googlesource.com/oauth2",
+			"revision": "2baa8a1b9338cf13d9eeb27696d761155fa480be",
+			"branch": "master"
+		},
+		{
+			"importpath": "google.golang.org/cloud/compute/metadata",
+			"repository": "https://code.googlesource.com/gocloud",
+			"revision": "ec5efcc6a7862ae410e34d8de21fdec12e367732",
+			"branch": "master",
+			"path": "/compute/metadata"
+		},
+		{
+			"importpath": "google.golang.org/cloud/internal",
+			"repository": "https://code.googlesource.com/gocloud",
+			"revision": "ec5efcc6a7862ae410e34d8de21fdec12e367732",
+			"branch": "master",
+			"path": "/internal"
+		},
+		{
+			"importpath": "google.golang.org/grpc",
+			"repository": "https://github.com/grpc/grpc-go",
+			"revision": "3463c93e2ba1a80e3372fbf41aaeabe63615ca84",
+			"branch": "master"
 		},
 		{
 			"importpath": "gopkg.in/airbrake/gobrake.v2",
