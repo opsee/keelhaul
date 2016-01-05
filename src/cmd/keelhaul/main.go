@@ -1,6 +1,10 @@
 package main
 
 import (
+	"io/ioutil"
+	"os"
+	"time"
+
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
@@ -10,9 +14,6 @@ import (
 	"github.com/opsee/keelhaul/store"
 	"github.com/opsee/vaper"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
-	"os"
-	"time"
 )
 
 func main() {
@@ -29,6 +30,7 @@ func main() {
 		NSQDAddr:          mustEnvString("NSQD_HOST"),
 		NSQTopic:          mustEnvString("NSQ_TOPIC"),
 		NSQLookupds:       mustEnvString("NSQLOOKUPD_ADDRS"),
+		BartnetEndpoint:   mustEnvString("BARTNET_ENDPOINT"),
 	}
 
 	key, err := ioutil.ReadFile(cfg.VapeKey)
