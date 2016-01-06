@@ -16,6 +16,7 @@ type RequestPoolRequest struct {
 
 func (requestPoolRequest *RequestPoolRequest) DoRequest() *RequestPoolResponse {
 	client := &http.Client{}
+	logrus.WithFields(logrus.Fields{"module": "checkgen", "event": "DoRequest", "Request": requestPoolRequest.Request}).Info("Do it")
 	resp, err := client.Do(requestPoolRequest.Request)
 	if resp != nil {
 		defer resp.Body.Close()

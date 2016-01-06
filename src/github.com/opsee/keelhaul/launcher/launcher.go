@@ -55,6 +55,7 @@ func (l *launcher) watchLaunch(launch *Launch) {
 	if launch.Err != nil {
 		l.NotifyError(launch)
 	} else {
+		close(launch.CheckRequestFactory.CheckRequestPool.RequestsChan)
 		launch.CheckRequestFactory.CheckRequestPool.DrainRequests(true)
 		l.NotifySuccess(launch)
 	}
