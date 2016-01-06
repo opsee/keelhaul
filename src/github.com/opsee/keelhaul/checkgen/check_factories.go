@@ -2,14 +2,15 @@ package checkgen
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/opsee/keelhaul/checker"
 	"github.com/opsee/keelhaul/com"
 	"github.com/opsee/keelhaul/util"
 	"github.com/sirupsen/logrus"
-	"strconv"
-	"strings"
 )
 
 // TODO: hack to get this working.  Use protobuf instead as this could get out of sync with Checks.
@@ -41,14 +42,14 @@ func (elbFactory *ELBCheckFactory) ProduceChecks(awsobj *com.AWSObject) chan *Ch
 			switch targetProtocol {
 
 			case "HTTP":
-				targetPort := strings.ToUpper(protocol[strings.Index(protocol, ":")+1 : strings.Index(protocol, "/")])
+				targetPort := protocol[strings.Index(protocol, ":")+1 : strings.Index(protocol, "/")]
 				targetPortInt, err := strconv.Atoi(targetPort)
 				if err != nil {
 					logrus.WithFields(logrus.Fields{"module": "checkgen", "event": "ProduceChecks", "targetPort": targetPort}).Warn("Couldn't convert target port to int.")
 					return checks
 				}
 
-				targetPath := strings.ToUpper(protocol[strings.Index(protocol, "/"):])
+				targetPath := protocol[strings.Index(protocol, "/"):]
 				if string(targetPath[0]) != "/" {
 					logrus.WithFields(logrus.Fields{"module": "checkgen", "event": "ProduceChecks", "targetPath": targetPort}).Warn("Invalid target path")
 					return checks
