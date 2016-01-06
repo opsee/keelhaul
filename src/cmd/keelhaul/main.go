@@ -31,7 +31,7 @@ func main() {
 		NSQTopic:          mustEnvString("NSQ_TOPIC"),
 		NSQLookupds:       mustEnvString("NSQLOOKUPD_ADDRS"),
 		BartnetEndpoint:   mustEnvString("BARTNET_ENDPOINT"),
-		BeavisEndpoint:    mustEnvString("BARTNET_ENDPOINT"),
+		BeavisEndpoint:    mustEnvString("BEAVIS_ENDPOINT"),
 	}
 
 	key, err := ioutil.ReadFile(cfg.VapeKey)
