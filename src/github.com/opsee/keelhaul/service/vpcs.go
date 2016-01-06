@@ -68,6 +68,16 @@ func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsR
 			return nil, err
 		}
 
+		hasVPC := false
+		for _, sp := range r.SupportedPlatforms {
+			if aws.StringValue(sp) == "EC2-VPC" {
+				hasVPC = true
+				break
+			}
+		}
+
+		logger.Infof("region has VPC support: %t", hasVPC)
+
 		vpcRegions[ri] = r
 	}
 
