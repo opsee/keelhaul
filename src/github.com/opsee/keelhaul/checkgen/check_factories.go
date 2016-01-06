@@ -38,10 +38,10 @@ func (elbFactory *ELBCheckFactory) ProduceChecks(awsobj *com.AWSObject) chan *Ch
 
 			protocol := *lb.HealthCheck.Target
 
-			targetProtocol := strings.ToUpper(protocol[:strings.Index(protocol, ":")])
+			targetProtocol := strings.ToLower(protocol[:strings.Index(protocol, ":")])
 			switch targetProtocol {
 
-			case "HTTP":
+			case "http":
 				targetPort := protocol[strings.Index(protocol, ":")+1 : strings.Index(protocol, "/")]
 				targetPortInt, err := strconv.Atoi(targetPort)
 				if err != nil {
