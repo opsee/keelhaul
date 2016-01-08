@@ -243,7 +243,7 @@
 		{
 			"importpath": "github.com/opsee/basic",
 			"repository": "https://github.com/opsee/basic",
-			"revision": "e9ef94b2fdbf2699319e8ddeeabe01652b351fa7",
+			"revision": "6216057b86274cf0fa61c88583e3e940eaef1e8f",
 			"branch": "master"
 		},
 		{
@@ -312,13 +312,6 @@
 			"revision": "d75b1902409c457a51e4bd1895031872c370983a",
 			"branch": "master",
 			"path": "/trace"
-		},
-		{
-			"importpath": "golang.org/x/net/websocket",
-			"repository": "https://go.googlesource.com/net",
-			"revision": "4f2fc6c1e69d41baf187332ee08fbd2b296f21ed",
-			"branch": "master",
-			"path": "/websocket"
 		},
 		{
 			"importpath": "golang.org/x/oauth2",

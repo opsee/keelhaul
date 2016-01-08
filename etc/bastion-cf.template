@@ -2,72 +2,173 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "The Opsee Bastion Host",
     "Parameters": {
-        "InstanceType" : {
-            "Description" : "EC2 Instance type (m3.medium, etc).",
+        "InstanceType": {
+            "Description": "EC2 Instance type (m3.medium, etc).",
             "Type": "String",
             "Default": "t2.micro",
-            "ConstraintDescription" : "Must be a valid EC2 instance type."
+            "ConstraintDescription": "Must be a valid EC2 instance type."
         },
-        "ImageId" : {
-            "Description" : "The Opsee Bastion AMI",
+        "ImageId": {
+            "Description": "The Opsee Bastion AMI",
             "Type": "String",
-            "ConstraintDescription" : "Must be a valid Opsee AMI."
+            "ConstraintDescription": "Must be a valid Opsee AMI."
         },
-        "UserData" : {
-            "Description" : "Metadata to set for the instance",
+        "UserData": {
+            "Description": "Metadata to set for the instance",
             "Type": "String"
         },
-        "KeyName" : {
-            "Description" : "The name of a keypair to use (optional)",
+        "KeyName": {
+            "Description": "The name of a keypair to use (optional)",
             "Default": "",
             "Type": "String"
         },
-        "VpcId" : {
-            "Description" : "The VPC in which to deploy the instance",
+        "VpcId": {
+            "Description": "The VPC in which to deploy the instance",
             "Type": "String",
-            "ConstraintDescription" : "Must be a valid VPC ID"
+            "ConstraintDescription": "Must be a valid VPC ID"
         },
-        "SubnetId" : {
-            "Description" : "The subnet in which to deploy the instance (optional)",
+        "SubnetId": {
+            "Description": "The subnet in which to deploy the instance (optional)",
             "Default": "",
             "Type": "String"
         },
         "AssociatePublicIpAddress": {
-          "Description": "Whether or not a public IP address should be associated (optional)",
-          "Default": "True",
-          "Type": "String",
-          "AllowedValues": ["True", "False"]
+            "Description": "Whether or not a public IP address should be associated (optional)",
+            "Default": "True",
+            "Type": "String",
+            "AllowedValues": ["True", "False"]
+        },
+        "CustomerId": {
+            "Description": "Customer ID",
+            "Type": "String"
         }
     },
     "Conditions": {
         "NoKey": {
-            "Fn::Equals": [
-                {"Ref": "KeyName"},
+            "Fn::Equals": [{
+                    "Ref": "KeyName"
+                },
                 ""
             ]
         },
         "NoSubnet": {
-            "Fn::Equals": [
-                {"Ref": "SubnetId"},
+            "Fn::Equals": [{
+                    "Ref": "SubnetId"
+                },
                 ""
             ]
         },
         "AssociatePublicIp": {
-          "Fn::Equals": [
-            {"Ref": "AssociatePublicIpAddress"},
-            "True"
-          ]
+            "Fn::Equals": [{
+                    "Ref": "AssociatePublicIpAddress"
+                },
+                "True"
+            ]
         }
     },
-    "Resources" : {
+    "Resources": {
+        "OpseeRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": "933693344490"
+                        },
+                        "Action": "sts:AssumeRole",
+                        "Condition": {
+                            "StringEquals": {
+                                "sts:ExternalId": {
+                                    "Ref": "CustomerId"
+                                }
+                            }
+                        }
+                    }, {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": ["ec2.amazonaws.com"]
+                        },
+                        "Action": ["sts:AssumeRole"]
+                    }]
+                },
+                "Path": "/",
+                "Policies": [{
+                    "PolicyName": "OpseePolicy",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": [
+                                "autoscaling:DescribeLoadBalancers",
+                                "autoscaling:DescribeAutoScalingGroups",
+                                "cloudformation:CreateStack",
+                                "cloudformation:DeleteStack",
+                                "cloudformation:ListStackResources",
+                                "ec2:CreateTags",
+                                "ec2:DeleteTags",
+                                "ec2:AuthorizeSecurityGroupIngress",
+                                "ec2:AuthorizeSecurityGroupEgress",
+                                "ec2:RevokeSecurityGroupIngress",
+                                "ec2:RevokeSecurityGroupEgress",
+                                "ec2:StartInstances",
+                                "ec2:RunInstances",
+                                "ec2:StopInstances",
+                                "ec2:RebootInstances",
+                                "ec2:TerminateInstances",
+                                "ec2:DescribeAccountAttributes",
+                                "ec2:DescribeImages",
+                                "ec2:DescribeSecurityGroups",
+                                "ec2:CreateSecurityGroup",
+                                "ec2:DeleteSecurityGroup",
+                                "ec2:DescribeSubnets",
+                                "ec2:DescribeVpcs",
+                                "ec2:DescribeInstances",
+                                "ec2:DescribeInternetGateways",
+                                "ec2:DescribeRouteTables",
+                                "elasticloadbalancing:DescribeLoadBalancers",
+                                "iam:AddRoleToInstanceProfile",
+                                "iam:RemoveRoleFromInstanceProfile",
+                                "iam:CreateRole",
+                                "iam:CreateRolePolicy",
+                                "iam:CreateInstanceProfile",
+                                "iam:PutRolePolicy",
+                                "iam:DeleteRole",
+                                "iam:DeleteRolePolicy",
+                                "iam:DeleteInstanceProfile",
+                                "iam:PassRole",
+                                "sns:CreateTopic",
+                                "sns:DeleteTopic",
+                                "sns:Subscribe",
+                                "sns:Unsubscribe",
+                                "sns:Publish",
+                                "sqs:CreateQueue",
+                                "sqs:DeleteQueue",
+                                "sqs:DeleteMessage",
+                                "sqs:ReceiveMessage",
+                                "sqs:GetQueueAttributes",
+                                "sqs:SetQueueAttributes",
+                                "rds:DescribeDBInstances",
+                                "rds:DescribeDBSecurityGroups"
+                            ],
+                            "Resource": "*"
+                        }]
+                    }
+                }]
+            }
+        },
         "BastionSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupDescription": "Bastion SecurityGroup",
-                "Tags" : [{"Key":"Name",
-                           "Value": "Opsee Bastion Security Group"},
-                          {"Key":"type",
-                           "Value":"opsee"}],
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": "Opsee Bastion Security Group"
+                }, {
+                    "Key": "type",
+                    "Value": "opsee"
+                }],
                 "SecurityGroupEgress": [{
                     "CidrIp": "0.0.0.0/0",
                     "FromPort": -1,
@@ -80,156 +181,91 @@
                     "IpProtocol": "tcp",
                     "ToPort": 22
                 }],
-                "VpcId" : {"Ref":"VpcId"}
-            }
-        },
-        "BastionRole": {
-            "Type": "AWS::IAM::Role",
-            "Properties": {
-                "AssumeRolePolicyDocument": {
-                    "Version": "2012-10-17",
-                    "Statement": [ {
-                        "Effect": "Allow",
-                        "Principal": {"Service":["ec2.amazonaws.com"]},
-                        "Action": [ "sts:AssumeRole" ]
-                    }]
-                },
-                "Path": "/",
-                "Policies": [ {
-                    "PolicyName": "opsee",
-                    "PolicyDocument": {
-                        "Version": "2012-10-17",
-                        "Statement": [
-                            {
-                                "Action": [
-                                    "appstream:Get*",
-                                    "autoscaling:Describe*",
-                                    "cloudformation:DescribeStacks",
-                                    "cloudformation:DescribeStackEvents",
-                                    "cloudformation:DescribeStackResource",
-                                    "cloudformation:DescribeStackResources",
-                                    "cloudformation:GetTemplate",
-                                    "cloudformation:List*",
-                                    "cloudfront:Get*",
-                                    "cloudfront:List*",
-                                    "cloudtrail:DescribeTrails",
-                                    "cloudtrail:GetTrailStatus",
-                                    "cloudwatch:Describe*",
-                                    "cloudwatch:Get*",
-                                    "cloudwatch:List*",
-                                    "directconnect:Describe*",
-                                    "dynamodb:GetItem",
-                                    "dynamodb:BatchGetItem",
-                                    "dynamodb:Query",
-                                    "dynamodb:Scan",
-                                    "dynamodb:DescribeTable",
-                                    "dynamodb:ListTables",
-                                    "ec2:*",
-                                    "elasticache:Describe*",
-                                    "elasticbeanstalk:Check*",
-                                    "elasticbeanstalk:Describe*",
-                                    "elasticbeanstalk:List*",
-                                    "elasticbeanstalk:RequestEnvironmentInfo",
-                                    "elasticbeanstalk:RetrieveEnvironmentInfo",
-                                    "elasticloadbalancing:Describe*",
-                                    "elastictranscoder:Read*",
-                                    "elastictranscoder:List*",
-                                    "iam:List*",
-                                    "iam:Get*",
-                                    "kinesis:Describe*",
-                                    "kinesis:Get*",
-                                    "kinesis:List*",
-                                    "opsworks:Describe*",
-                                    "opsworks:Get*",
-                                    "route53:Get*",
-                                    "route53:List*",
-                                    "redshift:Describe*",
-                                    "redshift:ViewQueriesInConsole",
-                                    "rds:Describe*",
-                                    "rds:ListTagsForResource",
-                                    "s3:Get*",
-                                    "s3:List*",
-                                    "sdb:GetAttributes",
-                                    "sdb:List*",
-                                    "sdb:Select*",
-                                    "ses:Get*",
-                                    "ses:List*",
-                                    "sns:Get*",
-                                    "sns:List*",
-                                    "sqs:GetQueueAttributes",
-                                    "sqs:ListQueues",
-                                    "sqs:ReceiveMessage",
-                                    "storagegateway:List*",
-                                    "storagegateway:Describe*",
-                                    "trustedadvisor:Describe*"
-                                ],
-                                "Effect": "Allow",
-                                "Resource": "*"
-                            }
-                        ]
-                    }
-                }]
+                "VpcId": {
+                    "Ref": "VpcId"
+                }
             }
         },
         "BastionInstanceProfile": {
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
                 "Path": "/",
-                "Roles": [{"Ref": "BastionRole"}]
+                "Roles": [{
+                    "Ref": "OpseeRole"
+                }]
             }
         },
         "BastionInstance": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
-                "ImageId": {"Ref":"ImageId"},
-                "IamInstanceProfile": {"Ref":"BastionInstanceProfile"},
-                "InstanceType": {"Ref":"InstanceType"},
+                "ImageId": {
+                    "Ref": "ImageId"
+                },
+                "IamInstanceProfile": {
+                    "Ref": "BastionInstanceProfile"
+                },
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
                 "KeyName": {
                     "Fn::If": [
-                        "NoKey",
-                        {"Ref": "AWS::NoValue"},
-                        {"Ref":"KeyName"}
+                        "NoKey", {
+                            "Ref": "AWS::NoValue"
+                        }, {
+                            "Ref": "KeyName"
+                        }
                     ]
                 },
                 "NetworkInterfaces": {
-                  "Fn::If": [
-                    "AssociatePublicIp",
-                    [{
-                      "DeviceIndex": "0",
-                      "AssociatePublicIpAddress": true,
-                      "SubnetId": {
-                          "Fn::If": [
-                              "NoSubnet",
-                              {"Ref": "AWS::NoValue"},
-                              {"Ref": "SubnetId"}
-                          ]
-                      },
-                      "GroupSet": [
-                        {"Ref": "BastionSecurityGroup"}
-                      ]
-                    }],
-                    {"Ref": "AWS::NoValue"}
-                  ]
+                    "Fn::If": [
+                        "AssociatePublicIp", [{
+                            "DeviceIndex": "0",
+                            "AssociatePublicIpAddress": true,
+                            "SubnetId": {
+                                "Fn::If": [
+                                    "NoSubnet", {
+                                        "Ref": "AWS::NoValue"
+                                    }, {
+                                        "Ref": "SubnetId"
+                                    }
+                                ]
+                            },
+                            "GroupSet": [{
+                                "Ref": "BastionSecurityGroup"
+                            }]
+                        }], {
+                            "Ref": "AWS::NoValue"
+                        }
+                    ]
                 },
                 "SubnetId": {
-                  "Fn::If": [
-                    "AssociatePublicIp",
-                    {"Ref": "AWS::NoValue"},
-                    {"Fn::If": [
-                        "NoSubnet",
-                        {"Ref": "AWS::NoValue"},
-                        {"Ref": "SubnetId"}
-                    ]}
-                  ]
+                    "Fn::If": [
+                        "AssociatePublicIp", {
+                            "Ref": "AWS::NoValue"
+                        }, {
+                            "Fn::If": [
+                                "NoSubnet", {
+                                    "Ref": "AWS::NoValue"
+                                }, {
+                                    "Ref": "SubnetId"
+                                }
+                            ]
+                        }
+                    ]
                 },
                 "SecurityGroupIds": {
-                  "Fn::If": [
-                    "AssociatePublicIp",
-                    {"Ref": "AWS::NoValue"},
-                    [{"Ref": "BastionSecurityGroup"}]
-                  ]
+                    "Fn::If": [
+                        "AssociatePublicIp", {
+                            "Ref": "AWS::NoValue"
+                        },
+                        [{
+                            "Ref": "BastionSecurityGroup"
+                        }]
+                    ]
                 },
-                "UserData": {"Ref":"UserData"}
+                "UserData": {
+                    "Ref": "UserData"
+                }
             }
         }
     }
