@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/basic/com"
 	"strings"
 )
 

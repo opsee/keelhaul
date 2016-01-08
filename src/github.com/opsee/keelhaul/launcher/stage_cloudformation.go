@@ -15,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	etcd "github.com/coreos/etcd/client"
-	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/basic/com"
 	"golang.org/x/net/context"
 	"io/ioutil"
 	"sort"

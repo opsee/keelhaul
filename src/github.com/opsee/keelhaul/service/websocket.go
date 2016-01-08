@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"github.com/gorilla/websocket"
-	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/basic/com"
 	"github.com/opsee/vaper"
 	log "github.com/sirupsen/logrus"
 	"net/http"

@@ -5,7 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
 	log "github.com/sirupsen/logrus"

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/nsqio/go-nsq"
-	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/config"
 	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"

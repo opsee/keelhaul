@@ -1,4 +1,4 @@
-package opseetp
+package tp
 
 import (
 	"github.com/julienschmidt/httprouter"

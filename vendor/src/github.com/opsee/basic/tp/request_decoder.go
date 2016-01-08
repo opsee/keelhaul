@@ -1,4 +1,4 @@
-package opseetp
+package tp
 
 import (
 	"encoding/json"

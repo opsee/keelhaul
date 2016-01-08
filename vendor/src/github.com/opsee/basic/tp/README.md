@@ -1,4 +1,4 @@
-opseetp
+tp
 =======
 
 HTTP router for your go services with middleware.
@@ -52,7 +52,7 @@ func instancesHandler(ctx context.Context) (interface{}, int, error) {
 }
 
 func main() {
-        router := opseetp.NewHTTPRouter(
+        router := tp.NewHTTPRouter(
                 context.WithValue(                // the root context for all requests
                         context.Background(),
                         serviceKey,
@@ -60,7 +60,7 @@ func main() {
                 ),
         )
 
-        router.Handle("GET", "/instances", []opseetp.DecodeFunc{instancesDecoder}, instancesHandler) // add a route
+        router.Handle("GET", "/instances", []tp.DecodeFunc{instancesDecoder}, instancesHandler) // add a route
         router.Timeout(5 * time.Second) // add a timeout for your backend
         http.ListenAndServe(addr, router)
 }
@@ -77,12 +77,12 @@ Included middleware so far are:
 
 ```go
 // cors
-router := opseetp.NewHTTPRouter(context.Background())
+router := tp.NewHTTPRouter(context.Background())
 corsDecoder := CORSRegexpDecodeFunc([]string{"GET", "POST"}, []string{`https?://(\w\.)?opsee\.com`})
 router.Handle("GET", "/", []DecodeFunc{corsDecoder}, myHandler)
 
 // authorization decoder
-router := opseetp.NewHTTPRouter(context.Background())
+router := tp.NewHTTPRouter(context.Background())
 authDecoder := AuthorizationDecodeFunc(userKey, User{})
 router.Handle("GET", "/", []DecodeFunc{authDecoder}, myHandler)
 

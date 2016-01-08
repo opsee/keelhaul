@@ -1,4 +1,4 @@
-package opseetp
+package tp
 
 import (
 	"encoding/json"
@@ -150,7 +150,7 @@ func (r *Router) wrapHandler(decoders []DecodeFunc, handler HandleFunc) httprout
 				"status": rf.status,
 				"path":   req.URL.RequestURI(),
 				"method": req.Method,
-			}).Info("opseetp request")
+			}).Info("tp request")
 
 		case <-ctx.Done():
 			msg, _ := json.Marshal(MessageResponse{"Backend service unavailable."})

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"github.com/opsee/keelhaul/com"
+	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/util"
 	"github.com/sirupsen/logrus"
