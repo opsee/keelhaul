@@ -132,7 +132,7 @@ type createTopic struct{}
 
 func (s createTopic) Execute(launch *Launch) {
 	topic, err := launch.snsClient.CreateTopic(&sns.CreateTopicInput{
-		Name: aws.String(launch.Bastion.StackName()),
+		Name: aws.String("opsee-stack-" + launch.User.CustomerID),
 	})
 
 	if err != nil {
@@ -558,7 +558,7 @@ func (s bastionActiveState) Execute(launch *Launch) {
 
 	for {
 		stackResourcesOutput, err := launch.cloudformationClient.ListStackResources(&cloudformation.ListStackResourcesInput{
-			StackName: aws.String(launch.Bastion.StackName()),
+			StackName: aws.String("opsee-stack-" + launch.User.CustomerID),
 			NextToken: nextToken,
 		})
 
