@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "The Opsee Bastion Host",
+    "Description": "The Opsee Stack",
     "Parameters": {
         "InstanceType": {
             "Description": "EC2 Instance type (m3.medium, etc).",
@@ -9,7 +9,7 @@
             "ConstraintDescription": "Must be a valid EC2 instance type."
         },
         "ImageId": {
-            "Description": "The Opsee Bastion AMI",
+            "Description": "The Opsee Instance AMI",
             "Type": "String",
             "ConstraintDescription": "Must be a valid Opsee AMI."
         },
@@ -158,13 +158,13 @@
                 }]
             }
         },
-        "BastionSecurityGroup": {
+        "OpseeSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "Bastion SecurityGroup",
+                "GroupDescription": "Opsee Instance SecurityGroup",
                 "Tags": [{
                     "Key": "Name",
-                    "Value": "Opsee Bastion Security Group"
+                    "Value": "Opsee Instance Security Group"
                 }, {
                     "Key": "type",
                     "Value": "opsee"
@@ -186,7 +186,7 @@
                 }
             }
         },
-        "BastionInstanceProfile": {
+        "OpseeInstanceProfile": {
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
                 "Path": "/",
@@ -195,14 +195,14 @@
                 }]
             }
         },
-        "BastionInstance": {
+        "OpseeInstance": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "ImageId": {
                     "Ref": "ImageId"
                 },
                 "IamInstanceProfile": {
-                    "Ref": "BastionInstanceProfile"
+                    "Ref": "OpseeInstanceProfile"
                 },
                 "InstanceType": {
                     "Ref": "InstanceType"
@@ -231,7 +231,7 @@
                                 ]
                             },
                             "GroupSet": [{
-                                "Ref": "BastionSecurityGroup"
+                                "Ref": "OpseeSecurityGroup"
                             }]
                         }], {
                             "Ref": "AWS::NoValue"
@@ -259,7 +259,7 @@
                             "Ref": "AWS::NoValue"
                         },
                         [{
-                            "Ref": "BastionSecurityGroup"
+                            "Ref": "OpseeSecurityGroup"
                         }]
                     ]
                 },

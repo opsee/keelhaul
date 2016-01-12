@@ -351,7 +351,7 @@ func (s createStack) Execute(launch *Launch) {
 	}
 
 	stack, err := launch.cloudformationClient.CreateStack(&cloudformation.CreateStackInput{
-		StackName:    aws.String("opsee-bastion-" + launch.Bastion.ID),
+		StackName:    aws.String("opsee-stack-" + launch.User.CustomerID),
 		TemplateBody: aws.String(string(templateBytes)),
 		Capabilities: []*string{
 			aws.String("CAPABILITY_IAM"),
@@ -360,7 +360,7 @@ func (s createStack) Execute(launch *Launch) {
 		Tags: []*cloudformation.Tag{
 			{
 				Key:   aws.String("Name"),
-				Value: aws.String(launch.Bastion.Name()),
+				Value: aws.String("Opsee Stack " + launch.User.CustomerID),
 			},
 		},
 		NotificationARNs: []*string{
