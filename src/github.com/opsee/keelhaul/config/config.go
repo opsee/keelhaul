@@ -15,4 +15,5 @@ type Config struct {
 	NSQLookupds       string
 	BartnetEndpoint   string
 	BeavisEndpoint    string
+	SpanxEndpoint     string
 }

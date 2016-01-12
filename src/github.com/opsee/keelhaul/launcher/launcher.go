@@ -3,8 +3,8 @@ package launcher
 import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	etcd "github.com/coreos/etcd/client"
-	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"

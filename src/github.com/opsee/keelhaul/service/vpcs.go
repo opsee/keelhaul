@@ -8,6 +8,11 @@ import (
 	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/scanner"
 	log "github.com/sirupsen/logrus"
+	"regexp"
+)
+
+var (
+	vpcRegexp = regexp.MustCompile(`(?i)vpc`)
 )
 
 type ScanVPCsRequest struct {
@@ -70,7 +75,7 @@ func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsR
 
 		hasVPC := false
 		for _, sp := range r.SupportedPlatforms {
-			if aws.StringValue(sp) == "EC2-VPC" {
+			if vpcRegexp.MatchString(aws.StringValue(sp)) {
 				hasVPC = true
 				break
 			}

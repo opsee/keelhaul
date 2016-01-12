@@ -344,6 +344,10 @@ func (s createStack) Execute(launch *Launch) {
 			ParameterKey:   aws.String("AssociatePublicIpAddress"),
 			ParameterValue: aws.String(associateIP),
 		},
+		{
+			ParameterKey:   aws.String("CustomerId"),
+			ParameterValue: aws.String(launch.User.CustomerID),
+		},
 	}
 
 	stack, err := launch.cloudformationClient.CreateStack(&cloudformation.CreateStackInput{
