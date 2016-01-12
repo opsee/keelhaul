@@ -134,6 +134,8 @@ func (launch *Launch) NotifyVars() interface{} {
 		ImageID:        launch.Bastion.ImageID.String,
 		InstanceID:     launch.Bastion.InstanceID.String,
 		GroupID:        launch.Bastion.GroupID.String,
+		InstanceName:   "Opsee Stack " + launch.User.CustomerID,
+		GroupName:      "Opsee Instance Security Group",
 		CheckCount:     launch.CheckRequestFactory.CheckRequestPool.SuccessfulRequests,
 	}
 
