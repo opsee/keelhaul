@@ -22,6 +22,7 @@ docker: fmt
 		--link lookupd:lookupd \
 		--env-file ./$(APPENV) \
 		-e "TARGETS=linux/amd64" \
+		-e GODEBUG=netdns=cgo \
 		-v `pwd`:/build quay.io/opsee/build-go:go15 \
 		&& docker build -t quay.io/opsee/keelhaul .
 
@@ -32,6 +33,7 @@ run: docker
 		--link lookupd:lookupd \
 		--link etcd:etcd \
 		--env-file ./$(APPENV) \
+		-e GODEBUG=netdns=cgo \
 		-e AWS_DEFAULT_REGION \
 		-e AWS_ACCESS_KEY_ID \
 		-e AWS_SECRET_ACCESS_KEY \

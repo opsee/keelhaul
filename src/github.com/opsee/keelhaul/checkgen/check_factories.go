@@ -7,8 +7,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/opsee/keelhaul/checker"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/keelhaul/checker"
 	"github.com/opsee/keelhaul/util"
 	"github.com/sirupsen/logrus"
 )
