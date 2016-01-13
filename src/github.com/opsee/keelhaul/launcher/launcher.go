@@ -4,6 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/spanx"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/router"
@@ -19,6 +20,7 @@ type launcher struct {
 	etcd   etcd.KeysAPI
 	bus    bus.Bus
 	router router.Router
+	spanx  spanx.Client
 	config *config.Config
 }
 
@@ -28,12 +30,13 @@ func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bu
 		router: router,
 		etcd:   etcdKAPI,
 		bus:    bus,
+		spanx:  spanx.New(cfg.SpanxEndpoint),
 		config: cfg,
 	}
 }
 
 func (l *launcher) LaunchBastion(sess *session.Session, user *com.User, vpcID, subnetID, subnetRouting, instanceType string) (*Launch, error) {
-	launch := NewLaunch(l.db, l.router, l.etcd, l.config, sess, user)
+	launch := NewLaunch(l.db, l.router, l.etcd, l.spanx, l.config, sess, user)
 	go l.watchLaunch(launch)
 
 	// this is done synchronously so that we can return the bastion id

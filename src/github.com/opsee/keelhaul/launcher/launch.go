@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/spanx"
 	"github.com/opsee/keelhaul/checkgen"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/router"
@@ -37,6 +38,7 @@ type Launch struct {
 	db                       store.Store
 	router                   router.Router
 	etcd                     etcd.KeysAPI
+	spanx                    spanx.Client
 	config                   *config.Config
 	bastionConfig            *com.BastionConfig
 	imageID                  string
@@ -79,7 +81,7 @@ const (
 	stateFailed     = "failed"
 )
 
-func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, cfg *config.Config, sess *session.Session, user *com.User) *Launch {
+func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, spanx spanx.Client, cfg *config.Config, sess *session.Session, user *com.User) *Launch {
 	return &Launch{
 		User:           user,
 		EventChan:      make(chan *Event),
@@ -89,6 +91,7 @@ func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, cfg 
 		db:             db,
 		router:         router,
 		etcd:           etcdKAPI,
+		spanx:          spanx,
 		config:         cfg,
 		session:        sess,
 		logger: log.WithFields(log.Fields{
@@ -134,7 +137,7 @@ func (launch *Launch) NotifyVars() interface{} {
 		ImageID:        launch.Bastion.ImageID.String,
 		InstanceID:     launch.Bastion.InstanceID.String,
 		GroupID:        launch.Bastion.GroupID.String,
-		InstanceName:   "Opsee Stack " + launch.User.CustomerID,
+		InstanceName:   "Opsee Instance",
 		GroupName:      "Opsee Instance Security Group",
 		CheckCount:     launch.CheckRequestFactory.CheckRequestPool.SuccessfulRequests,
 	}
@@ -179,6 +182,7 @@ func (launch *Launch) CreateBastion(vpcID, subnetID, subnetRouting, instanceType
 }
 
 func (launch *Launch) Launch() {
+	launch.stage(putRole{})
 	launch.stage(getBastionConfig{})
 	launch.stage(getLatestImageID{})
 	launch.stage(createTopic{})

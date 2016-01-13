@@ -348,6 +348,10 @@ func (s createStack) Execute(launch *Launch) {
 			ParameterKey:   aws.String("CustomerId"),
 			ParameterValue: aws.String(launch.User.CustomerID),
 		},
+		{
+			ParameterKey:   aws.String("BastionId"),
+			ParameterValue: aws.String(launch.Bastion.ID),
+		},
 	}
 
 	stack, err := launch.cloudformationClient.CreateStack(&cloudformation.CreateStackInput{
@@ -360,7 +364,15 @@ func (s createStack) Execute(launch *Launch) {
 		Tags: []*cloudformation.Tag{
 			{
 				Key:   aws.String("Name"),
-				Value: aws.String("Opsee Stack " + launch.User.CustomerID),
+				Value: aws.String("Opsee Stack"),
+			},
+			{
+				Key:   aws.String("vendor"),
+				Value: aws.String("Opsee"),
+			},
+			{
+				Key:   aws.String("opsee:customer-id"),
+				Value: aws.String(launch.User.CustomerID),
 			},
 		},
 		NotificationARNs: []*string{
