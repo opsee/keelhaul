@@ -319,6 +319,10 @@ func (s createStack) Execute(launch *Launch) {
 		associateIP = "True"
 	}
 
+	awsAccount := &com.Account{
+		CustomerID: launch.User.CustomerID,
+	}
+
 	stackParameters := []*cloudformation.Parameter{
 		{
 			ParameterKey:   aws.String("ImageId"),
@@ -351,6 +355,10 @@ func (s createStack) Execute(launch *Launch) {
 		{
 			ParameterKey:   aws.String("BastionId"),
 			ParameterValue: aws.String(launch.Bastion.ID),
+		},
+		{
+			ParameterKey:   aws.String("OpseeRole"),
+			ParameterValue: aws.String(awsAccount.RoleName()),
 		},
 	}
 

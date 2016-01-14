@@ -45,6 +45,10 @@
         "BastionId": {
             "Description": "Bastion ID",
             "Type": "String"
+        },
+        "OpseeRole": {
+            "Description": "Opsee Role",
+            "Type": "String"
         }
     },
     "Conditions": {
@@ -106,7 +110,7 @@
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
                 "Path": "/",
-                "Roles": ["OpseeRole"]
+                "Roles": [{"Ref": "OpseeRole"}]
             }
         },
         "OpseeInstance": {
