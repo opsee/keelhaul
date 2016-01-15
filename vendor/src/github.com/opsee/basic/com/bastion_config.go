@@ -41,6 +41,13 @@ write_files:
     ssh-authorized-keys:
       - {{ .Key }}{{ end }}{{ end }}
 coreos:
+  units:
+    - name: "docker.service"
+      drop-ins:
+        - name: "50-reboot.conf"
+          content: |
+            [Service]
+            FailureAction=reboot
   update:
     reboot-strategy: off
     group: beta
