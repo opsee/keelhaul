@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ensure docker env is sourced
-test -z $DOCKER_MACHINE_NAME && echo "DOCKER_MACHINE_NAME not defined" && exit 2
+test -z $DOCKER_MACHINE_NAME && echo "DOCKER_MACHINE_NAME not defined, try 'eval \$(docker-machine env MACHINE_NAME)'" && exit 2
 HOST_IP=$(docker-machine ip $DOCKER_MACHINE_NAME)
 test "$?" = "0" || exit 1
 
