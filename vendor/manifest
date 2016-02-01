@@ -168,21 +168,21 @@
 		{
 			"importpath": "github.com/golang/protobuf/jsonpb",
 			"repository": "https://github.com/golang/protobuf",
-			"revision": "68415e7123da32b07eab49c96d2c4d6158360e9b",
+			"revision": "45bba206dd5270d96bac4942dcfe515726613249",
 			"branch": "master",
 			"path": "/jsonpb"
 		},
 		{
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
-			"revision": "68415e7123da32b07eab49c96d2c4d6158360e9b",
+			"revision": "45bba206dd5270d96bac4942dcfe515726613249",
 			"branch": "master",
 			"path": "/proto"
 		},
 		{
 			"importpath": "github.com/golang/protobuf/protoc-gen-go/descriptor",
 			"repository": "https://github.com/golang/protobuf",
-			"revision": "68415e7123da32b07eab49c96d2c4d6158360e9b",
+			"revision": "45bba206dd5270d96bac4942dcfe515726613249",
 			"branch": "master",
 			"path": "/protoc-gen-go/descriptor"
 		},
@@ -336,7 +336,7 @@
 		{
 			"importpath": "google.golang.org/grpc",
 			"repository": "https://github.com/grpc/grpc-go",
-			"revision": "3463c93e2ba1a80e3372fbf41aaeabe63615ca84",
+			"revision": "a0f854fec276bf9ba66f968f160f4b6e8222ee0d",
 			"branch": "master"
 		},
 		{
