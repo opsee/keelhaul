@@ -11,4 +11,4 @@ eval "$(< /ec2env)"
 
 source /$APPENV && \
 	/opt/bin/migrate -url "$POSTGRES_CONN" -path /migrations up && \
-	/keelhaul
+	/keelhaul-linux-amd64

@@ -35,4 +35,4 @@ COPY etc/bastion-cf.template /
 COPY vape.test.key /
 
 EXPOSE 9092
-CMD ["/keelhaul"]
+CMD ["/keelhaul-linux-amd64"]
