@@ -11,6 +11,8 @@ type Store interface {
 
 	GetBastion(*GetBastionRequest) (*GetBastionResponse, error)
 	ListBastions(*ListBastionsRequest) (*ListBastionsResponse, error)
+
+	UpdateTracking([]string) error
 }
 
 type GetBastionRequest struct {

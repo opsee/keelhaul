@@ -130,6 +130,15 @@ func (pg *Postgres) putRegion(x sqlx.Ext, region *com.Region) error {
 	return err
 }
 
+func (pg *Postgres) UpdateTracking(bastionIDs []string) error {
+	for i, s := range bastionIDs {
+		bastionIDs[i] = fmt.Sprintf("cast('%s' as UUID)", s)
+	}
+	query := fmt.Sprintf("select batch_upsert_tracking(array[%s])", strings.Join(bastionIDs, ", "))
+	_, err := pg.db.Query(query)
+	return err
+}
+
 func in(ordStart, listLen int) string {
 	ords := make([]string, listLen)
 	for i := 0; i < listLen; i++ {

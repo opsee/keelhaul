@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/launcher"
@@ -44,11 +43,6 @@ var regions = map[string]bool{
 	"us-east-1":      true,
 	"us-west-1":      true,
 	"us-west-2":      true,
-}
-
-type Service interface {
-	ScanVPCs(*com.User, *ScanVPCsRequest) (*ScanVPCsResponse, error)
-	LaunchBastions(*com.User, *LaunchBastionsRequest) (*LaunchBastionsResponse, error)
 }
 
 type service struct {
