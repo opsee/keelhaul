@@ -5,8 +5,6 @@ import (
 	"time"
 
 	etcd "github.com/coreos/etcd/client"
-	"github.com/opsee/keelhaul/config"
-	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
 	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
@@ -24,9 +22,7 @@ const (
 
 type tracker struct {
 	db             store.Store
-	router         router.Router
 	etcd           etcd.KeysAPI
-	config         *config.Config
 	quit           chan struct{}
 	isServing      bool
 	lastUpdateTime time.Time
@@ -35,13 +31,11 @@ type tracker struct {
 	contOptions    etcd.SetOptions
 }
 
-func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, cfg *config.Config) *tracker {
+func New(db store.Store, etcdKAPI etcd.KeysAPI) *tracker {
 	selfID := uuid.NewV4().String()
 	return &tracker{
 		db:     db,
-		router: router,
 		etcd:   etcdKAPI,
-		config: cfg,
 		quit:   make(chan struct{}, 1),
 		selfID: selfID,
 		offerOptions: etcd.SetOptions{

@@ -68,7 +68,7 @@ func main() {
 
 	launcher := launcher.New(db, router, etcdKeysAPI, bus, cfg)
 
-	tracker := tracker.New(db, router, etcdKeysAPI, cfg)
+	tracker := tracker.New(db, etcdKeysAPI)
 	tracker.Start()
 
 	svc := service.New(db, bus, launcher, router, cfg)
