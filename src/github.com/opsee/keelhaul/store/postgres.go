@@ -135,7 +135,8 @@ func (pg *Postgres) UpdateTracking(bastionIDs []string) error {
 		bastionIDs[i] = fmt.Sprintf("cast('%s' as UUID)", s)
 	}
 	query := fmt.Sprintf("select batch_upsert_tracking(array[%s])", strings.Join(bastionIDs, ", "))
-	_, err := pg.db.Query(query)
+	r, err := pg.db.Query(query)
+	r.Close()
 	return err
 }
 
