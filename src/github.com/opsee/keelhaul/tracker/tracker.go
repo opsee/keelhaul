@@ -142,7 +142,10 @@ func (t *tracker) updateSeen() {
 		for _, norde := range node.Nodes {
 			bastBatch = append(bastBatch, path.Base(norde.Key))
 			if len(bastBatch) == updateBatchSize {
-				t.db.UpdateTracking(bastBatch)
+				err = t.db.UpdateTracking(bastBatch)
+				if err != nil {
+					log.Error(err)
+				}
 				bastBatch = make([]string, 0, updateBatchSize)
 			}
 		}
