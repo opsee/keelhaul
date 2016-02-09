@@ -9,6 +9,7 @@ import (
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/launcher"
+	"github.com/opsee/keelhaul/notifier"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/service"
 	"github.com/opsee/keelhaul/store"
@@ -66,9 +67,11 @@ func main() {
 
 	router := router.New(etcdKeysAPI)
 
-	launcher := launcher.New(db, router, etcdKeysAPI, bus, cfg)
+	notifier := notifier.New(cfg)
 
-	tracker := tracker.New(db, etcdKeysAPI)
+	launcher := launcher.New(db, router, etcdKeysAPI, bus, notifier, cfg)
+
+	tracker := tracker.New(db, etcdKeysAPI, notifier)
 	tracker.Start()
 
 	svc := service.New(db, bus, launcher, router, cfg)

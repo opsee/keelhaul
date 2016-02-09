@@ -1,18 +1,25 @@
-package launcher
+package notifier
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/hoisie/mustache"
+	"github.com/opsee/keelhaul/config"
 	slacktmpl "github.com/opsee/notification-templates/dist/go/slack"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
 type Notifier interface {
-	UserID() int
-	NotifyVars() interface{}
+	NotifyError(int, interface{}) error
+	NotifySuccess(int, interface{}) error
+	NotifySlackBastionState(bool, interface{}) error
+}
+
+type notifier struct {
+	SlackEndpoint string
+	VapeEndpoint  string
 }
 
 const (
@@ -21,9 +28,18 @@ const (
 )
 
 var (
-	slackLaunchTemplate *mustache.Template
-	slackErrorTemplate  *mustache.Template
+	slackLaunchTemplate      *mustache.Template
+	slackErrorTemplate       *mustache.Template
+	slackBastionUpTemplate   *mustache.Template
+	slackBastionDownTemplate *mustache.Template
 )
+
+func New(c *config.Config) *notifier {
+	return &notifier{
+		VapeEndpoint:  c.VapeEndpoint,
+		SlackEndpoint: c.SlackEndpoint,
+	}
+}
 
 func init() {
 	tmpl, err := mustache.ParseString(slacktmpl.NewCustomer)
@@ -37,45 +53,64 @@ func init() {
 		panic(err)
 	}
 	slackErrorTemplate = tmpl
+
+	tmpl, err = mustache.ParseString(slacktmpl.BastionOnline)
+	if err != nil {
+		panic(err)
+	}
+	slackBastionUpTemplate = tmpl
+
+	tmpl, err = mustache.ParseString(slacktmpl.BastionOffline)
+	if err != nil {
+		panic(err)
+	}
+	slackBastionDownTemplate = tmpl
 }
 
-func (l *launcher) NotifySuccess(n Notifier) error {
-	err := l.notifyEmail(n, emailLaunchTemplate)
+func (n *notifier) NotifySlackBastionState(isUp bool, notifyVars interface{}) error {
+	if isUp {
+		return n.notifySlack(notifyVars, slackBastionUpTemplate)
+	}
+	return n.notifySlack(notifyVars, slackBastionDownTemplate)
+}
+
+func (n *notifier) NotifySuccess(userID int, notifyVars interface{}) error {
+	err := n.notifyEmail(userID, notifyVars, emailLaunchTemplate)
 	if err != nil {
 		return err
 	}
 
-	return l.notifySlack(n, slackLaunchTemplate)
+	return n.notifySlack(notifyVars, slackLaunchTemplate)
 }
 
-func (l *launcher) NotifyError(n Notifier) error {
-	err := l.notifyEmail(n, emailErrorTemplate)
+func (n *notifier) NotifyError(userID int, notifyVars interface{}) error {
+	err := n.notifyEmail(userID, notifyVars, emailErrorTemplate)
 	if err != nil {
 		return err
 	}
 
-	return l.notifySlack(n, slackErrorTemplate)
+	return n.notifySlack(notifyVars, slackErrorTemplate)
 }
 
-func (l *launcher) notifyEmail(n Notifier, template string) error {
+func (n *notifier) notifyEmail(userID int, notifyVars interface{}, template string) error {
 	log.Info("requested email notification")
 
-	if l.config.VapeEndpoint == "" {
+	if n.VapeEndpoint == "" {
 		log.Warn("not sending email notification since VAPE_ENDPOINT is not set")
 		return nil
 	}
 
 	requestJSON, err := json.Marshal(map[string]interface{}{
-		"user_id":  n.UserID(),
+		"user_id":  userID,
 		"template": template,
-		"vars":     n.NotifyVars(),
+		"vars":     notifyVars,
 	})
 
 	if err != nil {
 		return err
 	}
 
-	resp, err := http.Post(l.config.VapeEndpoint, "application/json", bytes.NewBuffer(requestJSON))
+	resp, err := http.Post(n.VapeEndpoint, "application/json", bytes.NewBuffer(requestJSON))
 	if err != nil {
 		return err
 	}
@@ -105,17 +140,17 @@ func (l *launcher) notifyEmail(n Notifier, template string) error {
 	return nil
 }
 
-func (l *launcher) notifySlack(n Notifier, template *mustache.Template) error {
+func (n *notifier) notifySlack(notifyVars interface{}, template *mustache.Template) error {
 	log.Info("requested slack notification")
 
-	if l.config.SlackEndpoint == "" {
+	if n.SlackEndpoint == "" {
 		log.Warn("not sending slack notification since SLACK_ENDPOINT is not set")
 		return nil
 	}
 
 	templateVars := make(map[string]interface{})
 
-	j, err := json.Marshal(n.NotifyVars())
+	j, err := json.Marshal(notifyVars)
 	if err != nil {
 		return err
 	}
@@ -126,7 +161,7 @@ func (l *launcher) notifySlack(n Notifier, template *mustache.Template) error {
 	}
 
 	body := bytes.NewBufferString(template.Render(templateVars))
-	resp, err := http.Post(l.config.SlackEndpoint, "application/json", body)
+	resp, err := http.Post(n.SlackEndpoint, "application/json", body)
 	if err != nil {
 		return err
 	}
