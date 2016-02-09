@@ -12,6 +12,7 @@ import (
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/service"
 	"github.com/opsee/keelhaul/store"
+	"github.com/opsee/keelhaul/tracker"
 	"github.com/opsee/vaper"
 	log "github.com/sirupsen/logrus"
 )
@@ -67,9 +68,13 @@ func main() {
 
 	launcher := launcher.New(db, router, etcdKeysAPI, bus, cfg)
 
+	tracker := tracker.New(db, etcdKeysAPI)
+	tracker.Start()
+
 	svc := service.New(db, bus, launcher, router, cfg)
 	svc.StartHTTP(cfg.PublicHost)
 
+	tracker.Stop()
 	bus.Stop()
 }
 
