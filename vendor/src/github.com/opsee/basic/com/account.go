@@ -22,9 +22,9 @@ func (a *Account) PolicyName() string {
 }
 
 func (a *Account) RoleARN() string {
-	return fmt.Sprintf("arn:aws:iam::%d:role/%s", a.ID, a.RoleName())
+	return fmt.Sprintf("arn:aws:iam::%012d:role/%s", a.ID, a.RoleName())
 }
 
 func (a *Account) PolicyARN() string {
-	return fmt.Sprintf("arn:aws:iam::%d:policy/%s", a.ID, a.PolicyName())
+	return fmt.Sprintf("arn:aws:iam::%012d:policy/%s", a.ID, a.PolicyName())
 }

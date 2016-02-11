@@ -67,5 +67,10 @@ type SubnetsByPreference []*Subnet
 func (s SubnetsByPreference) Len() int      { return len(s) }
 func (s SubnetsByPreference) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 func (s SubnetsByPreference) Less(i, j int) bool {
-	return RoutingPreference[s[i].Routing] < RoutingPreference[s[j].Routing]
+	l, r := RoutingPreference[s[i].Routing], RoutingPreference[s[j].Routing]
+	if l == r {
+		return s[i].InstanceCount > s[j].InstanceCount
+	}
+
+	return l < r
 }
