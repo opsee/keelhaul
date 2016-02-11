@@ -243,7 +243,7 @@
 		{
 			"importpath": "github.com/opsee/basic",
 			"repository": "https://github.com/opsee/basic",
-			"revision": "fc0bd27acdf0f3cd13d25dbaf91d307c3f41cf2e",
+			"revision": "3b7ed030aac8ff429537cfb4633928356fb3b85f",
 			"branch": "master"
 		},
 		{

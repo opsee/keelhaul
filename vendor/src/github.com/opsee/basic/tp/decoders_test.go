@@ -122,7 +122,7 @@ func TestParams(t *testing.T) {
 
 	rw = httptest.NewRecorder()
 	router.ServeHTTP(rw, req)
-	assert.Equal(t, http.StatusMethodNotAllowed, rw.Code)
+	assert.Equal(t, http.StatusNotFound, rw.Code)
 }
 
 func TestAuthorization(t *testing.T) {
