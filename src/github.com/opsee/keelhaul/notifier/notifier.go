@@ -18,8 +18,9 @@ type Notifier interface {
 }
 
 type notifier struct {
-	SlackEndpoint string
-	VapeEndpoint  string
+	LaunchesSlackEndpoint string
+	TrackerSlackEndpoint  string
+	VapeEndpoint          string
 }
 
 const (
@@ -36,8 +37,9 @@ var (
 
 func New(c *config.Config) *notifier {
 	return &notifier{
-		VapeEndpoint:  c.VapeEndpoint,
-		SlackEndpoint: c.SlackEndpoint,
+		VapeEndpoint:          c.VapeEndpoint,
+		LaunchesSlackEndpoint: c.LaunchesSlackEndpoint,
+		TrackerSlackEndpoint:  c.TrackerSlackEndpoint,
 	}
 }
 
@@ -69,9 +71,9 @@ func init() {
 
 func (n *notifier) NotifySlackBastionState(isUp bool, notifyVars interface{}) error {
 	if isUp {
-		return n.notifySlack(notifyVars, slackBastionUpTemplate)
+		return n.notifySlack(notifyVars, slackBastionUpTemplate, n.TrackerSlackEndpoint)
 	}
-	return n.notifySlack(notifyVars, slackBastionDownTemplate)
+	return n.notifySlack(notifyVars, slackBastionDownTemplate, n.TrackerSlackEndpoint)
 }
 
 func (n *notifier) NotifySuccess(userID int, notifyVars interface{}) error {
@@ -80,7 +82,7 @@ func (n *notifier) NotifySuccess(userID int, notifyVars interface{}) error {
 		return err
 	}
 
-	return n.notifySlack(notifyVars, slackLaunchTemplate)
+	return n.notifySlack(notifyVars, slackLaunchTemplate, n.LaunchesSlackEndpoint)
 }
 
 func (n *notifier) NotifyError(userID int, notifyVars interface{}) error {
@@ -89,7 +91,7 @@ func (n *notifier) NotifyError(userID int, notifyVars interface{}) error {
 		return err
 	}
 
-	return n.notifySlack(notifyVars, slackErrorTemplate)
+	return n.notifySlack(notifyVars, slackErrorTemplate, n.LaunchesSlackEndpoint)
 }
 
 func (n *notifier) notifyEmail(userID int, notifyVars interface{}, template string) error {
@@ -140,11 +142,11 @@ func (n *notifier) notifyEmail(userID int, notifyVars interface{}, template stri
 	return nil
 }
 
-func (n *notifier) notifySlack(notifyVars interface{}, template *mustache.Template) error {
+func (n *notifier) notifySlack(notifyVars interface{}, template *mustache.Template, endpoint string) error {
 	log.Info("requested slack notification")
 
-	if n.SlackEndpoint == "" {
-		log.Warn("not sending slack notification since SLACK_ENDPOINT is not set")
+	if endpoint == "" {
+		log.Warn("not sending slack notification since endpoint is not set")
 		return nil
 	}
 
@@ -161,7 +163,7 @@ func (n *notifier) notifySlack(notifyVars interface{}, template *mustache.Templa
 	}
 
 	body := bytes.NewBufferString(template.Render(templateVars))
-	resp, err := http.Post(n.SlackEndpoint, "application/json", body)
+	resp, err := http.Post(endpoint, "application/json", body)
 	if err != nil {
 		return err
 	}

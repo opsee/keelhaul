@@ -20,21 +20,22 @@ import (
 
 func main() {
 	cfg := &config.Config{
-		PublicHost:        mustEnvString("KEELHAUL_ADDRESS"),
-		PostgresConn:      mustEnvString("POSTGRES_CONN"),
-		EtcdAddr:          mustEnvString("ETCD_ADDR"),
-		BastionConfigKey:  mustEnvString("BASTION_CONFIG_KEY"),
-		BastionCFTemplate: mustEnvString("BASTION_CF_TEMPLATE"),
-		VapeEndpoint:      mustEnvString("VAPE_ENDPOINT"),
-		VapeKey:           mustEnvString("VAPE_KEYFILE"),
-		FieriEndpoint:     mustEnvString("FIERI_ENDPOINT"),
-		SlackEndpoint:     mustEnvString("SLACK_ENDPOINT"),
-		NSQDAddr:          mustEnvString("NSQD_HOST"),
-		NSQTopic:          mustEnvString("NSQ_TOPIC"),
-		NSQLookupds:       mustEnvString("NSQLOOKUPD_ADDRS"),
-		BartnetEndpoint:   mustEnvString("BARTNET_ENDPOINT"),
-		BeavisEndpoint:    mustEnvString("BEAVIS_ENDPOINT"),
-		SpanxEndpoint:     mustEnvString("SPANX_ENDPOINT"),
+		PublicHost:            mustEnvString("KEELHAUL_ADDRESS"),
+		PostgresConn:          mustEnvString("POSTGRES_CONN"),
+		EtcdAddr:              mustEnvString("ETCD_ADDR"),
+		BastionConfigKey:      mustEnvString("BASTION_CONFIG_KEY"),
+		BastionCFTemplate:     mustEnvString("BASTION_CF_TEMPLATE"),
+		VapeEndpoint:          mustEnvString("VAPE_ENDPOINT"),
+		VapeKey:               mustEnvString("VAPE_KEYFILE"),
+		FieriEndpoint:         mustEnvString("FIERI_ENDPOINT"),
+		LaunchesSlackEndpoint: mustEnvString("LAUNCHES_SLACK_ENDPOINT"),
+		TrackerSlackEndpoint:  mustEnvString("TRACKER_SLACK_ENDPOINT"),
+		NSQDAddr:              mustEnvString("NSQD_HOST"),
+		NSQTopic:              mustEnvString("NSQ_TOPIC"),
+		NSQLookupds:           mustEnvString("NSQLOOKUPD_ADDRS"),
+		BartnetEndpoint:       mustEnvString("BARTNET_ENDPOINT"),
+		BeavisEndpoint:        mustEnvString("BEAVIS_ENDPOINT"),
+		SpanxEndpoint:         mustEnvString("SPANX_ENDPOINT"),
 	}
 
 	key, err := ioutil.ReadFile(cfg.VapeKey)
