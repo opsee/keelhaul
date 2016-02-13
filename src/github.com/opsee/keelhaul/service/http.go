@@ -1,11 +1,13 @@
 package service
 
 import (
+	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/opsee/basic/com"
 	"github.com/opsee/basic/tp"
 	"golang.org/x/net/context"
-	"net/http"
-	"time"
 )
 
 const (
@@ -29,6 +31,7 @@ func (s *service) StartHTTP(addr string) {
 	router.Handle("POST", "/vpcs/scan", decoders(com.User{}, ScanVPCsRequest{}), s.scanVPCs())
 	router.Handle("POST", "/vpcs/launch", decoders(com.User{}, LaunchBastionsRequest{}), s.launchBastions())
 	router.Handle("GET", "/vpcs/bastions", decoders(com.User{}, ListBastionsRequest{}), s.listBastions())
+	router.Handle("GET", "/vpcs/cloudformation", []tp.DecodeFunc{tp.AuthorizationDecodeFunc(userKey, com.User{})}, s.getCloudFormationTemplate())
 	router.Handle("POST", "/bastions/authenticate", []tp.DecodeFunc{tp.RequestDecodeFunc(requestKey, AuthenticateBastionRequest{})}, s.authenticateBastion())
 
 	// websocket
@@ -113,6 +116,28 @@ func (s *service) listBastions() tp.HandleFunc {
 		}
 
 		return bastions, http.StatusOK, nil
+	}
+}
+
+func (s *service) getCloudFormationTemplate() tp.HandleFunc {
+	return func(ctx context.Context) (interface{}, int, error) {
+		_, ok := ctx.Value(userKey).(*com.User)
+		if !ok {
+			return ctx, http.StatusUnauthorized, errUnknown
+		}
+
+		cloudformation, err := s.GetCloudFormationTemplate()
+		if err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+
+		cfn := make(map[string]interface{})
+		err = json.Unmarshal(cloudformation, &cfn)
+		if err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+
+		return cfn, http.StatusOK, nil
 	}
 }
 

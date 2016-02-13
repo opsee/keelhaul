@@ -57,6 +57,25 @@ var swaggerMap = j{
 				},
 			},
 		},
+		"/vpcs/cloudformation": j{
+			"post": j{
+				"tags": []string{
+					"vpcs",
+				},
+				"operationId": "getCloudformation",
+				"summary":     "Get Bastion Cloudformation Template",
+				"parameters":  []string{},
+				"responses": j{
+					"200": j{
+						"description": "Description was not specified",
+					},
+					"401": j{
+						"description": "Description was not specified",
+					},
+				},
+			},
+		},
+
 		// "/bastions": j{
 		// 	"get": j{
 		// 		"tags": []string{
