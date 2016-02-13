@@ -2,8 +2,8 @@
 set -e
 
 echo "loading schema for tests..."
-echo "create database keelhaul_test" | psql -U postgres -h postgresql
-#echo "drop database if exists keelhaul_test; create database keelhaul_test" | psql -U postgres -h postgresql
+echo "create database keelhaul_test" | psql $POSTGRES_CONN
+#echo "drop database if exists keelhaul_test; create database keelhaul_test" | psql $POSTGRES_CONN
 migrate -url $POSTGRES_CONN -path ./migrations up
 
 git submodule update --init
