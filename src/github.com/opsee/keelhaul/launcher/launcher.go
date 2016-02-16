@@ -7,6 +7,7 @@ import (
 	"github.com/opsee/basic/spanx"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
+	"github.com/opsee/keelhaul/notifier"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
 )
@@ -16,22 +17,24 @@ type Launcher interface {
 }
 
 type launcher struct {
-	db     store.Store
-	etcd   etcd.KeysAPI
-	bus    bus.Bus
-	router router.Router
-	spanx  spanx.Client
-	config *config.Config
+	db       store.Store
+	etcd     etcd.KeysAPI
+	bus      bus.Bus
+	router   router.Router
+	spanx    spanx.Client
+	config   *config.Config
+	notifier notifier.Notifier
 }
 
-func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bus, cfg *config.Config) *launcher {
+func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bus, notifier notifier.Notifier, cfg *config.Config) *launcher {
 	return &launcher{
-		db:     db,
-		router: router,
-		etcd:   etcdKAPI,
-		bus:    bus,
-		spanx:  spanx.New(cfg.SpanxEndpoint),
-		config: cfg,
+		db:       db,
+		router:   router,
+		etcd:     etcdKAPI,
+		bus:      bus,
+		spanx:    spanx.New(cfg.SpanxEndpoint),
+		config:   cfg,
+		notifier: notifier,
 	}
 }
 
@@ -56,9 +59,9 @@ func (l *launcher) watchLaunch(launch *Launch) {
 	}
 
 	if launch.Err != nil {
-		l.NotifyError(launch)
+		l.notifier.NotifyError(launch.User.ID, launch.NotifyVars())
 	} else {
 		launch.CheckRequestFactory.CheckRequestPool.DrainRequests(true)
-		l.NotifySuccess(launch)
+		l.notifier.NotifySuccess(launch.User.ID, launch.NotifyVars())
 	}
 }

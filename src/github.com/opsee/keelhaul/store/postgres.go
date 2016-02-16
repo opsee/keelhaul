@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -130,11 +131,13 @@ func (pg *Postgres) putRegion(x sqlx.Ext, region *com.Region) error {
 	return err
 }
 
-func (pg *Postgres) UpdateTracking(bastionIDs []string) error {
+func (pg *Postgres) UpdateTrackingSeen(bastionIDs []string, customerIDs []string) error {
 	for i, s := range bastionIDs {
 		bastionIDs[i] = fmt.Sprintf("cast('%s' as UUID)", s)
+		customerIDs[i] = fmt.Sprintf("cast('%s' as UUID)", customerIDs[i])
 	}
-	query := fmt.Sprintf("select batch_upsert_tracking(array[%s])", strings.Join(bastionIDs, ", "))
+	query := fmt.Sprintf("select batch_upsert_tracking(array[%s], array[%s])", strings.Join(bastionIDs, ", "), strings.Join(customerIDs, ", "))
+	// TODO consider using prepared stmt w/placeholders
 	r, err := pg.db.Query(query)
 	r.Close()
 	return err
@@ -147,4 +150,36 @@ func in(ordStart, listLen int) string {
 	}
 
 	return strings.Join(ords, ",")
+}
+
+func (pg *Postgres) ListTrackingStates(inactiveInterval string) (*TrackingStateResponse, error) {
+	query := fmt.Sprintf("select id,customer_id,status,last_seen from bastion_tracking "+
+		"where (status = 'active' and last_seen <= (now() - interval '%s')) "+
+		"or (status = 'inactive' and last_seen >= (now() - interval '%s'))",
+		inactiveInterval, inactiveInterval)
+
+	states := make([]*TrackingState, 0)
+	args := make([]interface{}, 0)
+	err := pg.db.Select(&states, query, args...)
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	return &TrackingStateResponse{States: states}, nil
+}
+
+func (pg *Postgres) UpdateTrackingState(bastionID string, newState string) error {
+	stmt := fmt.Sprintf("update bastion_tracking set status = '%s' "+
+		"where id = cast('%s' as UUID)",
+		newState, bastionID)
+
+	res, err := pg.db.Exec(stmt)
+	if n, _ := res.RowsAffected(); n == 0 {
+		if err == nil {
+			err = errors.New("no rows updated")
+		}
+	}
+
+	return err
 }

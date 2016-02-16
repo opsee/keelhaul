@@ -9,6 +9,7 @@ import (
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/launcher"
+	"github.com/opsee/keelhaul/notifier"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/service"
 	"github.com/opsee/keelhaul/store"
@@ -19,21 +20,22 @@ import (
 
 func main() {
 	cfg := &config.Config{
-		PublicHost:        mustEnvString("KEELHAUL_ADDRESS"),
-		PostgresConn:      mustEnvString("POSTGRES_CONN"),
-		EtcdAddr:          mustEnvString("ETCD_ADDR"),
-		BastionConfigKey:  mustEnvString("BASTION_CONFIG_KEY"),
-		BastionCFTemplate: mustEnvString("BASTION_CF_TEMPLATE"),
-		VapeEndpoint:      mustEnvString("VAPE_ENDPOINT"),
-		VapeKey:           mustEnvString("VAPE_KEYFILE"),
-		FieriEndpoint:     mustEnvString("FIERI_ENDPOINT"),
-		SlackEndpoint:     mustEnvString("SLACK_ENDPOINT"),
-		NSQDAddr:          mustEnvString("NSQD_HOST"),
-		NSQTopic:          mustEnvString("NSQ_TOPIC"),
-		NSQLookupds:       mustEnvString("NSQLOOKUPD_ADDRS"),
-		BartnetEndpoint:   mustEnvString("BARTNET_ENDPOINT"),
-		BeavisEndpoint:    mustEnvString("BEAVIS_ENDPOINT"),
-		SpanxEndpoint:     mustEnvString("SPANX_ENDPOINT"),
+		PublicHost:            mustEnvString("KEELHAUL_ADDRESS"),
+		PostgresConn:          mustEnvString("POSTGRES_CONN"),
+		EtcdAddr:              mustEnvString("ETCD_ADDR"),
+		BastionConfigKey:      mustEnvString("BASTION_CONFIG_KEY"),
+		BastionCFTemplate:     mustEnvString("BASTION_CF_TEMPLATE"),
+		VapeEndpoint:          mustEnvString("VAPE_ENDPOINT"),
+		VapeKey:               mustEnvString("VAPE_KEYFILE"),
+		FieriEndpoint:         mustEnvString("FIERI_ENDPOINT"),
+		LaunchesSlackEndpoint: mustEnvString("LAUNCHES_SLACK_ENDPOINT"),
+		TrackerSlackEndpoint:  mustEnvString("TRACKER_SLACK_ENDPOINT"),
+		NSQDAddr:              mustEnvString("NSQD_HOST"),
+		NSQTopic:              mustEnvString("NSQ_TOPIC"),
+		NSQLookupds:           mustEnvString("NSQLOOKUPD_ADDRS"),
+		BartnetEndpoint:       mustEnvString("BARTNET_ENDPOINT"),
+		BeavisEndpoint:        mustEnvString("BEAVIS_ENDPOINT"),
+		SpanxEndpoint:         mustEnvString("SPANX_ENDPOINT"),
 	}
 
 	key, err := ioutil.ReadFile(cfg.VapeKey)
@@ -66,9 +68,11 @@ func main() {
 
 	router := router.New(etcdKeysAPI)
 
-	launcher := launcher.New(db, router, etcdKeysAPI, bus, cfg)
+	notifier := notifier.New(cfg)
 
-	tracker := tracker.New(db, etcdKeysAPI)
+	launcher := launcher.New(db, router, etcdKeysAPI, bus, notifier, cfg)
+
+	tracker := tracker.New(db, etcdKeysAPI, notifier)
 	tracker.Start()
 
 	svc := service.New(db, bus, launcher, router, cfg)

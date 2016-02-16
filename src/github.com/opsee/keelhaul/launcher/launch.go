@@ -106,10 +106,6 @@ func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, span
 	}
 }
 
-func (launch *Launch) UserID() int {
-	return launch.User.ID
-}
-
 func (launch *Launch) NotifyVars() interface{} {
 	vars := struct {
 		*VPCEnvironment

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	etcd "github.com/coreos/etcd/client"
+	"github.com/opsee/keelhaul/notifier"
 	"github.com/opsee/keelhaul/store"
 	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
@@ -12,12 +13,13 @@ import (
 )
 
 const (
-	routePath       = "/opsee.co/routes"
-	trackerKeyPath  = "/opsee.co/config/keelhaul/trackerLock"
-	leaderCheckRate = time.Duration(30) * time.Second
-	serviceTTL      = time.Duration(60) * time.Second
-	minUpdateDelay  = time.Duration(180) * time.Second // matches TTL for routes
-	updateBatchSize = 128
+	routePath        = "/opsee.co/routes"
+	trackerKeyPath   = "/opsee.co/config/keelhaul/trackerLock"
+	leaderCheckRate  = time.Duration(30) * time.Second
+	serviceTTL       = time.Duration(60) * time.Second
+	minUpdateDelay   = time.Duration(180) * time.Second // matches TTL for routes
+	updateBatchSize  = 128
+	inactiveInterval = "3 minutes"
 )
 
 type tracker struct {
@@ -29,15 +31,17 @@ type tracker struct {
 	selfID         string
 	offerOptions   etcd.SetOptions
 	contOptions    etcd.SetOptions
+	notifier       notifier.Notifier
 }
 
-func New(db store.Store, etcdKAPI etcd.KeysAPI) *tracker {
+func New(db store.Store, etcdKAPI etcd.KeysAPI, notifier notifier.Notifier) *tracker {
 	selfID := uuid.NewV4().String()
 	return &tracker{
-		db:     db,
-		etcd:   etcdKAPI,
-		quit:   make(chan struct{}, 1),
-		selfID: selfID,
+		db:       db,
+		etcd:     etcdKAPI,
+		quit:     make(chan struct{}, 1),
+		selfID:   selfID,
+		notifier: notifier,
 		offerOptions: etcd.SetOptions{
 			PrevExist: etcd.PrevNoExist,
 			TTL:       serviceTTL,
@@ -101,11 +105,6 @@ func (t *tracker) offerService() {
 		t.isServing = true
 	} else {
 		t.isServing = false
-		// temporarily log all
-		log.WithError(err).WithFields(log.Fields{
-			"id":        t.selfID,
-			"PrevExist": setOpts.PrevExist,
-			"PrevValue": setOpts.PrevValue}).Warn("etcd Set error")
 
 		switch err.(type) {
 		default:
@@ -133,29 +132,56 @@ func (t *tracker) updateSeen() {
 		Quorum:    false, // shouldn't need consistent reads here
 	})
 	if err != nil {
-		log.Error(err)
+		log.WithError(err).Error("etcd read failed")
 		return
 	}
 
 	bastBatch := make([]string, 0, updateBatchSize)
-	for _, node := range response.Node.Nodes {
-		for _, norde := range node.Nodes {
-			bastBatch = append(bastBatch, path.Base(norde.Key))
+	custBatch := make([]string, 0, updateBatchSize)
+	for _, custNode := range response.Node.Nodes {
+		for _, bastNode := range custNode.Nodes {
+			bastBatch = append(bastBatch, path.Base(bastNode.Key))
+			custBatch = append(custBatch, path.Base(custNode.Key))
 			if len(bastBatch) == updateBatchSize {
-				err = t.db.UpdateTracking(bastBatch)
+				err = t.db.UpdateTrackingSeen(bastBatch, custBatch)
 				if err != nil {
-					log.Error(err)
+					log.WithError(err).Error("tracking table update failed")
 				}
 				bastBatch = make([]string, 0, updateBatchSize)
+				custBatch = make([]string, 0, updateBatchSize)
 			}
 		}
 	}
 	if len(bastBatch) > 0 {
-		err = t.db.UpdateTracking(bastBatch)
+		err = t.db.UpdateTrackingSeen(bastBatch, custBatch)
 		if err != nil {
-			log.Error(err)
+			log.WithError(err).Error("tracking table update failed")
 		}
 	}
 
-	// TODO update new status in postgres and fire notifications
+	states, err := t.db.ListTrackingStates(inactiveInterval)
+	if err != nil {
+		log.WithError(err).Error("failed to list tracking states")
+		return
+	}
+	for _, s := range states.States {
+		var err error
+		if s.Status == "active" {
+			s.Status = "inactive"
+			err = t.notifier.NotifySlackBastionState(false, s)
+			if err == nil {
+				err = t.db.UpdateTrackingState(s.ID, "inactive")
+			}
+		} else {
+			s.Status = "active"
+			err = t.notifier.NotifySlackBastionState(true, s)
+			if err == nil {
+				err = t.db.UpdateTrackingState(s.ID, "active")
+			}
+		}
+		if err != nil {
+			log.WithError(err).Error("failed to update tracking state and/or notify")
+			return
+		}
+	}
 }
