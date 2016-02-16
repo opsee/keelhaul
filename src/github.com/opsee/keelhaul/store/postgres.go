@@ -139,7 +139,7 @@ func (pg *Postgres) UpdateTrackingSeen(bastionIDs []string, customerIDs []string
 	query := fmt.Sprintf("select batch_upsert_tracking(array[%s], array[%s])", strings.Join(bastionIDs, ", "), strings.Join(customerIDs, ", "))
 	// TODO consider using prepared stmt w/placeholders
 	r, err := pg.db.Query(query)
-	if r != nil {
+	if err == nil {
 		r.Close()
 	}
 	return err
@@ -177,7 +177,7 @@ func (pg *Postgres) UpdateTrackingState(bastionID string, newState string) error
 		newState, bastionID)
 
 	res, err := pg.db.Exec(stmt)
-	if res != nil {
+	if err == nil {
 		if n, _ := res.RowsAffected(); n == 0 {
 			if err == nil {
 				err = errors.New("no rows updated")
