@@ -2,13 +2,15 @@ package service
 
 import (
 	"fmt"
+	"io/ioutil"
+	"regexp"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/scanner"
 	log "github.com/sirupsen/logrus"
-	"regexp"
 )
 
 var (
@@ -45,6 +47,15 @@ func (r *ScanVPCsRequest) Validate() error {
 	}
 
 	return nil
+}
+
+func (s *service) GetCloudFormationTemplate() ([]byte, error) {
+	templateBytes, err := ioutil.ReadFile(s.config.BastionCFTemplate)
+	if err != nil {
+		return templateBytes, err
+	}
+
+	return templateBytes, nil
 }
 
 func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsResponse, error) {
