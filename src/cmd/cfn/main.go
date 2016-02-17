@@ -33,6 +33,7 @@ var (
 	public               string
 	doDelete             bool
 	cloudformationClient *cloudformation.CloudFormation
+	role                 string
 	creds                = credentials.NewChainCredentials(
 		[]credentials.Provider{
 			&ec2rolecreds.EC2RoleProvider{
@@ -47,6 +48,7 @@ func init() {
 	flag.StringVar(&templatePath, "template_path", "", "Path to CloudFormation template")
 	flag.StringVar(&region, "region", "us-west-1", "AWS Region")
 	flag.StringVar(&public, "public", "True", "True or False - Whether to associate a public IP")
+	flag.StringVar(&role, "role", "", "Opsee IAM Role name")
 	flag.BoolVar(&doDelete, "delete", true, "Delete stack after creation")
 
 	config = &com.BastionConfig{
@@ -160,6 +162,18 @@ func launch(imageID string) (string, error) {
 		{
 			ParameterKey:   aws.String("AssociatePublicIpAddress"),
 			ParameterValue: aws.String(public),
+		},
+		{
+			ParameterKey:   aws.String("BastionId"),
+			ParameterValue: aws.String(bastion.ID),
+		},
+		{
+			ParameterKey:   aws.String("CustomerId"),
+			ParameterValue: aws.String(bastion.CustomerID),
+		},
+		{
+			ParameterKey:   aws.String("OpseeRole"),
+			ParameterValue: aws.String(role),
 		},
 	}
 

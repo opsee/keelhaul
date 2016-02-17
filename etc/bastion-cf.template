@@ -95,12 +95,6 @@
                     "IpProtocol": -1,
                     "ToPort": -1
                 }],
-                "SecurityGroupIngress": [{
-                    "CidrIp": "0.0.0.0/0",
-                    "FromPort": 22,
-                    "IpProtocol": "tcp",
-                    "ToPort": 22
-                }],
                 "VpcId": {
                     "Ref": "VpcId"
                 }
@@ -113,90 +107,58 @@
                 "Roles": [{"Ref": "OpseeRole"}]
             }
         },
-        "OpseeInstance": {
-            "Type": "AWS::EC2::Instance",
-            "Properties": {
+        "OpseeGroup" : {
+            "Type" : "AWS::AutoScaling::AutoScalingGroup",
+            "Properties" : {
+                "VPCZoneIdentifier" : [ { "Ref" : "SubnetId" } ], 
+                "LaunchConfigurationName" : { "Ref" : "OpseeLaunchConfig" },
+                "MinSize" : "1",
+                "MaxSize" : "1",
                 "Tags": [{
-                    "Key": "Name",
-                    "Value": "Opsee Instance"
-                }, {
-                    "Key": "vendor",
-                    "Value": "Opsee"
-                }, {
-                    "Key": "opsee:id",
-                    "Value": {"Ref": "BastionId"}
-                }, {
-                    "Key": "opsee:customer-id",
-                    "Value": {"Ref": "CustomerId"}
-                }],
-                "ImageId": {
-                    "Ref": "ImageId"
-                },
-                "IamInstanceProfile": {
-                    "Ref": "OpseeInstanceProfile"
-                },
-                "InstanceType": {
-                    "Ref": "InstanceType"
-                },
-                "KeyName": {
-                    "Fn::If": [
-                        "NoKey", {
-                            "Ref": "AWS::NoValue"
-                        }, {
-                            "Ref": "KeyName"
-                        }
-                    ]
-                },
-                "NetworkInterfaces": {
-                    "Fn::If": [
-                        "AssociatePublicIp", [{
-                            "DeviceIndex": "0",
-                            "AssociatePublicIpAddress": true,
-                            "SubnetId": {
-                                "Fn::If": [
-                                    "NoSubnet", {
-                                        "Ref": "AWS::NoValue"
-                                    }, {
-                                        "Ref": "SubnetId"
-                                    }
-                                ]
-                            },
-                            "GroupSet": [{
-                                "Ref": "OpseeSecurityGroup"
-                            }]
-                        }], {
-                            "Ref": "AWS::NoValue"
-                        }
-                    ]
-                },
-                "SubnetId": {
-                    "Fn::If": [
-                        "AssociatePublicIp", {
-                            "Ref": "AWS::NoValue"
-                        }, {
-                            "Fn::If": [
-                                "NoSubnet", {
-                                    "Ref": "AWS::NoValue"
-                                }, {
-                                    "Ref": "SubnetId"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                "SecurityGroupIds": {
-                    "Fn::If": [
-                        "AssociatePublicIp", {
-                            "Ref": "AWS::NoValue"
-                        },
-                        [{
-                            "Ref": "OpseeSecurityGroup"
-                        }]
-                    ]
-                },
-                "UserData": {
-                    "Ref": "UserData"
+                        "Key": "Name",
+                        "Value": "Opsee Instance",
+                        "PropagateAtLaunch": "true"
+                    }, {
+                        "Key": "vendor",
+                        "Value": "Opsee",
+                        "PropagateAtLaunch": "true"
+                    }, {
+                        "Key": "opsee:id",
+                        "Value": {"Ref": "BastionId"},
+                        "PropagateAtLaunch": "true"
+                    }, {
+                        "Key": "opsee:customer-id",
+                        "Value": {"Ref": "CustomerId"},
+                        "PropagateAtLaunch": "true"
+                }]
+            },
+            "UpdatePolicy": {
+                "AutoScalingRollingUpdate": {
+                    "MinInstancesInService": "0",
+                    "MaxBatchSize": "1"
                 }
+            }
+        },
+
+        "OpseeLaunchConfig" : {
+            "Type" : "AWS::AutoScaling::LaunchConfiguration",
+               "Properties" : {
+                  "AssociatePublicIpAddress" : {"Ref": "AssociatePublicIpAddress"},
+                    "IamInstanceProfile" : { "Ref": "OpseeInstanceProfile" },
+                    "ImageId" : {"Ref": "ImageId"},
+                    "InstanceMonitoring" : "true",
+                    "InstanceType" : {"Ref":"InstanceType"},
+                    "KeyName": {
+                        "Fn::If": [
+                            "NoKey", {
+                                "Ref": "AWS::NoValue"
+                            }, {
+                                "Ref": "KeyName"
+                            }
+                        ]
+                    },
+                  "SecurityGroups" : [{ "Ref":"OpseeSecurityGroup" }],
+                  "UserData" : { "Ref": "UserData" }
             }
         }
     }
