@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"net/http"
+
 	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/util"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 type CheckRequestFactory struct {
@@ -73,7 +74,7 @@ func (checkRequestFactory *CheckRequestFactory) BuildNotificationsRequest(notifi
 		return nil, err
 	}
 
-	req, err := checkRequestFactory.getAuthenticatedRequest(fmt.Sprintf("%s/notifications", checkRequestFactory.Config.BeavisEndpoint), []byte(notificationsJson))
+	req, err := checkRequestFactory.getAuthenticatedRequest(fmt.Sprintf("%s/notifications", checkRequestFactory.Config.HugsEndpoint), []byte(notificationsJson))
 	if err != nil {
 		return nil, err
 	}
