@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "github.com/opsee/protobuf/proto/google/protobuf/timestamp.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-import "github.com/opsee/protobuf/gogogqlproto/gogogql.proto";
+import "github.com/opsee/protobuf/opseeproto/opsee.proto";
 import "github.com/opsee/basic/schema/aws/autoscaling/types.proto";
 import "github.com/opsee/basic/schema/aws/ec2/types.proto";
 import "github.com/opsee/basic/schema/aws/elb/types.proto";
@@ -15,7 +15,7 @@ option java_multiple_files = true;
 option java_outer_classname = "AWSDataProto";
 
 option go_package = "schema";
-option (gogogqlproto.graphql) = true;
+option (opseeproto.graphql) = true;
 
 
 // An Opsee group target representing an AWS group resource.

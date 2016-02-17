@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/com"
-	"github.com/opsee/basic/spanx"
+	"github.com/opsee/basic/clients/spanx"
 	"github.com/opsee/keelhaul/checkgen"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/router"

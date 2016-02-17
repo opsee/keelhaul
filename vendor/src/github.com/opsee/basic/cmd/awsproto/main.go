@@ -53,12 +53,12 @@ var (
 	header   = `syntax = "proto2";
 import "github.com/opsee/protobuf/proto/google/protobuf/timestamp.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-import "github.com/opsee/protobuf/gogogqlproto/gogogql.proto";
+import "github.com/opsee/protobuf/opseeproto/opsee.proto";
 
 package opsee.aws.%s;
 
 option go_package = "%s";
-option (gogogqlproto.graphql) = true;
+option (opseeproto.graphql) = true;
 
 `
 )

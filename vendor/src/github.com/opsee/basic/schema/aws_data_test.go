@@ -1,37 +1,39 @@
 package schema
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
+	// "github.com/aws/aws-sdk-go/aws"
 	"github.com/graphql-go/graphql"
 	// autoscaling "github.com/opsee/basic/schema/aws/autoscaling"
 	ec2 "github.com/opsee/basic/schema/aws/ec2"
 	// elb "github.com/opsee/basic/schema/aws/elb"
-	// rds "github.com/opsee/basic/schema/aws/rds"
+	rds "github.com/opsee/basic/schema/aws/rds"
 	// googleproto "github.com/opsee/protobuf/proto/google/protobuf"
+	"bytes"
+	"encoding/json"
 	"github.com/stretchr/testify/assert"
+	"math/rand"
 	"testing"
+	"time"
 )
 
-func TestSchema(t *testing.T) {
-	instance := &Instance{
+func TestAWSSchema(t *testing.T) {
+	popr := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	instanceEC2 := &Instance{
 		Id:         "i-666",
 		CustomerId: "666-beef",
 		Type:       "ec2",
 		Resource: &Instance_Instance{
-			Instance: &ec2.Instance{
-				InstanceId:       aws.String("i-666"),
-				InstanceType:     aws.String("t2.micro"),
-				PrivateIpAddress: aws.String("666.666.666.666"),
-				State: &ec2.InstanceState{
-					Name: aws.String("running"),
-				},
-				Tags: []*ec2.Tag{
-					{
-						Key:   aws.String("Name"),
-						Value: aws.String("beast server"),
-					},
-				},
-			},
+			Instance: ec2.NewPopulatedInstance(popr, false),
+		},
+	}
+
+	instanceRDS := &Instance{
+		Id:         "db-666",
+		CustomerId: "666-beef",
+		Type:       "rds",
+		Resource: &Instance_DbInstance{
+			DbInstance: rds.NewPopulatedDBInstance(popr, false),
 		},
 	}
 
@@ -39,10 +41,16 @@ func TestSchema(t *testing.T) {
 		Query: graphql.NewObject(graphql.ObjectConfig{
 			Name: "Query",
 			Fields: graphql.Fields{
-				"instance": &graphql.Field{
+				"instance_ec2": &graphql.Field{
 					Type: GraphQLInstanceType,
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-						return instance, nil
+						return instanceEC2, nil
+					},
+				},
+				"instance_rds": &graphql.Field{
+					Type: GraphQLInstanceType,
+					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+						return instanceRDS, nil
 					},
 				},
 			},
@@ -53,8 +61,8 @@ func TestSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queryResponse := graphql.Do(graphql.Params{Schema: schema, RequestString: `query instanceQuery {
-		instance {
+	queryResponse := graphql.Do(graphql.Params{Schema: schema, RequestString: `query yeOldeQuery {
+		instance_ec2 {
 			id
 			customer_id
 			type
@@ -73,13 +81,50 @@ func TestSchema(t *testing.T) {
 				}
 			}
 		}
+		instance_rds {
+			id
+			customer_id
+			type
+			resource {
+				... on rdsDBInstance {
+					DBInstanceIdentifier
+					DBName
+					MultiAZ
+					Endpoint {
+						Address
+						Port
+					}
+				}
+			}
+		}
 	}`})
 
 	if queryResponse.HasErrors() {
 		t.Fatalf("graphql query errors: %#v\n", queryResponse.Errors)
 	}
 
-	assert.EqualValues(t, instance.Id, getProp(queryResponse.Data, "instance", "id"))
+	instanceEC2ResponseJson, err := json.Marshal(getProp(queryResponse.Data, "instance_ec2", "resource"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	instanceRDSResponseJson, err := json.Marshal(getProp(queryResponse.Data, "instance_rds", "resource"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	decodedInstanceEC2 := &ec2.Instance{}
+	err = json.NewDecoder(bytes.NewBuffer(instanceEC2ResponseJson)).Decode(decodedInstanceEC2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decodedInstanceRDS := &rds.DBInstance{}
+	err = json.NewDecoder(bytes.NewBuffer(instanceRDSResponseJson)).Decode(decodedInstanceRDS)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.EqualValues(t, instanceEC2.Resource.(*Instance_Instance).Instance.InstanceId, decodedInstanceEC2.InstanceId)
+	assert.EqualValues(t, instanceRDS.Resource.(*Instance_DbInstance).DbInstance.DBInstanceIdentifier, decodedInstanceRDS.DBInstanceIdentifier)
 }
 
 func getProp(i interface{}, path ...interface{}) interface{} {

@@ -148,6 +148,12 @@
 			"path": "/pkg/types"
 		},
 		{
+			"importpath": "github.com/dedis/protobuf",
+			"repository": "https://github.com/dedis/protobuf",
+			"revision": "6948fbd96a0f1e4e96582003261cf647dc66c831",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/dvsekhvalnov/jose2go",
 			"repository": "https://github.com/dvsekhvalnov/jose2go",
 			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
@@ -158,6 +164,27 @@
 			"repository": "https://github.com/go-ini/ini",
 			"revision": "2e44421e256d82ebbf3d4d4fcabe8930b905eff3",
 			"branch": "v1"
+		},
+		{
+			"importpath": "github.com/gogo/protobuf/gogoproto",
+			"repository": "https://github.com/gogo/protobuf",
+			"revision": "82d16f734d6d871204a3feb1a73cb220cc92574c",
+			"branch": "master",
+			"path": "/gogoproto"
+		},
+		{
+			"importpath": "github.com/gogo/protobuf/proto",
+			"repository": "https://github.com/gogo/protobuf",
+			"revision": "82d16f734d6d871204a3feb1a73cb220cc92574c",
+			"branch": "master",
+			"path": "/proto"
+		},
+		{
+			"importpath": "github.com/gogo/protobuf/protoc-gen-gogo/descriptor",
+			"repository": "https://github.com/gogo/protobuf",
+			"revision": "82d16f734d6d871204a3feb1a73cb220cc92574c",
+			"branch": "master",
+			"path": "/protoc-gen-gogo/descriptor"
 		},
 		{
 			"importpath": "github.com/golang/glog",
@@ -185,6 +212,12 @@
 			"revision": "45bba206dd5270d96bac4942dcfe515726613249",
 			"branch": "master",
 			"path": "/protoc-gen-go/descriptor"
+		},
+		{
+			"importpath": "github.com/graphql-go/graphql",
+			"repository": "https://github.com/graphql-go/graphql",
+			"revision": "26c58bd73a3cf9177fb534f57c9698a7bc6277a2",
+			"branch": "master"
 		},
 		{
 			"importpath": "github.com/grpc/grpc-go",
@@ -243,7 +276,7 @@
 		{
 			"importpath": "github.com/opsee/basic",
 			"repository": "https://github.com/opsee/basic",
-			"revision": "3b7ed030aac8ff429537cfb4633928356fb3b85f",
+			"revision": "d15bb95819ce89b6222d2f3a0036b5df859027b1",
 			"branch": "master"
 		},
 		{
@@ -252,6 +285,20 @@
 			"revision": "2752f3c4f9c3575286eeeeda90f35c600d37e986",
 			"branch": "master",
 			"path": "/dist/go/slack"
+		},
+		{
+			"importpath": "github.com/opsee/protobuf/opseeproto",
+			"repository": "https://github.com/opsee/protobuf",
+			"revision": "c54e5215f1a45512fba78eeaddd1fcc19095afd5",
+			"branch": "master",
+			"path": "/opseeproto"
+		},
+		{
+			"importpath": "github.com/opsee/protobuf/proto/google/protobuf",
+			"repository": "https://github.com/opsee/protobuf",
+			"revision": "c54e5215f1a45512fba78eeaddd1fcc19095afd5",
+			"branch": "master",
+			"path": "/proto/google/protobuf"
 		},
 		{
 			"importpath": "github.com/opsee/vaper",

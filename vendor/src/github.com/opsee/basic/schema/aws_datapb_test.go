@@ -7,10 +7,27 @@ Package schema is a generated protocol buffer package.
 
 It is generated from these files:
 	aws_data.proto
+	checker.proto
+	checks.proto
 
 It has these top-level messages:
 	Group
 	Instance
+	Target
+	Check
+	Assertion
+	Header
+	HttpCheck
+	CloudWatchCheck
+	Metric
+	HttpResponse
+	CheckResourceResponse
+	ResourceResponse
+	CheckResourceRequest
+	TestCheckRequest
+	TestCheckResponse
+	CheckResponse
+	CheckResult
 */
 package schema
 
@@ -24,7 +41,7 @@ import fmt "fmt"
 import math "math"
 import _ "github.com/opsee/protobuf/proto/google/protobuf"
 import _ "github.com/gogo/protobuf/gogoproto"
-import _ "github.com/opsee/protobuf/gogogqlproto"
+import _ "github.com/opsee/protobuf/opseeproto"
 import _ "github.com/opsee/basic/schema/aws/autoscaling"
 import _ "github.com/opsee/basic/schema/aws/ec2"
 import _ "github.com/opsee/basic/schema/aws/elb"
