@@ -5,4 +5,5 @@ common packages for go lang repose
 
 * [tp](tp)
 * [com](com)
-* [spanx](spanx)
+* [clients/spanx](clients/spanx)
+* [clients/spanx](clients/bartnet)

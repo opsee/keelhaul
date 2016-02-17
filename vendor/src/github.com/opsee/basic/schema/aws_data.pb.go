@@ -7,10 +7,27 @@ Package schema is a generated protocol buffer package.
 
 It is generated from these files:
 	aws_data.proto
+	checker.proto
+	checks.proto
 
 It has these top-level messages:
 	Group
 	Instance
+	Target
+	Check
+	Assertion
+	Header
+	HttpCheck
+	CloudWatchCheck
+	Metric
+	HttpResponse
+	CheckResourceResponse
+	ResourceResponse
+	CheckResourceRequest
+	TestCheckRequest
+	TestCheckResponse
+	CheckResponse
+	CheckResult
 */
 package schema
 
@@ -19,14 +36,14 @@ import fmt "fmt"
 import math "math"
 import google_protobuf "github.com/opsee/protobuf/proto/google/protobuf"
 import _ "github.com/gogo/protobuf/gogoproto"
-import _ "github.com/opsee/protobuf/gogogqlproto"
+import _ "github.com/opsee/protobuf/opseeproto"
 import opsee_aws_autoscaling "github.com/opsee/basic/schema/aws/autoscaling"
 import opsee_aws_ec2 "github.com/opsee/basic/schema/aws/ec2"
 import opsee_aws_elb "github.com/opsee/basic/schema/aws/elb"
 import opsee_aws_rds "github.com/opsee/basic/schema/aws/rds"
 
 import github_com_graphql_go_graphql "github.com/graphql-go/graphql"
-import github_com_opsee_protobuf_gogogqlproto "github.com/opsee/protobuf/gogogqlproto"
+import github_com_opsee_protobuf_opseeproto "github.com/opsee/protobuf/opseeproto"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -649,7 +666,11 @@ func init() {
 						}
 						inter, ok := p.Source.(GroupGetter)
 						if ok {
-							return inter.GetGroup().Id, nil
+							face := inter.GetGroup()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Id, nil
 						}
 						return nil, fmt.Errorf("field id not resolved")
 					},
@@ -664,7 +685,11 @@ func init() {
 						}
 						inter, ok := p.Source.(GroupGetter)
 						if ok {
-							return inter.GetGroup().CustomerId, nil
+							face := inter.GetGroup()
+							if face == nil {
+								return nil, nil
+							}
+							return face.CustomerId, nil
 						}
 						return nil, fmt.Errorf("field customer_id not resolved")
 					},
@@ -679,7 +704,11 @@ func init() {
 						}
 						inter, ok := p.Source.(GroupGetter)
 						if ok {
-							return inter.GetGroup().Type, nil
+							face := inter.GetGroup()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Type, nil
 						}
 						return nil, fmt.Errorf("field type not resolved")
 					},
@@ -694,7 +723,11 @@ func init() {
 						}
 						inter, ok := p.Source.(GroupGetter)
 						if ok {
-							return inter.GetGroup().InstanceCount, nil
+							face := inter.GetGroup()
+							if face == nil {
+								return nil, nil
+							}
+							return face.InstanceCount, nil
 						}
 						return nil, fmt.Errorf("field instance_count not resolved")
 					},
@@ -709,37 +742,61 @@ func init() {
 						}
 						inter, ok := p.Source.(GroupGetter)
 						if ok {
-							return inter.GetGroup().Instances, nil
+							face := inter.GetGroup()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Instances, nil
 						}
 						return nil, fmt.Errorf("field instances not resolved")
 					},
 				},
 				"created_at": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_gogogqlproto.ByteString,
+					Type:        github_com_opsee_protobuf_opseeproto.ByteString,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Group)
 						if ok {
-							return obj.CreatedAt, nil
+							if obj.CreatedAt == nil {
+								return nil, nil
+							}
+							return obj.GetCreatedAt(), nil
 						}
 						inter, ok := p.Source.(GroupGetter)
 						if ok {
-							return inter.GetGroup().CreatedAt, nil
+							face := inter.GetGroup()
+							if face == nil {
+								return nil, nil
+							}
+							if face.CreatedAt == nil {
+								return nil, nil
+							}
+							return face.GetCreatedAt(), nil
 						}
 						return nil, fmt.Errorf("field created_at not resolved")
 					},
 				},
 				"updated_at": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_gogogqlproto.ByteString,
+					Type:        github_com_opsee_protobuf_opseeproto.ByteString,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Group)
 						if ok {
-							return obj.UpdatedAt, nil
+							if obj.UpdatedAt == nil {
+								return nil, nil
+							}
+							return obj.GetUpdatedAt(), nil
 						}
 						inter, ok := p.Source.(GroupGetter)
 						if ok {
-							return inter.GetGroup().UpdatedAt, nil
+							face := inter.GetGroup()
+							if face == nil {
+								return nil, nil
+							}
+							if face.UpdatedAt == nil {
+								return nil, nil
+							}
+							return face.GetUpdatedAt(), nil
 						}
 						return nil, fmt.Errorf("field updated_at not resolved")
 					},
@@ -773,7 +830,11 @@ func init() {
 						}
 						inter, ok := p.Source.(InstanceGetter)
 						if ok {
-							return inter.GetInstance().Id, nil
+							face := inter.GetInstance()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Id, nil
 						}
 						return nil, fmt.Errorf("field id not resolved")
 					},
@@ -788,7 +849,11 @@ func init() {
 						}
 						inter, ok := p.Source.(InstanceGetter)
 						if ok {
-							return inter.GetInstance().CustomerId, nil
+							face := inter.GetInstance()
+							if face == nil {
+								return nil, nil
+							}
+							return face.CustomerId, nil
 						}
 						return nil, fmt.Errorf("field customer_id not resolved")
 					},
@@ -803,7 +868,11 @@ func init() {
 						}
 						inter, ok := p.Source.(InstanceGetter)
 						if ok {
-							return inter.GetInstance().Type, nil
+							face := inter.GetInstance()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Type, nil
 						}
 						return nil, fmt.Errorf("field type not resolved")
 					},
@@ -818,37 +887,61 @@ func init() {
 						}
 						inter, ok := p.Source.(InstanceGetter)
 						if ok {
-							return inter.GetInstance().Groups, nil
+							face := inter.GetInstance()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Groups, nil
 						}
 						return nil, fmt.Errorf("field groups not resolved")
 					},
 				},
 				"created_at": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_gogogqlproto.ByteString,
+					Type:        github_com_opsee_protobuf_opseeproto.ByteString,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Instance)
 						if ok {
-							return obj.CreatedAt, nil
+							if obj.CreatedAt == nil {
+								return nil, nil
+							}
+							return obj.GetCreatedAt(), nil
 						}
 						inter, ok := p.Source.(InstanceGetter)
 						if ok {
-							return inter.GetInstance().CreatedAt, nil
+							face := inter.GetInstance()
+							if face == nil {
+								return nil, nil
+							}
+							if face.CreatedAt == nil {
+								return nil, nil
+							}
+							return face.GetCreatedAt(), nil
 						}
 						return nil, fmt.Errorf("field created_at not resolved")
 					},
 				},
 				"updated_at": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_gogogqlproto.ByteString,
+					Type:        github_com_opsee_protobuf_opseeproto.ByteString,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Instance)
 						if ok {
-							return obj.UpdatedAt, nil
+							if obj.UpdatedAt == nil {
+								return nil, nil
+							}
+							return obj.GetUpdatedAt(), nil
 						}
 						inter, ok := p.Source.(InstanceGetter)
 						if ok {
-							return inter.GetInstance().UpdatedAt, nil
+							face := inter.GetInstance()
+							if face == nil {
+								return nil, nil
+							}
+							if face.UpdatedAt == nil {
+								return nil, nil
+							}
+							return face.GetUpdatedAt(), nil
 						}
 						return nil, fmt.Errorf("field updated_at not resolved")
 					},

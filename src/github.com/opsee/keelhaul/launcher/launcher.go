@@ -4,7 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/com"
-	"github.com/opsee/basic/spanx"
+	"github.com/opsee/basic/clients/spanx"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/notifier"

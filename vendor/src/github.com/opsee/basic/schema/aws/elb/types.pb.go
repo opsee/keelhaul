@@ -27,7 +27,7 @@ import fmt "fmt"
 import math "math"
 import _ "github.com/opsee/protobuf/proto/google/protobuf"
 import _ "github.com/gogo/protobuf/gogoproto"
-import _ "github.com/opsee/protobuf/gogogqlproto"
+import _ "github.com/opsee/protobuf/opseeproto"
 
 import bytes "bytes"
 
@@ -1148,11 +1148,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*AppCookieStickinessPolicy)
 						if ok {
-							return obj.CookieName, nil
+							if obj.CookieName == nil {
+								return nil, nil
+							}
+							return obj.GetCookieName(), nil
 						}
 						inter, ok := p.Source.(AppCookieStickinessPolicyGetter)
 						if ok {
-							return inter.GetAppCookieStickinessPolicy().CookieName, nil
+							face := inter.GetAppCookieStickinessPolicy()
+							if face == nil {
+								return nil, nil
+							}
+							if face.CookieName == nil {
+								return nil, nil
+							}
+							return face.GetCookieName(), nil
 						}
 						return nil, fmt.Errorf("field CookieName not resolved")
 					},
@@ -1163,11 +1173,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*AppCookieStickinessPolicy)
 						if ok {
-							return obj.PolicyName, nil
+							if obj.PolicyName == nil {
+								return nil, nil
+							}
+							return obj.GetPolicyName(), nil
 						}
 						inter, ok := p.Source.(AppCookieStickinessPolicyGetter)
 						if ok {
-							return inter.GetAppCookieStickinessPolicy().PolicyName, nil
+							face := inter.GetAppCookieStickinessPolicy()
+							if face == nil {
+								return nil, nil
+							}
+							if face.PolicyName == nil {
+								return nil, nil
+							}
+							return face.GetPolicyName(), nil
 						}
 						return nil, fmt.Errorf("field PolicyName not resolved")
 					},
@@ -1186,11 +1206,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*BackendServerDescription)
 						if ok {
-							return obj.InstancePort, nil
+							if obj.InstancePort == nil {
+								return nil, nil
+							}
+							return obj.GetInstancePort(), nil
 						}
 						inter, ok := p.Source.(BackendServerDescriptionGetter)
 						if ok {
-							return inter.GetBackendServerDescription().InstancePort, nil
+							face := inter.GetBackendServerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.InstancePort == nil {
+								return nil, nil
+							}
+							return face.GetInstancePort(), nil
 						}
 						return nil, fmt.Errorf("field InstancePort not resolved")
 					},
@@ -1205,7 +1235,11 @@ func init() {
 						}
 						inter, ok := p.Source.(BackendServerDescriptionGetter)
 						if ok {
-							return inter.GetBackendServerDescription().PolicyNames, nil
+							face := inter.GetBackendServerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							return face.PolicyNames, nil
 						}
 						return nil, fmt.Errorf("field PolicyNames not resolved")
 					},
@@ -1224,11 +1258,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*HealthCheck)
 						if ok {
-							return obj.HealthyThreshold, nil
+							if obj.HealthyThreshold == nil {
+								return nil, nil
+							}
+							return obj.GetHealthyThreshold(), nil
 						}
 						inter, ok := p.Source.(HealthCheckGetter)
 						if ok {
-							return inter.GetHealthCheck().HealthyThreshold, nil
+							face := inter.GetHealthCheck()
+							if face == nil {
+								return nil, nil
+							}
+							if face.HealthyThreshold == nil {
+								return nil, nil
+							}
+							return face.GetHealthyThreshold(), nil
 						}
 						return nil, fmt.Errorf("field HealthyThreshold not resolved")
 					},
@@ -1239,11 +1283,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*HealthCheck)
 						if ok {
-							return obj.Interval, nil
+							if obj.Interval == nil {
+								return nil, nil
+							}
+							return obj.GetInterval(), nil
 						}
 						inter, ok := p.Source.(HealthCheckGetter)
 						if ok {
-							return inter.GetHealthCheck().Interval, nil
+							face := inter.GetHealthCheck()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Interval == nil {
+								return nil, nil
+							}
+							return face.GetInterval(), nil
 						}
 						return nil, fmt.Errorf("field Interval not resolved")
 					},
@@ -1254,11 +1308,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*HealthCheck)
 						if ok {
-							return obj.Target, nil
+							if obj.Target == nil {
+								return nil, nil
+							}
+							return obj.GetTarget(), nil
 						}
 						inter, ok := p.Source.(HealthCheckGetter)
 						if ok {
-							return inter.GetHealthCheck().Target, nil
+							face := inter.GetHealthCheck()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Target == nil {
+								return nil, nil
+							}
+							return face.GetTarget(), nil
 						}
 						return nil, fmt.Errorf("field Target not resolved")
 					},
@@ -1269,11 +1333,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*HealthCheck)
 						if ok {
-							return obj.Timeout, nil
+							if obj.Timeout == nil {
+								return nil, nil
+							}
+							return obj.GetTimeout(), nil
 						}
 						inter, ok := p.Source.(HealthCheckGetter)
 						if ok {
-							return inter.GetHealthCheck().Timeout, nil
+							face := inter.GetHealthCheck()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Timeout == nil {
+								return nil, nil
+							}
+							return face.GetTimeout(), nil
 						}
 						return nil, fmt.Errorf("field Timeout not resolved")
 					},
@@ -1284,11 +1358,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*HealthCheck)
 						if ok {
-							return obj.UnhealthyThreshold, nil
+							if obj.UnhealthyThreshold == nil {
+								return nil, nil
+							}
+							return obj.GetUnhealthyThreshold(), nil
 						}
 						inter, ok := p.Source.(HealthCheckGetter)
 						if ok {
-							return inter.GetHealthCheck().UnhealthyThreshold, nil
+							face := inter.GetHealthCheck()
+							if face == nil {
+								return nil, nil
+							}
+							if face.UnhealthyThreshold == nil {
+								return nil, nil
+							}
+							return face.GetUnhealthyThreshold(), nil
 						}
 						return nil, fmt.Errorf("field UnhealthyThreshold not resolved")
 					},
@@ -1307,11 +1391,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Instance)
 						if ok {
-							return obj.InstanceId, nil
+							if obj.InstanceId == nil {
+								return nil, nil
+							}
+							return obj.GetInstanceId(), nil
 						}
 						inter, ok := p.Source.(InstanceGetter)
 						if ok {
-							return inter.GetInstance().InstanceId, nil
+							face := inter.GetInstance()
+							if face == nil {
+								return nil, nil
+							}
+							if face.InstanceId == nil {
+								return nil, nil
+							}
+							return face.GetInstanceId(), nil
 						}
 						return nil, fmt.Errorf("field InstanceId not resolved")
 					},
@@ -1330,11 +1424,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LBCookieStickinessPolicy)
 						if ok {
-							return obj.CookieExpirationPeriod, nil
+							if obj.CookieExpirationPeriod == nil {
+								return nil, nil
+							}
+							return obj.GetCookieExpirationPeriod(), nil
 						}
 						inter, ok := p.Source.(LBCookieStickinessPolicyGetter)
 						if ok {
-							return inter.GetLBCookieStickinessPolicy().CookieExpirationPeriod, nil
+							face := inter.GetLBCookieStickinessPolicy()
+							if face == nil {
+								return nil, nil
+							}
+							if face.CookieExpirationPeriod == nil {
+								return nil, nil
+							}
+							return face.GetCookieExpirationPeriod(), nil
 						}
 						return nil, fmt.Errorf("field CookieExpirationPeriod not resolved")
 					},
@@ -1345,11 +1449,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LBCookieStickinessPolicy)
 						if ok {
-							return obj.PolicyName, nil
+							if obj.PolicyName == nil {
+								return nil, nil
+							}
+							return obj.GetPolicyName(), nil
 						}
 						inter, ok := p.Source.(LBCookieStickinessPolicyGetter)
 						if ok {
-							return inter.GetLBCookieStickinessPolicy().PolicyName, nil
+							face := inter.GetLBCookieStickinessPolicy()
+							if face == nil {
+								return nil, nil
+							}
+							if face.PolicyName == nil {
+								return nil, nil
+							}
+							return face.GetPolicyName(), nil
 						}
 						return nil, fmt.Errorf("field PolicyName not resolved")
 					},
@@ -1368,11 +1482,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Listener)
 						if ok {
-							return obj.InstancePort, nil
+							if obj.InstancePort == nil {
+								return nil, nil
+							}
+							return obj.GetInstancePort(), nil
 						}
 						inter, ok := p.Source.(ListenerGetter)
 						if ok {
-							return inter.GetListener().InstancePort, nil
+							face := inter.GetListener()
+							if face == nil {
+								return nil, nil
+							}
+							if face.InstancePort == nil {
+								return nil, nil
+							}
+							return face.GetInstancePort(), nil
 						}
 						return nil, fmt.Errorf("field InstancePort not resolved")
 					},
@@ -1383,11 +1507,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Listener)
 						if ok {
-							return obj.InstanceProtocol, nil
+							if obj.InstanceProtocol == nil {
+								return nil, nil
+							}
+							return obj.GetInstanceProtocol(), nil
 						}
 						inter, ok := p.Source.(ListenerGetter)
 						if ok {
-							return inter.GetListener().InstanceProtocol, nil
+							face := inter.GetListener()
+							if face == nil {
+								return nil, nil
+							}
+							if face.InstanceProtocol == nil {
+								return nil, nil
+							}
+							return face.GetInstanceProtocol(), nil
 						}
 						return nil, fmt.Errorf("field InstanceProtocol not resolved")
 					},
@@ -1398,11 +1532,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Listener)
 						if ok {
-							return obj.LoadBalancerPort, nil
+							if obj.LoadBalancerPort == nil {
+								return nil, nil
+							}
+							return obj.GetLoadBalancerPort(), nil
 						}
 						inter, ok := p.Source.(ListenerGetter)
 						if ok {
-							return inter.GetListener().LoadBalancerPort, nil
+							face := inter.GetListener()
+							if face == nil {
+								return nil, nil
+							}
+							if face.LoadBalancerPort == nil {
+								return nil, nil
+							}
+							return face.GetLoadBalancerPort(), nil
 						}
 						return nil, fmt.Errorf("field LoadBalancerPort not resolved")
 					},
@@ -1413,11 +1557,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Listener)
 						if ok {
-							return obj.Protocol, nil
+							if obj.Protocol == nil {
+								return nil, nil
+							}
+							return obj.GetProtocol(), nil
 						}
 						inter, ok := p.Source.(ListenerGetter)
 						if ok {
-							return inter.GetListener().Protocol, nil
+							face := inter.GetListener()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Protocol == nil {
+								return nil, nil
+							}
+							return face.GetProtocol(), nil
 						}
 						return nil, fmt.Errorf("field Protocol not resolved")
 					},
@@ -1428,11 +1582,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Listener)
 						if ok {
-							return obj.SSLCertificateId, nil
+							if obj.SSLCertificateId == nil {
+								return nil, nil
+							}
+							return obj.GetSSLCertificateId(), nil
 						}
 						inter, ok := p.Source.(ListenerGetter)
 						if ok {
-							return inter.GetListener().SSLCertificateId, nil
+							face := inter.GetListener()
+							if face == nil {
+								return nil, nil
+							}
+							if face.SSLCertificateId == nil {
+								return nil, nil
+							}
+							return face.GetSSLCertificateId(), nil
 						}
 						return nil, fmt.Errorf("field SSLCertificateId not resolved")
 					},
@@ -1451,11 +1615,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*ListenerDescription)
 						if ok {
-							return obj.Listener, nil
+							if obj.Listener == nil {
+								return nil, nil
+							}
+							return obj.GetListener(), nil
 						}
 						inter, ok := p.Source.(ListenerDescriptionGetter)
 						if ok {
-							return inter.GetListenerDescription().Listener, nil
+							face := inter.GetListenerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Listener == nil {
+								return nil, nil
+							}
+							return face.GetListener(), nil
 						}
 						return nil, fmt.Errorf("field Listener not resolved")
 					},
@@ -1470,7 +1644,11 @@ func init() {
 						}
 						inter, ok := p.Source.(ListenerDescriptionGetter)
 						if ok {
-							return inter.GetListenerDescription().PolicyNames, nil
+							face := inter.GetListenerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							return face.PolicyNames, nil
 						}
 						return nil, fmt.Errorf("field PolicyNames not resolved")
 					},
@@ -1493,7 +1671,11 @@ func init() {
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().AvailabilityZones, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							return face.AvailabilityZones, nil
 						}
 						return nil, fmt.Errorf("field AvailabilityZones not resolved")
 					},
@@ -1508,7 +1690,11 @@ func init() {
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().BackendServerDescriptions, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							return face.BackendServerDescriptions, nil
 						}
 						return nil, fmt.Errorf("field BackendServerDescriptions not resolved")
 					},
@@ -1519,11 +1705,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LoadBalancerDescription)
 						if ok {
-							return obj.CanonicalHostedZoneName, nil
+							if obj.CanonicalHostedZoneName == nil {
+								return nil, nil
+							}
+							return obj.GetCanonicalHostedZoneName(), nil
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().CanonicalHostedZoneName, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.CanonicalHostedZoneName == nil {
+								return nil, nil
+							}
+							return face.GetCanonicalHostedZoneName(), nil
 						}
 						return nil, fmt.Errorf("field CanonicalHostedZoneName not resolved")
 					},
@@ -1534,11 +1730,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LoadBalancerDescription)
 						if ok {
-							return obj.CanonicalHostedZoneNameID, nil
+							if obj.CanonicalHostedZoneNameID == nil {
+								return nil, nil
+							}
+							return obj.GetCanonicalHostedZoneNameID(), nil
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().CanonicalHostedZoneNameID, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.CanonicalHostedZoneNameID == nil {
+								return nil, nil
+							}
+							return face.GetCanonicalHostedZoneNameID(), nil
 						}
 						return nil, fmt.Errorf("field CanonicalHostedZoneNameID not resolved")
 					},
@@ -1549,11 +1755,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LoadBalancerDescription)
 						if ok {
-							return obj.CreatedTime, nil
+							if obj.CreatedTime == nil {
+								return nil, nil
+							}
+							return obj.GetCreatedTime(), nil
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().CreatedTime, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.CreatedTime == nil {
+								return nil, nil
+							}
+							return face.GetCreatedTime(), nil
 						}
 						return nil, fmt.Errorf("field CreatedTime not resolved")
 					},
@@ -1564,11 +1780,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LoadBalancerDescription)
 						if ok {
-							return obj.DNSName, nil
+							if obj.DNSName == nil {
+								return nil, nil
+							}
+							return obj.GetDNSName(), nil
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().DNSName, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.DNSName == nil {
+								return nil, nil
+							}
+							return face.GetDNSName(), nil
 						}
 						return nil, fmt.Errorf("field DNSName not resolved")
 					},
@@ -1579,11 +1805,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LoadBalancerDescription)
 						if ok {
-							return obj.HealthCheck, nil
+							if obj.HealthCheck == nil {
+								return nil, nil
+							}
+							return obj.GetHealthCheck(), nil
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().HealthCheck, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.HealthCheck == nil {
+								return nil, nil
+							}
+							return face.GetHealthCheck(), nil
 						}
 						return nil, fmt.Errorf("field HealthCheck not resolved")
 					},
@@ -1598,7 +1834,11 @@ func init() {
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().Instances, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Instances, nil
 						}
 						return nil, fmt.Errorf("field Instances not resolved")
 					},
@@ -1613,7 +1853,11 @@ func init() {
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().ListenerDescriptions, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							return face.ListenerDescriptions, nil
 						}
 						return nil, fmt.Errorf("field ListenerDescriptions not resolved")
 					},
@@ -1624,11 +1868,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LoadBalancerDescription)
 						if ok {
-							return obj.LoadBalancerName, nil
+							if obj.LoadBalancerName == nil {
+								return nil, nil
+							}
+							return obj.GetLoadBalancerName(), nil
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().LoadBalancerName, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.LoadBalancerName == nil {
+								return nil, nil
+							}
+							return face.GetLoadBalancerName(), nil
 						}
 						return nil, fmt.Errorf("field LoadBalancerName not resolved")
 					},
@@ -1639,11 +1893,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LoadBalancerDescription)
 						if ok {
-							return obj.Policies, nil
+							if obj.Policies == nil {
+								return nil, nil
+							}
+							return obj.GetPolicies(), nil
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().Policies, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Policies == nil {
+								return nil, nil
+							}
+							return face.GetPolicies(), nil
 						}
 						return nil, fmt.Errorf("field Policies not resolved")
 					},
@@ -1654,11 +1918,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LoadBalancerDescription)
 						if ok {
-							return obj.Scheme, nil
+							if obj.Scheme == nil {
+								return nil, nil
+							}
+							return obj.GetScheme(), nil
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().Scheme, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Scheme == nil {
+								return nil, nil
+							}
+							return face.GetScheme(), nil
 						}
 						return nil, fmt.Errorf("field Scheme not resolved")
 					},
@@ -1673,7 +1947,11 @@ func init() {
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().SecurityGroups, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							return face.SecurityGroups, nil
 						}
 						return nil, fmt.Errorf("field SecurityGroups not resolved")
 					},
@@ -1684,11 +1962,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LoadBalancerDescription)
 						if ok {
-							return obj.SourceSecurityGroup, nil
+							if obj.SourceSecurityGroup == nil {
+								return nil, nil
+							}
+							return obj.GetSourceSecurityGroup(), nil
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().SourceSecurityGroup, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.SourceSecurityGroup == nil {
+								return nil, nil
+							}
+							return face.GetSourceSecurityGroup(), nil
 						}
 						return nil, fmt.Errorf("field SourceSecurityGroup not resolved")
 					},
@@ -1703,7 +1991,11 @@ func init() {
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().Subnets, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Subnets, nil
 						}
 						return nil, fmt.Errorf("field Subnets not resolved")
 					},
@@ -1714,11 +2006,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*LoadBalancerDescription)
 						if ok {
-							return obj.VPCId, nil
+							if obj.VPCId == nil {
+								return nil, nil
+							}
+							return obj.GetVPCId(), nil
 						}
 						inter, ok := p.Source.(LoadBalancerDescriptionGetter)
 						if ok {
-							return inter.GetLoadBalancerDescription().VPCId, nil
+							face := inter.GetLoadBalancerDescription()
+							if face == nil {
+								return nil, nil
+							}
+							if face.VPCId == nil {
+								return nil, nil
+							}
+							return face.GetVPCId(), nil
 						}
 						return nil, fmt.Errorf("field VPCId not resolved")
 					},
@@ -1741,7 +2043,11 @@ func init() {
 						}
 						inter, ok := p.Source.(PoliciesGetter)
 						if ok {
-							return inter.GetPolicies().AppCookieStickinessPolicies, nil
+							face := inter.GetPolicies()
+							if face == nil {
+								return nil, nil
+							}
+							return face.AppCookieStickinessPolicies, nil
 						}
 						return nil, fmt.Errorf("field AppCookieStickinessPolicies not resolved")
 					},
@@ -1756,7 +2062,11 @@ func init() {
 						}
 						inter, ok := p.Source.(PoliciesGetter)
 						if ok {
-							return inter.GetPolicies().LBCookieStickinessPolicies, nil
+							face := inter.GetPolicies()
+							if face == nil {
+								return nil, nil
+							}
+							return face.LBCookieStickinessPolicies, nil
 						}
 						return nil, fmt.Errorf("field LBCookieStickinessPolicies not resolved")
 					},
@@ -1771,7 +2081,11 @@ func init() {
 						}
 						inter, ok := p.Source.(PoliciesGetter)
 						if ok {
-							return inter.GetPolicies().OtherPolicies, nil
+							face := inter.GetPolicies()
+							if face == nil {
+								return nil, nil
+							}
+							return face.OtherPolicies, nil
 						}
 						return nil, fmt.Errorf("field OtherPolicies not resolved")
 					},
@@ -1790,11 +2104,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*SourceSecurityGroup)
 						if ok {
-							return obj.GroupName, nil
+							if obj.GroupName == nil {
+								return nil, nil
+							}
+							return obj.GetGroupName(), nil
 						}
 						inter, ok := p.Source.(SourceSecurityGroupGetter)
 						if ok {
-							return inter.GetSourceSecurityGroup().GroupName, nil
+							face := inter.GetSourceSecurityGroup()
+							if face == nil {
+								return nil, nil
+							}
+							if face.GroupName == nil {
+								return nil, nil
+							}
+							return face.GetGroupName(), nil
 						}
 						return nil, fmt.Errorf("field GroupName not resolved")
 					},
@@ -1805,11 +2129,21 @@ func init() {
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*SourceSecurityGroup)
 						if ok {
-							return obj.OwnerAlias, nil
+							if obj.OwnerAlias == nil {
+								return nil, nil
+							}
+							return obj.GetOwnerAlias(), nil
 						}
 						inter, ok := p.Source.(SourceSecurityGroupGetter)
 						if ok {
-							return inter.GetSourceSecurityGroup().OwnerAlias, nil
+							face := inter.GetSourceSecurityGroup()
+							if face == nil {
+								return nil, nil
+							}
+							if face.OwnerAlias == nil {
+								return nil, nil
+							}
+							return face.GetOwnerAlias(), nil
 						}
 						return nil, fmt.Errorf("field OwnerAlias not resolved")
 					},
