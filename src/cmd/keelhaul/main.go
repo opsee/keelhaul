@@ -35,6 +35,7 @@ func main() {
 		NSQLookupds:           mustEnvString("NSQLOOKUPD_ADDRS"),
 		BartnetEndpoint:       mustEnvString("BARTNET_ENDPOINT"),
 		BeavisEndpoint:        mustEnvString("BEAVIS_ENDPOINT"),
+		HugsEndpoint:          mustEnvString("HUGS_ENDPOINT"),
 		SpanxEndpoint:         mustEnvString("SPANX_ENDPOINT"),
 	}
 
