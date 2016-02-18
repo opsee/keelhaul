@@ -5,6 +5,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"sort"
+	"strings"
+	"text/template"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds"
@@ -17,10 +22,6 @@ import (
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/com"
 	"golang.org/x/net/context"
-	"io/ioutil"
-	"sort"
-	"strings"
-	"text/template"
 )
 
 type getBastionConfig struct{}
@@ -592,8 +593,6 @@ func (s bastionActiveState) Execute(launch *Launch) {
 
 		for _, s := range stackResourcesOutput.StackResourceSummaries {
 			switch *s.ResourceType {
-			case "AWS::EC2::Instance":
-				instanceID = s.PhysicalResourceId
 			case "AWS::EC2::SecurityGroup":
 				groupID = s.PhysicalResourceId
 			}
@@ -605,6 +604,7 @@ func (s bastionActiveState) Execute(launch *Launch) {
 		}
 	}
 
+	instanceID = aws.String("not used")
 	err := launch.db.UpdateBastion(launch.Bastion.Activate(*instanceID, *groupID))
 	if err != nil {
 		launch.error(err, &com.Message{
