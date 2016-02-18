@@ -7,4 +7,4 @@ CUSTOMER_EMAIL="dan@opsee.co"
 BASTION_VERSION="stable"
 VPN_REMOTE="bastion.opsee.com"
 
-bin/cfn -bastion_id=$BASTION_ID -customer_id=$CUSTOMER_ID -email=$CUSTOMER_EMAIL -password=$VPN_PASSWORD -region=us-west-1 -subnet_id=subnet-0378a966 -vpc_id=vpc-79b1491c -template_path=etc/bastion-cf.template -public=True -delete=true
+bin/cfn -bastion_id=$BASTION_ID -role=opsee-role-140c5346-5d57-11e5-9947-9f9fcf62725e -user_id=13 -customer_id=$CUSTOMER_ID -email=$CUSTOMER_EMAIL -password=$VPN_PASSWORD -region=ap-southeast-2 -subnet_id=subnet-90a8f6d6 -vpc_id=vpc-ed96ff88 -template_path=etc/bastion-cf.template -public=True -delete=false
