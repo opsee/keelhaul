@@ -171,6 +171,7 @@ func (t *tracker) updateSeen() {
 			s.Status = "inactive"
 			err = t.notifier.NotifySlackBastionState(false, s.CustomerID, map[string]interface{}{
 				"bastion_id":    s.ID,
+				"customer_id":   s.CustomerID,
 				"current_state": s.Status,
 				"last_seen":     s.LastSeen,
 			})
@@ -182,6 +183,7 @@ func (t *tracker) updateSeen() {
 			s.Status = "active"
 			err = t.notifier.NotifySlackBastionState(true, s.CustomerID, map[string]interface{}{
 				"bastion_id":    s.ID,
+				"customer_id":   s.CustomerID,
 				"current_state": s.Status,
 				"last_seen":     s.LastSeen,
 			})

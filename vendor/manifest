@@ -282,7 +282,7 @@
 		{
 			"importpath": "github.com/opsee/notification-templates/dist/go/slack",
 			"repository": "https://github.com/opsee/notification-templates",
-			"revision": "82c857cf73c394f070b2e6f910255dfb793fef7f",
+			"revision": "c955bf1d0f077819726dbd6217a0728c96a3bc70",
 			"branch": "master",
 			"path": "/dist/go/slack"
 		},
