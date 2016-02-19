@@ -10,6 +10,11 @@ var BastionOnline = `{
       "color": "#81C784",
       "fields": [
         {
+          "title": "Customer ID",
+          "value": "{{customer_id}}",
+          "short": true
+        },
+        {
           "title": "Bastion ID",
           "value": "{{bastion_id}}",
           "short": true
