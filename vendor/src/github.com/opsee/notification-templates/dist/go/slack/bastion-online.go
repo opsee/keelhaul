@@ -6,9 +6,18 @@ var BastionOnline = `{
   "icon_url": "https://s3-us-west-1.amazonaws.com/opsee-public-images/slack-avi-48-green.png",
   "attachments": [
     {
-      "text": "User: {{name}} ({{email}})",
       "color": "#81C784",
       "fields": [
+        {
+          "title": "User",
+          "value": "{{name}}",
+          "short": true
+        },
+        {
+          "title": "Email",
+          "value": "{{email}}",
+          "short": true
+        },
         {
           "title": "Customer ID",
           "value": "{{customer_id}}",
