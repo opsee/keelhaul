@@ -14,13 +14,14 @@ import (
 type Notifier interface {
 	NotifyError(int, interface{}) error
 	NotifySuccess(int, interface{}) error
-	NotifySlackBastionState(bool, interface{}) error
+	NotifySlackBastionState(bool, string, map[string]interface{}) error
 }
 
 type notifier struct {
 	LaunchesSlackEndpoint string
 	TrackerSlackEndpoint  string
-	VapeEndpoint          string
+	VapeEmailEndpoint     string
+	VapeUserInfoEndpoint  string
 }
 
 const (
@@ -37,7 +38,8 @@ var (
 
 func New(c *config.Config) *notifier {
 	return &notifier{
-		VapeEndpoint:          c.VapeEndpoint,
+		VapeEmailEndpoint:     c.VapeEmailEndpoint,
+		VapeUserInfoEndpoint:  c.VapeUserInfoEndpoint,
 		LaunchesSlackEndpoint: c.LaunchesSlackEndpoint,
 		TrackerSlackEndpoint:  c.TrackerSlackEndpoint,
 	}
@@ -69,7 +71,34 @@ func init() {
 	slackBastionDownTemplate = tmpl
 }
 
-func (n *notifier) NotifySlackBastionState(isUp bool, notifyVars interface{}) error {
+func (n *notifier) NotifySlackBastionState(isUp bool, custID string, notifyVars map[string]interface{}) error {
+	resp, err := http.Get(n.VapeUserInfoEndpoint + "/" + custID)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode > 299 {
+		return fmt.Errorf("Bad response from Vape user info endpoint: %s", resp.Status)
+	}
+
+	response := make(map[string]interface{})
+	decoder := json.NewDecoder(resp.Body)
+
+	err = decoder.Decode(&response)
+	if err != nil {
+		return err
+	}
+
+	_, ok := response["email"]
+	if !ok {
+		return fmt.Errorf("error response from vape")
+	}
+
+	notifyVars["email"] = response["email"]
+	notifyVars["name"] = response["name"]
+
 	if isUp {
 		return n.notifySlack(notifyVars, slackBastionUpTemplate, n.TrackerSlackEndpoint)
 	}
@@ -97,11 +126,6 @@ func (n *notifier) NotifyError(userID int, notifyVars interface{}) error {
 func (n *notifier) notifyEmail(userID int, notifyVars interface{}, template string) error {
 	log.Info("requested email notification")
 
-	if n.VapeEndpoint == "" {
-		log.Warn("not sending email notification since VAPE_ENDPOINT is not set")
-		return nil
-	}
-
 	requestJSON, err := json.Marshal(map[string]interface{}{
 		"user_id":  userID,
 		"template": template,
@@ -112,7 +136,7 @@ func (n *notifier) notifyEmail(userID int, notifyVars interface{}, template stri
 		return err
 	}
 
-	resp, err := http.Post(n.VapeEndpoint, "application/json", bytes.NewBuffer(requestJSON))
+	resp, err := http.Post(n.VapeEmailEndpoint, "application/json", bytes.NewBuffer(requestJSON))
 	if err != nil {
 		return err
 	}
@@ -143,12 +167,6 @@ func (n *notifier) notifyEmail(userID int, notifyVars interface{}, template stri
 }
 
 func (n *notifier) notifySlack(notifyVars interface{}, template *mustache.Template, endpoint string) error {
-	log.Info("requested slack notification")
-
-	if endpoint == "" {
-		log.Warn("not sending slack notification since endpoint is not set")
-		return nil
-	}
 
 	templateVars := make(map[string]interface{})
 

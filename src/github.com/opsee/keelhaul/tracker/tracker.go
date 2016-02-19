@@ -167,21 +167,30 @@ func (t *tracker) updateSeen() {
 	for _, s := range states.States {
 		var err error
 		if s.Status == "active" {
+			log.Infof("attempting notify for %s", s.ID)
 			s.Status = "inactive"
-			err = t.notifier.NotifySlackBastionState(false, s)
+			err = t.notifier.NotifySlackBastionState(false, s.CustomerID, map[string]interface{}{
+				"bastion_id":    s.ID,
+				"current_state": s.Status,
+				"last_seen":     s.LastSeen,
+			})
 			if err == nil {
 				err = t.db.UpdateTrackingState(s.ID, "inactive")
 			}
 		} else {
+			log.Infof("attempting notify for %s", s.ID)
 			s.Status = "active"
-			err = t.notifier.NotifySlackBastionState(true, s)
+			err = t.notifier.NotifySlackBastionState(true, s.CustomerID, map[string]interface{}{
+				"bastion_id":    s.ID,
+				"current_state": s.Status,
+				"last_seen":     s.LastSeen,
+			})
 			if err == nil {
 				err = t.db.UpdateTrackingState(s.ID, "active")
 			}
 		}
 		if err != nil {
 			log.WithError(err).Error("failed to update tracking state and/or notify")
-			return
 		}
 	}
 }
