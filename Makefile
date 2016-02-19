@@ -18,7 +18,11 @@ deps:
 migrate:
 	migrate -url $(POSTGRES_CONN) -path ./migrations up
 
-docker: deps fmt
+docker: deps fmt dbuild
+
+run: docker drun
+
+dbuild:
 	docker run \
 		--link keelhaul_postgresql:postgresql \
 		--link keelhaul_nsqd:nsqd \
@@ -29,7 +33,7 @@ docker: deps fmt
 		-v `pwd`:/build quay.io/opsee/build-go:go15 \
 		&& docker build -t quay.io/opsee/keelhaul .
 
-run: docker
+drun:
 	docker run \
 		--link keelhaul_postgresql:postgresql \
 		--link keelhaul_nsqd:nsqd \
@@ -44,4 +48,4 @@ run: docker
 		--rm \
 		quay.io/opsee/keelhaul:latest
 
-.PHONY: docker run migrate clean all
+.PHONY: docker dbuild drun run migrate clean all
