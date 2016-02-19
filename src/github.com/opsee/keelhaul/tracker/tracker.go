@@ -173,7 +173,7 @@ func (t *tracker) updateSeen() {
 				"bastion_id":    s.ID,
 				"customer_id":   s.CustomerID,
 				"current_state": s.Status,
-				"last_seen":     s.LastSeen,
+				"last_seen":     s.LastSeen.Local().Format(time.RFC1123),
 			})
 			if err == nil {
 				err = t.db.UpdateTrackingState(s.ID, "inactive")
@@ -185,7 +185,7 @@ func (t *tracker) updateSeen() {
 				"bastion_id":    s.ID,
 				"customer_id":   s.CustomerID,
 				"current_state": s.Status,
-				"last_seen":     s.LastSeen,
+				"last_seen":     s.LastSeen.Local().Format(time.RFC1123),
 			})
 			if err == nil {
 				err = t.db.UpdateTrackingState(s.ID, "active")
