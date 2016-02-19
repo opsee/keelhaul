@@ -9,6 +9,8 @@ import (
 	slacktmpl "github.com/opsee/notification-templates/dist/go/slack"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"net/url"
+	"path"
 )
 
 type Notifier interface {
@@ -72,7 +74,13 @@ func init() {
 }
 
 func (n *notifier) NotifySlackBastionState(isUp bool, custID string, notifyVars map[string]interface{}) error {
-	resp, err := http.Get(n.VapeUserInfoEndpoint + "/" + custID)
+	u, err := url.Parse(n.VapeUserInfoEndpoint)
+	if err != nil {
+		return err
+	}
+
+	u.Path = path.Join(u.Path, custID)
+	resp, err := http.Get(u.String())
 	if err != nil {
 		return err
 	}
