@@ -1,0 +1,48 @@
+etcd:
+    image: quay.io/coreos/etcd:v2.0.3
+    command: > 
+        -name etcd0 
+        -advertise-client-urls http://localhost:2379,http://localhost:4001 
+        -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 
+        -initial-advertise-peer-urls http://localhost:2380 
+        -listen-peer-urls http://0.0.0.0:2380 
+        -initial-cluster-token etcd-cluster-1 
+        -initial-cluster etcd0=http://localhost:2380 
+        -initial-cluster-state new
+    ports:
+        - 4001:4001
+        - 2379:2379
+        - 2380:2380
+    container_name: keelhaul_etcd
+
+nsqlookupd:
+    image: nsqio/nsq:v0.3.5
+    command: /nsqlookupd
+    ports:
+        - 4160:4160
+        - 4161:4161
+    container_name: keelhaul_lookupd
+
+nsqd:
+    image: nsqio/nsq:v0.3.5
+    command: /nsqd --broadcast-address=nsqd --lookupd-tcp-address=lookupd:4160
+    links:
+        - nsqlookupd:keelhaul_lookupd
+    ports:
+        - 4150:4150
+        - 4151:4151
+    container_name: keelhaul_nsqd
+
+postgres:
+    image: sameersbn/postgresql:9.4-11
+    ports:
+        - 5439:5432
+        - 5432
+    environment:
+        - PG_TRUST_LOCALNET=true
+        - PG_PASSWORD=postgres
+        - DB_USER=postgres
+        - DB_PASS=postgres
+        - DB_NAME=keelhaul_test
+    container_name: keelhaul_postgresql
+

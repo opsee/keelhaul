@@ -10,16 +10,19 @@ fmt:
 	@gofmt -w ./
 
 deps:
-	./deps.sh
+	docker-compose stop
+	docker-compose rm -f
+	docker-compose up -d
+	docker run --link keelhaul_postgresql:postgres aanand/wait
 
 migrate:
 	migrate -url $(POSTGRES_CONN) -path ./migrations up
 
-docker: fmt
+docker: deps fmt
 	docker run \
-		--link postgresql:postgresql \
-		--link nsqd:nsqd \
-		--link lookupd:lookupd \
+		--link keelhaul_postgresql:postgresql \
+		--link keelhaul_nsqd:nsqd \
+		--link keelhaul_lookupd:lookupd \
 		--env-file ./$(APPENV) \
 		-e "TARGETS=linux/amd64" \
 		-e GODEBUG=netdns=cgo \
@@ -28,10 +31,10 @@ docker: fmt
 
 run: docker
 	docker run \
-		--link postgresql:postgresql \
-		--link nsqd:nsqd \
-		--link lookupd:lookupd \
-		--link etcd:etcd \
+		--link keelhaul_postgresql:postgresql \
+		--link keelhaul_nsqd:nsqd \
+		--link keelhaul_lookupd:lookupd \
+		--link keelhaul_etcd:etcd \
 		--env-file ./$(APPENV) \
 		-e GODEBUG=netdns=cgo \
 		-e AWS_DEFAULT_REGION \

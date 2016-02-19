@@ -1,6 +1,6 @@
 KEELHAUL_ADDRESS=:9094
 VAPE_KEYFILE=/vape.test.key
-POSTGRES_CONN=postgres://postgres@postgresql/keelhaul_test?sslmode=disable
+POSTGRES_CONN=postgres://postgres:postgres@postgresql/keelhaul_test?sslmode=disable
 ETCD_ADDR=http://etcd:2379
 FIERI_ENDPOINT=none
 BASTION_CONFIG_KEY=/opsee.co/config/bastion
