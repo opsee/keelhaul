@@ -12,6 +12,8 @@ import (
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/clients/spanx"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
+	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/checkgen"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/router"
@@ -26,7 +28,7 @@ type Stage interface {
 
 type Launch struct {
 	Bastion                  *com.Bastion
-	User                     *com.User
+	User                     *schema.User
 	CheckRequestFactory      *checkgen.CheckRequestFactory
 	EventChan                chan *Event
 	Err                      error
@@ -40,7 +42,7 @@ type Launch struct {
 	etcd                     etcd.KeysAPI
 	spanx                    spanx.Client
 	config                   *config.Config
-	bastionConfig            *com.BastionConfig
+	bastionConfig            *BastionConfig
 	imageID                  string
 	sqsClient                sqsiface.SQSAPI
 	snsClient                snsiface.SNSAPI
@@ -56,7 +58,7 @@ type Launch struct {
 
 type Event struct {
 	Err     error
-	Message *com.Message
+	Message *bus.Message
 }
 
 type VPCEnvironment struct {
@@ -81,7 +83,7 @@ const (
 	stateFailed     = "failed"
 )
 
-func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, spanx spanx.Client, cfg *config.Config, sess *session.Session, user *com.User) *Launch {
+func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, spanx spanx.Client, cfg *config.Config, sess *session.Session, user *schema.User) *Launch {
 	return &Launch{
 		User:           user,
 		EventChan:      make(chan *Event),
@@ -95,8 +97,8 @@ func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, span
 		config:         cfg,
 		session:        sess,
 		logger: log.WithFields(log.Fields{
-			"customer-id": user.CustomerID,
-			"user-id":     user.ID,
+			"customer-id": user.CustomerId,
+			"user-id":     user.Id,
 		}),
 		sqsClient:            sqs.New(sess),
 		snsClient:            sns.New(sess),
@@ -124,9 +126,9 @@ func (launch *Launch) NotifyVars() interface{} {
 		CheckCount   int    `json:"check_count"`
 	}{
 		VPCEnvironment: launch.VPCEnvironment,
-		UserID:         launch.User.ID,
+		UserID:         int(launch.User.Id),
 		UserEmail:      launch.User.Email,
-		CustomerID:     launch.User.CustomerID,
+		CustomerID:     launch.User.CustomerId,
 		Region:         *launch.session.Config.Region,
 		VPCID:          launch.Bastion.VPCID,
 		SubnetID:       launch.Bastion.SubnetID,
@@ -147,9 +149,9 @@ func (launch *Launch) NotifyVars() interface{} {
 
 // these events happen synchronously in the request cycle, so they are not part of launch stages
 func (launch *Launch) CreateBastion(vpcID, subnetID, subnetRouting, instanceType string) error {
-	bastion, err := com.NewBastion(launch.User.ID, launch.User.CustomerID, vpcID, subnetID, subnetRouting, instanceType)
+	bastion, err := com.NewBastion(int(launch.User.Id), launch.User.CustomerId, vpcID, subnetID, subnetRouting, instanceType)
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed creating bastion credentials",
 		})
@@ -158,7 +160,7 @@ func (launch *Launch) CreateBastion(vpcID, subnetID, subnetRouting, instanceType
 
 	err = launch.db.PutBastion(bastion)
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed saving bastion in database",
 		})
@@ -168,7 +170,7 @@ func (launch *Launch) CreateBastion(vpcID, subnetID, subnetRouting, instanceType
 	// fold the bastion id into the logger k/v
 	launch.logger = launch.logger.WithField("bastion-id", bastion.ID)
 	launch.Bastion = bastion
-	launch.event(&com.Message{
+	launch.event(&bus.Message{
 		State:   stateInProgress,
 		Command: commandLaunchBastion,
 		Message: "created bastion object",
@@ -222,7 +224,7 @@ func (launch *Launch) handleEvent(event *Event) {
 	launch.stateMut.Lock()
 	defer launch.stateMut.Unlock()
 
-	event.Message.CustomerID = launch.User.CustomerID
+	event.Message.CustomerID = launch.User.CustomerId
 	if launch.Bastion != nil {
 		event.Message.BastionID = launch.Bastion.ID
 	}
@@ -244,7 +246,7 @@ func (launch *Launch) handleEvent(event *Event) {
 	}
 }
 
-func (launch *Launch) event(msg *com.Message) {
+func (launch *Launch) event(msg *bus.Message) {
 	launch.loggerWithAttributes(msg.Attributes).Info(
 		fmt.Sprintf("[%s](%s): %s", msg.Command, msg.State, msg.Message),
 	)
@@ -252,7 +254,7 @@ func (launch *Launch) event(msg *com.Message) {
 	launch.handleEvent(&Event{Message: msg})
 }
 
-func (launch *Launch) error(err error, msg *com.Message) {
+func (launch *Launch) error(err error, msg *bus.Message) {
 	launch.loggerWithAttributes(msg.Attributes).WithError(err).Error(msg.Message)
 
 	msg.State = stateFailed

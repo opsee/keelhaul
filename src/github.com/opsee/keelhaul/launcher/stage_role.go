@@ -5,7 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/cenkalti/backoff"
-	"github.com/opsee/basic/com"
+	"github.com/opsee/keelhaul/bus"
 	"time"
 )
 
@@ -16,7 +16,7 @@ func (s putRole) Execute(launch *Launch) {
 	if err != nil {
 		launch.error(
 			err,
-			&com.Message{
+			&bus.Message{
 				Command: commandLaunchBastion,
 				Message: "error fetching credentials from session",
 			},
@@ -29,7 +29,7 @@ func (s putRole) Execute(launch *Launch) {
 	if err != nil {
 		launch.error(
 			err,
-			&com.Message{
+			&bus.Message{
 				Command: commandLaunchBastion,
 				Message: "error provisioning opsee role",
 			},
@@ -69,7 +69,7 @@ func (s putRole) Execute(launch *Launch) {
 	if err != nil {
 		launch.error(
 			err,
-			&com.Message{
+			&bus.Message{
 				Command: commandLaunchBastion,
 				Message: "error using new opsee provisioned role",
 			},
@@ -78,7 +78,7 @@ func (s putRole) Execute(launch *Launch) {
 		return
 	}
 
-	launch.event(&com.Message{
+	launch.event(&bus.Message{
 		State:   stateInProgress,
 		Command: commandLaunchBastion,
 		Message: "created global opsee role",

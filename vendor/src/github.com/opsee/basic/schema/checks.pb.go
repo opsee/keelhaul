@@ -327,6 +327,21 @@ func (m *CheckResourceRequest) GetChecks() []*Check {
 	return nil
 }
 
+type ResultsResource struct {
+	Results []*CheckResult `protobuf:"bytes,1,rep,name=results" json:"results,omitempty"`
+}
+
+func (m *ResultsResource) Reset()         { *m = ResultsResource{} }
+func (m *ResultsResource) String() string { return proto.CompactTextString(m) }
+func (*ResultsResource) ProtoMessage()    {}
+
+func (m *ResultsResource) GetResults() []*CheckResult {
+	if m != nil {
+		return m.Results
+	}
+	return nil
+}
+
 type TestCheckRequest struct {
 	MaxHosts int32                      `protobuf:"varint,1,opt,name=max_hosts,proto3" json:"max_hosts,omitempty"`
 	Deadline *google_protobuf.Timestamp `protobuf:"bytes,2,opt,name=deadline" json:"deadline,omitempty"`
@@ -507,6 +522,7 @@ func init() {
 	proto.RegisterType((*CheckResourceResponse)(nil), "opsee.CheckResourceResponse")
 	proto.RegisterType((*ResourceResponse)(nil), "opsee.ResourceResponse")
 	proto.RegisterType((*CheckResourceRequest)(nil), "opsee.CheckResourceRequest")
+	proto.RegisterType((*ResultsResource)(nil), "opsee.ResultsResource")
 	proto.RegisterType((*TestCheckRequest)(nil), "opsee.TestCheckRequest")
 	proto.RegisterType((*TestCheckResponse)(nil), "opsee.TestCheckResponse")
 	proto.RegisterType((*CheckResponse)(nil), "opsee.CheckResponse")
@@ -1057,6 +1073,41 @@ func (this *CheckResourceRequest) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *ResultsResource) Equal(that interface{}) bool {
+	if that == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	}
+
+	that1, ok := that.(*ResultsResource)
+	if !ok {
+		that2, ok := that.(ResultsResource)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		if this == nil {
+			return true
+		}
+		return false
+	} else if this == nil {
+		return false
+	}
+	if len(this.Results) != len(that1.Results) {
+		return false
+	}
+	for i := range this.Results {
+		if !this.Results[i].Equal(that1.Results[i]) {
+			return false
+		}
+	}
+	return true
+}
 func (this *TestCheckRequest) Equal(that interface{}) bool {
 	if that == nil {
 		if this == nil {
@@ -1332,6 +1383,12 @@ type CheckResourceRequestGetter interface {
 }
 
 var GraphQLCheckResourceRequestType *github_com_graphql_go_graphql.Object
+
+type ResultsResourceGetter interface {
+	GetResultsResource() *ResultsResource
+}
+
+var GraphQLResultsResourceType *github_com_graphql_go_graphql.Object
 
 type TestCheckRequestGetter interface {
 	GetTestCheckRequest() *TestCheckRequest
@@ -2321,6 +2378,33 @@ func init() {
 			}
 		}),
 	})
+	GraphQLResultsResourceType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "schemaResultsResource",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"results": &github_com_graphql_go_graphql.Field{
+					Type:        github_com_graphql_go_graphql.NewList(GraphQLCheckResultType),
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*ResultsResource)
+						if ok {
+							return obj.Results, nil
+						}
+						inter, ok := p.Source.(ResultsResourceGetter)
+						if ok {
+							face := inter.GetResultsResource()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Results, nil
+						}
+						return nil, fmt.Errorf("field results not resolved")
+					},
+				},
+			}
+		}),
+	})
 	GraphQLTestCheckRequestType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
 		Name:        "schemaTestCheckRequest",
 		Description: "",
@@ -2970,6 +3054,20 @@ func NewPopulatedCheckResourceRequest(r randyChecks, easy bool) *CheckResourceRe
 	return this
 }
 
+func NewPopulatedResultsResource(r randyChecks, easy bool) *ResultsResource {
+	this := &ResultsResource{}
+	if r.Intn(10) != 0 {
+		v11 := r.Intn(5)
+		this.Results = make([]*CheckResult, v11)
+		for i := 0; i < v11; i++ {
+			this.Results[i] = NewPopulatedCheckResult(r, easy)
+		}
+	}
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
 func NewPopulatedTestCheckRequest(r randyChecks, easy bool) *TestCheckRequest {
 	this := &TestCheckRequest{}
 	this.MaxHosts = int32(r.Int31())
@@ -2990,9 +3088,9 @@ func NewPopulatedTestCheckRequest(r randyChecks, easy bool) *TestCheckRequest {
 func NewPopulatedTestCheckResponse(r randyChecks, easy bool) *TestCheckResponse {
 	this := &TestCheckResponse{}
 	if r.Intn(10) != 0 {
-		v11 := r.Intn(5)
-		this.Responses = make([]*CheckResponse, v11)
-		for i := 0; i < v11; i++ {
+		v12 := r.Intn(5)
+		this.Responses = make([]*CheckResponse, v12)
+		for i := 0; i < v12; i++ {
 			this.Responses[i] = NewPopulatedCheckResponse(r, easy)
 		}
 	}
@@ -3036,9 +3134,9 @@ func NewPopulatedCheckResult(r randyChecks, easy bool) *CheckResult {
 	}
 	this.Passing = bool(bool(r.Intn(2) == 0))
 	if r.Intn(10) != 0 {
-		v12 := r.Intn(5)
-		this.Responses = make([]*CheckResponse, v12)
-		for i := 0; i < v12; i++ {
+		v13 := r.Intn(5)
+		this.Responses = make([]*CheckResponse, v13)
+		for i := 0; i < v13; i++ {
 			this.Responses[i] = NewPopulatedCheckResponse(r, easy)
 		}
 	}
@@ -3074,9 +3172,9 @@ func randUTF8RuneChecks(r randyChecks) rune {
 	return rune(ru + 61)
 }
 func randStringChecks(r randyChecks) string {
-	v13 := r.Intn(100)
-	tmps := make([]rune, v13)
-	for i := 0; i < v13; i++ {
+	v14 := r.Intn(100)
+	tmps := make([]rune, v14)
+	for i := 0; i < v14; i++ {
 		tmps[i] = randUTF8RuneChecks(r)
 	}
 	return string(tmps)
@@ -3098,11 +3196,11 @@ func randFieldChecks(data []byte, r randyChecks, fieldNumber int, wire int) []by
 	switch wire {
 	case 0:
 		data = encodeVarintPopulateChecks(data, uint64(key))
-		v14 := r.Int63()
+		v15 := r.Int63()
 		if r.Intn(2) == 0 {
-			v14 *= -1
+			v15 *= -1
 		}
-		data = encodeVarintPopulateChecks(data, uint64(v14))
+		data = encodeVarintPopulateChecks(data, uint64(v15))
 	case 1:
 		data = encodeVarintPopulateChecks(data, uint64(key))
 		data = append(data, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))

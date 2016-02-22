@@ -21,6 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/keelhaul/bus"
 	"golang.org/x/net/context"
 )
 
@@ -33,17 +34,17 @@ func (s getBastionConfig) Execute(launch *Launch) {
 		Quorum:    true,
 	})
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed fetching bastion config from etcd",
 		})
 		return
 	}
 
-	bastionConfig := &com.BastionConfig{}
+	bastionConfig := &BastionConfig{}
 	err = json.Unmarshal([]byte(response.Node.Value), bastionConfig)
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed unmarshaling bastion config",
 		})
@@ -52,7 +53,7 @@ func (s getBastionConfig) Execute(launch *Launch) {
 
 	bastionConfig.ModifiedIndex = response.Node.ModifiedIndex
 	launch.bastionConfig = bastionConfig
-	launch.event(&com.Message{
+	launch.event(&bus.Message{
 		State:   stateInProgress,
 		Command: commandLaunchBastion,
 		Message: "generated bastion config",
@@ -102,7 +103,7 @@ func (s getLatestImageID) Execute(launch *Launch) {
 	})
 
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed to get list of bastion images",
 		})
@@ -112,7 +113,7 @@ func (s getLatestImageID) Execute(launch *Launch) {
 	if len(imageOutput.Images) == 0 {
 		launch.error(
 			fmt.Errorf("No images with ownerID=%s and tag:release=%s found.", launch.bastionConfig.OwnerID, launch.bastionConfig.Tag),
-			&com.Message{
+			&bus.Message{
 				Command: commandLaunchBastion,
 				Message: "failed to get list of bastion images",
 			})
@@ -122,7 +123,7 @@ func (s getLatestImageID) Execute(launch *Launch) {
 	// sort in descending order
 	sort.Sort(ImageList(imageOutput.Images))
 	launch.imageID = *imageOutput.Images[0].ImageId
-	launch.event(&com.Message{
+	launch.event(&bus.Message{
 		State:   stateInProgress,
 		Command: commandLaunchBastion,
 		Message: fmt.Sprintf("got latest stable bastion image: %s", launch.imageID),
@@ -133,17 +134,17 @@ type createTopic struct{}
 
 func (s createTopic) Execute(launch *Launch) {
 	topic, err := launch.snsClient.CreateTopic(&sns.CreateTopicInput{
-		Name: aws.String("opsee-stack-" + launch.User.CustomerID),
+		Name: aws.String("opsee-stack-" + launch.User.CustomerId),
 	})
 
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed creating topic",
 		})
 	} else {
 		launch.createTopicOutput = topic
-		launch.event(&com.Message{
+		launch.event(&bus.Message{
 			State:   stateInProgress,
 			Command: commandLaunchBastion,
 			Message: fmt.Sprintf("created sns topic: %s", *topic.TopicArn),
@@ -159,13 +160,13 @@ func (s createQueue) Execute(launch *Launch) {
 	})
 
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed creating sqs queue",
 		})
 	} else {
 		launch.createQueueOutput = queue
-		launch.event(&com.Message{
+		launch.event(&bus.Message{
 			State:   stateInProgress,
 			Command: commandLaunchBastion,
 			Message: fmt.Sprintf("created sqs queue: %s", *queue.QueueUrl),
@@ -183,7 +184,7 @@ func (s getQueueAttributes) Execute(launch *Launch) {
 		},
 	})
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed to get sqs queue attributes",
 		})
@@ -194,7 +195,7 @@ func (s getQueueAttributes) Execute(launch *Launch) {
 	if !ok {
 		launch.error(
 			fmt.Errorf("no queue ARN found in queue attributes"),
-			&com.Message{
+			&bus.Message{
 				Command: commandLaunchBastion,
 				Message: "failed to get queue attributes",
 			},
@@ -203,7 +204,7 @@ func (s getQueueAttributes) Execute(launch *Launch) {
 	}
 
 	launch.getQueueAttributesOutput = queueAttributes
-	launch.event(&com.Message{
+	launch.event(&bus.Message{
 		State:   stateInProgress,
 		Command: commandLaunchBastion,
 		Message: "got sqs queue attributes",
@@ -241,7 +242,7 @@ func (s setQueueAttributes) Execute(launch *Launch) {
 	})
 
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed to generate sqs policy",
 		})
@@ -256,13 +257,13 @@ func (s setQueueAttributes) Execute(launch *Launch) {
 	})
 
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed setting sqs queue attributes",
 		})
 	} else {
 		launch.setQueueAttributesOutput = sqa
-		launch.event(&com.Message{
+		launch.event(&bus.Message{
 			State:   stateInProgress,
 			Command: commandLaunchBastion,
 			Message: "set sqs queue attributes",
@@ -280,13 +281,13 @@ func (s subscribe) Execute(launch *Launch) {
 	})
 
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed subscribing to sns topic",
 		})
 	} else {
 		launch.subscribeOutput = subscribeOutput
-		launch.event(&com.Message{
+		launch.event(&bus.Message{
 			State:   stateInProgress,
 			Command: commandLaunchBastion,
 			Message: "subscribed to sns topic",
@@ -299,7 +300,7 @@ type createStack struct{}
 func (s createStack) Execute(launch *Launch) {
 	userdata, err := launch.bastionConfig.GenerateUserData(launch.User, launch.Bastion)
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed to generate bastion userdata",
 		})
@@ -308,7 +309,7 @@ func (s createStack) Execute(launch *Launch) {
 
 	templateBytes, err := ioutil.ReadFile(launch.config.BastionCFTemplate)
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed to read bastion cloudformation template",
 		})
@@ -321,7 +322,7 @@ func (s createStack) Execute(launch *Launch) {
 	}
 
 	awsAccount := &com.Account{
-		CustomerID: launch.User.CustomerID,
+		CustomerID: launch.User.CustomerId,
 	}
 
 	stackParameters := []*cloudformation.Parameter{
@@ -351,7 +352,7 @@ func (s createStack) Execute(launch *Launch) {
 		},
 		{
 			ParameterKey:   aws.String("CustomerId"),
-			ParameterValue: aws.String(launch.User.CustomerID),
+			ParameterValue: aws.String(launch.User.CustomerId),
 		},
 		{
 			ParameterKey:   aws.String("BastionId"),
@@ -364,7 +365,7 @@ func (s createStack) Execute(launch *Launch) {
 	}
 
 	stack, err := launch.cloudformationClient.CreateStack(&cloudformation.CreateStackInput{
-		StackName:    aws.String("opsee-stack-" + launch.User.CustomerID),
+		StackName:    aws.String("opsee-stack-" + launch.User.CustomerId),
 		TemplateBody: aws.String(string(templateBytes)),
 		Capabilities: []*string{
 			aws.String("CAPABILITY_IAM"),
@@ -381,7 +382,7 @@ func (s createStack) Execute(launch *Launch) {
 			},
 			{
 				Key:   aws.String("opsee:customer-id"),
-				Value: aws.String(launch.User.CustomerID),
+				Value: aws.String(launch.User.CustomerId),
 			},
 		},
 		NotificationARNs: []*string{
@@ -390,13 +391,13 @@ func (s createStack) Execute(launch *Launch) {
 	})
 
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed creating cloudformation stack",
 		})
 	} else {
 		launch.createStackOutput = stack
-		launch.event(&com.Message{
+		launch.event(&bus.Message{
 			State:   stateInProgress,
 			Command: commandLaunchBastion,
 			Message: "launched cloudformation stack",
@@ -409,7 +410,7 @@ type bastionLaunchingState struct{}
 func (s bastionLaunchingState) Execute(launch *Launch) {
 	err := launch.db.UpdateBastion(launch.Bastion.Launch(*launch.createStackOutput.StackId, launch.imageID))
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed saving bastion object",
 		})
@@ -432,7 +433,7 @@ func (s consumeSQS) Execute(launch *Launch) {
 	for {
 		messages, err := launch.sqsClient.ReceiveMessage(msgInput)
 		if err != nil {
-			launch.error(err, &com.Message{
+			launch.error(err, &bus.Message{
 				Command: commandLaunchBastion,
 				Message: "failed receiving messages from sqs queue",
 			})
@@ -444,7 +445,7 @@ func (s consumeSQS) Execute(launch *Launch) {
 			err = json.Unmarshal([]byte(*message.Body), &msg)
 
 			if err != nil {
-				launch.error(err, &com.Message{
+				launch.error(err, &bus.Message{
 					Command: commandLaunchBastion,
 					Message: "failed decoding message from sqs queue",
 				})
@@ -457,7 +458,7 @@ func (s consumeSQS) Execute(launch *Launch) {
 			})
 
 			if err != nil {
-				launch.error(err, &com.Message{
+				launch.error(err, &bus.Message{
 					Command: commandLaunchBastion,
 					Message: "failed deleting message from sqs queue",
 				})
@@ -472,7 +473,7 @@ func (s consumeSQS) Execute(launch *Launch) {
 			cfMessage := make(cfMessage)
 			err = parseCloudFormation(&cfMessage, m)
 			if err != nil {
-				launch.error(err, &com.Message{
+				launch.error(err, &bus.Message{
 					Command: commandLaunchBastion,
 					Message: "failed parsing cloudformation message",
 				})
@@ -487,7 +488,7 @@ func (s consumeSQS) Execute(launch *Launch) {
 			if state == cfRollback {
 				launch.error(
 					fmt.Errorf(reason),
-					&com.Message{
+					&bus.Message{
 						Command:    commandLaunchBastion,
 						Message:    "cloudformation failed to launch",
 						Attributes: cfMessage,
@@ -497,7 +498,7 @@ func (s consumeSQS) Execute(launch *Launch) {
 			}
 
 			if state == cfComplete {
-				launch.event(&com.Message{
+				launch.event(&bus.Message{
 					State:      stateInProgress,
 					Command:    commandLaunchBastion,
 					Message:    "cloudformation stack launch complete",
@@ -506,7 +507,7 @@ func (s consumeSQS) Execute(launch *Launch) {
 				return
 			}
 
-			launch.event(&com.Message{
+			launch.event(&bus.Message{
 				State:      stateInProgress,
 				Command:    commandLaunchBastion,
 				Message:    "launching cloudformation stack",
@@ -579,12 +580,12 @@ func (s bastionActiveState) Execute(launch *Launch) {
 
 	for {
 		stackResourcesOutput, err := launch.cloudformationClient.ListStackResources(&cloudformation.ListStackResourcesInput{
-			StackName: aws.String("opsee-stack-" + launch.User.CustomerID),
+			StackName: aws.String("opsee-stack-" + launch.User.CustomerId),
 			NextToken: nextToken,
 		})
 
 		if err != nil {
-			launch.error(err, &com.Message{
+			launch.error(err, &bus.Message{
 				Command: commandLaunchBastion,
 				Message: "failed retrieving launched stack info",
 			})
@@ -607,14 +608,14 @@ func (s bastionActiveState) Execute(launch *Launch) {
 	instanceID = aws.String("not used")
 	err := launch.db.UpdateBastion(launch.Bastion.Activate(*instanceID, *groupID))
 	if err != nil {
-		launch.error(err, &com.Message{
+		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
 			Message: "failed saving bastion object",
 		})
 		return
 	}
 
-	launch.event(&com.Message{
+	launch.event(&bus.Message{
 		State:   stateComplete,
 		Command: commandLaunchBastion,
 		Message: "bastion activation complete",

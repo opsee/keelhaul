@@ -4,7 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"github.com/gorilla/websocket"
-	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
+	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/vaper"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 )
 
 type websocketHandler struct {
-	userChan  chan *com.User
+	userChan  chan *schema.User
 	closeChan chan struct{}
 	ws        *websocket.Conn
 }
@@ -34,7 +35,7 @@ func (s *service) websocketHandlerFunc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handler := websocketHandler{
-		userChan:  make(chan *com.User),
+		userChan:  make(chan *schema.User),
 		closeChan: make(chan struct{}, 1),
 		ws:        ws,
 	}
@@ -58,7 +59,7 @@ func (handler websocketHandler) readLoop(s *service) {
 			return
 		}
 
-		message := &com.Message{}
+		message := &bus.Message{}
 		decoder := json.NewDecoder(reader)
 		err = decoder.Decode(message)
 		if err != nil {
@@ -80,7 +81,7 @@ func (handler websocketHandler) readLoop(s *service) {
 				continue
 			}
 
-			user := &com.User{}
+			user := &schema.User{}
 			err = decodedToken.Reify(user)
 			if err != nil {
 				log.WithError(err).Error("failed to decode bearer user token")
@@ -88,8 +89,8 @@ func (handler websocketHandler) readLoop(s *service) {
 			}
 
 			log.WithFields(log.Fields{
-				"customer-id": user.CustomerID,
-				"user-id":     user.ID,
+				"customer-id": user.CustomerId,
+				"user-id":     user.Id,
 			}).Info("authenticated user via websocket")
 
 			handler.userChan <- user
@@ -102,7 +103,7 @@ func (handler websocketHandler) readLoop(s *service) {
 
 func (handler websocketHandler) writeLoop(s *service) {
 	var (
-		user *com.User
+		user *schema.User
 		ok   bool
 	)
 
@@ -158,10 +159,10 @@ func (handler websocketHandler) writeLoop(s *service) {
 			}
 
 		case t := <-heartbeat.C:
-			err = handler.ws.WriteJSON(&com.Message{
+			err = handler.ws.WriteJSON(&bus.Message{
 				Command:    "heartbeat",
 				State:      "ok",
-				CustomerID: user.CustomerID,
+				CustomerID: user.CustomerId,
 				Attributes: map[string]interface{}{
 					"time": t,
 				},
@@ -178,8 +179,8 @@ func (handler websocketHandler) writeLoop(s *service) {
 	}
 }
 
-func (s *service) bastionMessage(user *com.User) *com.Message {
-	var msg *com.Message
+func (s *service) bastionMessage(user *schema.User) *bus.Message {
+	var msg *bus.Message
 
 	bastionsResponse, err := s.ListBastions(user, &ListBastionsRequest{
 		State: []string{"active"},
@@ -188,17 +189,17 @@ func (s *service) bastionMessage(user *com.User) *com.Message {
 	if err != nil {
 		log.WithError(err).Error("failed listing bastions")
 
-		msg = &com.Message{
+		msg = &bus.Message{
 			Command:    "bastions",
 			State:      "error",
-			CustomerID: user.CustomerID,
+			CustomerID: user.CustomerId,
 			Message:    "error listing bastions",
 		}
 	} else {
-		msg = &com.Message{
+		msg = &bus.Message{
 			Command:    "bastions",
 			State:      "ok",
-			CustomerID: user.CustomerID,
+			CustomerID: user.CustomerId,
 			Attributes: map[string]interface{}{
 				"bastions": bastionsResponse.Bastions,
 			},
@@ -208,7 +209,7 @@ func (s *service) bastionMessage(user *com.User) *com.Message {
 	return msg
 }
 
-func decodeBasicToken(token string, user *com.User) error {
+func decodeBasicToken(token string, user *schema.User) error {
 	jsonblob, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
 		return err

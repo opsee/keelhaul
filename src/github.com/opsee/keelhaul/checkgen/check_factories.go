@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/hoisie/mustache"
-	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/checker"
 	"github.com/sirupsen/logrus"
 )
@@ -32,12 +31,12 @@ type CheckFactoryCheck struct {
 }
 
 type ChecksFactory interface {
-	ProduceChecks(awsobj *com.AWSObject) chan *CheckFactoryCheck
+	ProduceChecks(awsobj *AWSObject) chan *CheckFactoryCheck
 }
 
 type ELBCheckFactory struct{}
 
-func (elbFactory *ELBCheckFactory) ProduceChecks(awsobj *com.AWSObject) chan *CheckFactoryCheck {
+func (elbFactory *ELBCheckFactory) ProduceChecks(awsobj *AWSObject) chan *CheckFactoryCheck {
 	lb, ok := awsobj.Object.(*elb.LoadBalancerDescription)
 	checks := make(chan *CheckFactoryCheck, 1)
 	if !ok {

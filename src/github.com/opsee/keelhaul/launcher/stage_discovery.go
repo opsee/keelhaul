@@ -7,7 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/opsee/awscan"
-	"github.com/opsee/basic/com"
+	"github.com/opsee/keelhaul/bus"
+	"github.com/opsee/keelhaul/checkgen"
 	"net/http"
 	"reflect"
 )
@@ -26,7 +27,7 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 		httpclient  = &http.Client{}
 	)
 
-	launch.event(&com.Message{
+	launch.event(&bus.Message{
 		State:   stateInProgress,
 		Command: commandDiscovery,
 		Message: "starting vpc environment discovery",
@@ -60,7 +61,7 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 
 			request.Header.Set("Content-Type", "application/json")
 			request.Header.Set("Accept", "application/json")
-			request.Header.Set("Customer-Id", launch.User.CustomerID)
+			request.Header.Set("Customer-Id", launch.User.CustomerId)
 
 			resp, err := httpclient.Do(request)
 			if err != nil {
@@ -109,7 +110,7 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 				launch.VPCEnvironment.AutoscalingGroupCount++
 
 			case awscan.LoadBalancerType:
-				launch.CheckRequestFactory.ProduceCheckRequests(&com.AWSObject{Type: messageType, Object: event.Result})
+				launch.CheckRequestFactory.ProduceCheckRequests(&checkgen.AWSObject{Type: messageType, Object: event.Result})
 				launch.VPCEnvironment.LoadBalancerCount++
 			}
 
@@ -119,14 +120,14 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 	close(launch.CheckRequestFactory.CheckRequestPool.RequestsChan)
 
 	if launch.VPCEnvironment.tooManyErrors() {
-		launch.error(launch.VPCEnvironment.LastError, &com.Message{
+		launch.error(launch.VPCEnvironment.LastError, &bus.Message{
 			Command: commandDiscovery,
 			Message: "too many discovery errors",
 		})
 		return
 	}
 
-	launch.event(&com.Message{
+	launch.event(&bus.Message{
 		State:   stateComplete,
 		Command: commandDiscovery,
 		Message: "vpc environment discovery complete",

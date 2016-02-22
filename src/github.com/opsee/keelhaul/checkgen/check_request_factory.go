@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/util"
 	"github.com/sirupsen/logrus"
@@ -14,12 +14,12 @@ import (
 
 type CheckRequestFactory struct {
 	Config           *config.Config
-	User             *com.User
+	User             *schema.User
 	CheckRequestPool *RequestPool
 	CheckFactories   map[string]ChecksFactory
 }
 
-func NewCheckRequestFactoryWithConfig(config *config.Config, user *com.User) *CheckRequestFactory {
+func NewCheckRequestFactoryWithConfig(config *config.Config, user *schema.User) *CheckRequestFactory {
 	return &CheckRequestFactory{
 		CheckFactories: map[string]ChecksFactory{
 			"LoadBalancerDescription": &ELBCheckFactory{},
@@ -37,11 +37,11 @@ func NewCheckRequestFactory() *CheckRequestFactory {
 		},
 		CheckRequestPool: NewRequestPool(),
 		Config:           &config.Config{},
-		User:             &com.User{},
+		User:             &schema.User{},
 	}
 }
 
-func (checkRequestFactory *CheckRequestFactory) ProduceCheckRequests(awsobj *com.AWSObject) error {
+func (checkRequestFactory *CheckRequestFactory) ProduceCheckRequests(awsobj *AWSObject) error {
 	if awsobj == nil {
 		return fmt.Errorf("Nil pointer to AWSObject.  Cannot Produce CheckRequest")
 	}
@@ -120,7 +120,7 @@ func (checkRequestFactory *CheckRequestFactory) getAuthenticatedRequest(target s
 		return nil, err
 	}
 
-	userdata := fmt.Sprintf("{\"email\":\"%s\",\"customer_id\":\"%s\"}", checkRequestFactory.User.Email, checkRequestFactory.User.CustomerID)
+	userdata := fmt.Sprintf("{\"email\":\"%s\",\"customer_id\":\"%s\"}", checkRequestFactory.User.Email, checkRequestFactory.User.CustomerId)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(userdata)))
 	return req, nil
