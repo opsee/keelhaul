@@ -4,7 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/clients/spanx"
-	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/notifier"
@@ -13,7 +13,7 @@ import (
 )
 
 type Launcher interface {
-	LaunchBastion(*session.Session, *com.User, string, string, string, string) (*Launch, error)
+	LaunchBastion(*session.Session, *schema.User, string, string, string, string) (*Launch, error)
 }
 
 type launcher struct {
@@ -38,7 +38,7 @@ func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bu
 	}
 }
 
-func (l *launcher) LaunchBastion(sess *session.Session, user *com.User, vpcID, subnetID, subnetRouting, instanceType string) (*Launch, error) {
+func (l *launcher) LaunchBastion(sess *session.Session, user *schema.User, vpcID, subnetID, subnetRouting, instanceType string) (*Launch, error) {
 	launch := NewLaunch(l.db, l.router, l.etcd, l.spanx, l.config, sess, user)
 	go l.watchLaunch(launch)
 
@@ -59,9 +59,9 @@ func (l *launcher) watchLaunch(launch *Launch) {
 	}
 
 	if launch.Err != nil {
-		l.notifier.NotifyError(launch.User.ID, launch.NotifyVars())
+		l.notifier.NotifyError(int(launch.User.Id), launch.NotifyVars())
 	} else {
 		launch.CheckRequestFactory.CheckRequestPool.DrainRequests(true)
-		l.notifier.NotifySuccess(launch.User.ID, launch.NotifyVars())
+		l.notifier.NotifySuccess(int(launch.User.Id), launch.NotifyVars())
 	}
 }

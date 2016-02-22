@@ -1,5 +1,5 @@
-// Package bartnet provides a client interface to bartnet
-package bartnet
+// Package beavis provides a client interface to beavis
+package beavis
 
 import (
 	"encoding/base64"
@@ -10,10 +10,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 type Client interface {
-	ListChecks(user *schema.User) ([]*schema.Check, error)
+	ListResults(user *schema.User) ([]*schema.CheckResult, error)
 }
 
 type client struct {
@@ -21,7 +22,7 @@ type client struct {
 	endpoint string
 }
 
-// An endpoint is the address of the bartnet service.
+// An endpoint is the address of the beavis service.
 func New(endpoint string) Client {
 	return &client{
 		client:   &http.Client{},
@@ -30,19 +31,19 @@ func New(endpoint string) Client {
 }
 
 // ListChecks lists the checks + assertions for a user's customer account, without the results
-func (c *client) ListChecks(user *schema.User) ([]*schema.Check, error) {
-	body, err := c.do(user, "GET", "/gql/checks", nil)
+func (c *client) ListResults(user *schema.User) ([]*schema.CheckResult, error) {
+	body, err := c.do(user, "GET", "/gql/results?q="+url.QueryEscape(fmt.Sprintf("customer_id = \"%s\" and type = \"result\"", user.CustomerId)), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	checks := &schema.CheckResourceRequest{}
-	err = proto.Unmarshal(body, checks)
+	results := &schema.ResultsResource{}
+	err = proto.Unmarshal(body, results)
 	if err != nil {
 		return nil, err
 	}
 
-	return checks.Checks, nil
+	return results.Results, nil
 }
 
 func (c *client) do(user *schema.User, method, path string, body io.Reader) ([]byte, error) {
@@ -66,7 +67,7 @@ func (c *client) do(user *schema.User, method, path string, body io.Reader) ([]b
 
 	defer resp.Body.Close()
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("bartnet responded with error status: %s", resp.Status)
+		return nil, fmt.Errorf("beavis responded with error status: %s", resp.Status)
 	}
 
 	return ioutil.ReadAll(resp.Body)

@@ -9,6 +9,7 @@ It is generated from these files:
 	aws_data.proto
 	checker.proto
 	checks.proto
+	user.proto
 
 It has these top-level messages:
 	Group
@@ -24,10 +25,12 @@ It has these top-level messages:
 	CheckResourceResponse
 	ResourceResponse
 	CheckResourceRequest
+	ResultsResource
 	TestCheckRequest
 	TestCheckResponse
 	CheckResponse
 	CheckResult
+	User
 */
 package schema
 

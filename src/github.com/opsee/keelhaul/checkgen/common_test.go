@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/opsee/awscan"
-	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"github.com/sirupsen/logrus"
 )
 
@@ -39,7 +39,7 @@ func TestCanRunLocally(t *testing.T) {
 	checkRequestFactory.Config.HugsEndpoint = os.Getenv("HUGS_ENDPOINT")
 	checkRequestFactory.Config.BartnetEndpoint = os.Getenv("BARTNET_ENDPOINT")
 	checkRequestFactory.User.Email = os.Getenv("CUSTOMER_EMAIL")
-	checkRequestFactory.User.CustomerID = os.Getenv("CUSTOMER_ID")
+	checkRequestFactory.User.CustomerId = os.Getenv("CUSTOMER_ID")
 
 	for event := range disco.Discover() {
 		if event.Err == nil {
@@ -48,7 +48,7 @@ func TestCanRunLocally(t *testing.T) {
 			switch messageType {
 			case awscan.LoadBalancerType:
 				logrus.Print("found elb")
-				checkRequestFactory.ProduceCheckRequests(&com.AWSObject{Type: messageType, Object: event.Result, Owner: &com.User{Email: os.Getenv("CUSTOMER_EMAIL"), CustomerID: os.Getenv("CUSTOMER_ID")}})
+				checkRequestFactory.ProduceCheckRequests(&AWSObject{Type: messageType, Object: event.Result, Owner: &schema.User{Email: os.Getenv("CUSTOMER_EMAIL"), CustomerId: os.Getenv("CUSTOMER_ID")}})
 			}
 		} else {
 			logrus.Print(event.Err)

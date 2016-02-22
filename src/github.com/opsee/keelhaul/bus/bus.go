@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/nsqio/go-nsq"
-	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"github.com/opsee/keelhaul/config"
 	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
@@ -14,8 +14,8 @@ import (
 
 type Bus interface {
 	Start()
-	Publish(*com.Message) error
-	Subscribe(*com.User) *Subscription
+	Publish(*Message) error
+	Subscribe(*schema.User) *Subscription
 	Unsubscribe(*Subscription)
 	Stop() error
 }
@@ -25,14 +25,14 @@ type bus struct {
 	channels        map[string]map[*Subscription]bool
 	subscribeChan   chan *Subscription
 	unsubscribeChan chan *Subscription
-	messageChan     chan *com.Message
+	messageChan     chan *Message
 	producer        *nsq.Producer
 	consumer        *nsq.Consumer
 }
 
 type Subscription struct {
 	CustomerID string
-	Chan       chan *com.Message
+	Chan       chan *Message
 }
 
 func New(cfg *config.Config) (*bus, error) {
@@ -41,7 +41,7 @@ func New(cfg *config.Config) (*bus, error) {
 		channels:        make(map[string]map[*Subscription]bool),
 		subscribeChan:   make(chan *Subscription),
 		unsubscribeChan: make(chan *Subscription),
-		messageChan:     make(chan *com.Message),
+		messageChan:     make(chan *Message),
 	}
 
 	channel := uuid.NewV4().String() + "#ephemeral"
@@ -110,7 +110,7 @@ func (b *bus) Start() {
 	}()
 }
 
-func (b *bus) Publish(msg *com.Message) error {
+func (b *bus) Publish(msg *Message) error {
 	err := msg.Validate()
 	if err != nil {
 		return err
@@ -124,10 +124,10 @@ func (b *bus) Publish(msg *com.Message) error {
 	return b.producer.Publish(b.config.NSQTopic, msgBytes)
 }
 
-func (b *bus) Subscribe(user *com.User) *Subscription {
+func (b *bus) Subscribe(user *schema.User) *Subscription {
 	sub := &Subscription{
-		CustomerID: user.CustomerID,
-		Chan:       make(chan *com.Message),
+		CustomerID: user.CustomerId,
+		Chan:       make(chan *Message),
 	}
 
 	b.subscribeChan <- sub
@@ -140,7 +140,7 @@ func (b *bus) Unsubscribe(sub *Subscription) {
 }
 
 func (b *bus) HandleMessage(m *nsq.Message) error {
-	message := &com.Message{}
+	message := &Message{}
 	err := json.Unmarshal(m.Body, message)
 	if err != nil {
 		b.handleError(m, err)

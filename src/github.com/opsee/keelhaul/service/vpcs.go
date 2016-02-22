@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"github.com/opsee/keelhaul/scanner"
 	log "github.com/sirupsen/logrus"
 	"regexp"
@@ -47,10 +48,10 @@ func (r *ScanVPCsRequest) Validate() error {
 	return nil
 }
 
-func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsResponse, error) {
+func (s *service) ScanVPCs(user *schema.User, request *ScanVPCsRequest) (*ScanVPCsResponse, error) {
 	logger := log.WithFields(log.Fields{
-		"customer-id": user.CustomerID,
-		"user-id":     user.ID,
+		"customer-id": user.CustomerId,
+		"user-id":     user.Id,
 	})
 
 	creds := credentials.NewStaticCredentials(
@@ -89,7 +90,7 @@ func (s *service) ScanVPCs(user *com.User, request *ScanVPCsRequest) (*ScanVPCsR
 	// let's save this data, but we'll have to ignore errors
 	go func() {
 		for _, region := range vpcRegions {
-			region.CustomerID = user.CustomerID
+			region.CustomerID = user.CustomerId
 
 			err := s.db.PutRegion(region)
 			if err != nil {

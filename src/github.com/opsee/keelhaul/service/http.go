@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"github.com/opsee/basic/tp"
 	"golang.org/x/net/context"
 	"net/http"
@@ -26,9 +26,9 @@ func (s *service) StartHTTP(addr string) {
 	router.Handle("GET", "/api/swagger.json", []tp.DecodeFunc{}, s.swagger())
 
 	// json api
-	router.Handle("POST", "/vpcs/scan", decoders(com.User{}, ScanVPCsRequest{}), s.scanVPCs())
-	router.Handle("POST", "/vpcs/launch", decoders(com.User{}, LaunchBastionsRequest{}), s.launchBastions())
-	router.Handle("GET", "/vpcs/bastions", decoders(com.User{}, ListBastionsRequest{}), s.listBastions())
+	router.Handle("POST", "/vpcs/scan", decoders(schema.User{}, ScanVPCsRequest{}), s.scanVPCs())
+	router.Handle("POST", "/vpcs/launch", decoders(schema.User{}, LaunchBastionsRequest{}), s.launchBastions())
+	router.Handle("GET", "/vpcs/bastions", decoders(schema.User{}, ListBastionsRequest{}), s.listBastions())
 	router.Handle("POST", "/bastions/authenticate", []tp.DecodeFunc{tp.RequestDecodeFunc(requestKey, AuthenticateBastionRequest{})}, s.authenticateBastion())
 
 	// websocket
@@ -60,7 +60,7 @@ func (s *service) scanVPCs() tp.HandleFunc {
 			return ctx, http.StatusBadRequest, errUnknown
 		}
 
-		user, ok := ctx.Value(userKey).(*com.User)
+		user, ok := ctx.Value(userKey).(*schema.User)
 		if !ok {
 			return ctx, http.StatusUnauthorized, errUnknown
 		}
@@ -81,7 +81,7 @@ func (s *service) launchBastions() tp.HandleFunc {
 			return ctx, http.StatusBadRequest, errUnknown
 		}
 
-		user, ok := ctx.Value(userKey).(*com.User)
+		user, ok := ctx.Value(userKey).(*schema.User)
 		if !ok {
 			return ctx, http.StatusUnauthorized, errUnknown
 		}
@@ -102,7 +102,7 @@ func (s *service) listBastions() tp.HandleFunc {
 			return ctx, http.StatusBadRequest, errUnknown
 		}
 
-		user, ok := ctx.Value(userKey).(*com.User)
+		user, ok := ctx.Value(userKey).(*schema.User)
 		if !ok {
 			return ctx, http.StatusUnauthorized, errUnknown
 		}

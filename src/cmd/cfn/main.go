@@ -21,13 +21,15 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"github.com/opsee/keelhaul/launcher"
 )
 
 var (
-	config               *com.BastionConfig
+	config               *launcher.BastionConfig
 	bastion              *com.Bastion
-	user                 *com.User
+	user                 *schema.User
+	userId               int
 	templatePath         string
 	region               string
 	public               string
@@ -51,7 +53,7 @@ func init() {
 	flag.StringVar(&role, "role", "", "Opsee IAM Role name")
 	flag.BoolVar(&doDelete, "delete", true, "Delete stack after creation")
 
-	config = &com.BastionConfig{
+	config = &launcher.BastionConfig{
 		Tag:         "stable",
 		OwnerID:     "933693344490",
 		VPNRemote:   "bastion.opsee.com",
@@ -77,11 +79,12 @@ func init() {
 	flag.StringVar(&bastion.SubnetID, "subnet_id", "", "Subnet ID")
 	flag.StringVar(&bastion.Password, "password", "", "Bastion VPN Password")
 
-	user = &com.User{}
+	user = &schema.User{}
 
-	flag.StringVar(&user.CustomerID, "customer_id", "", "Customer ID")
-	flag.IntVar(&user.ID, "user_id", 0, "User ID")
+	flag.StringVar(&user.CustomerId, "customer_id", "", "Customer ID")
+	flag.IntVar(&userId, "user_id", 0, "User ID")
 	flag.StringVar(&user.Email, "email", "", "Customer Email")
+	user.Id = int32(userId)
 }
 
 func ptos(s *string) string {

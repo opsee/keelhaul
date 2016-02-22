@@ -3,6 +3,7 @@ package launcher
 import (
 	"fmt"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/keelhaul/bus"
 	"math"
 	"time"
 )
@@ -20,7 +21,7 @@ func (s waitConnect) Execute(launch *Launch) {
 		if launch.connectAttempts > connectAttempts {
 			launch.error(
 				fmt.Errorf("timed out waiting for bastion to connect"),
-				&com.Message{
+				&bus.Message{
 					Command: commandConnectBastion,
 					Message: "timed out waiting for bastion to connect",
 				},
@@ -32,7 +33,7 @@ func (s waitConnect) Execute(launch *Launch) {
 		_, err := launch.router.GetServices(launch.Bastion)
 
 		if launch.Bastion.State == com.BastionStateActive && err == nil {
-			launch.event(&com.Message{
+			launch.event(&bus.Message{
 				State:   stateComplete,
 				Command: commandConnectBastion,
 				Message: "bastion active and connected",
@@ -41,7 +42,7 @@ func (s waitConnect) Execute(launch *Launch) {
 			return
 		}
 
-		launch.event(&com.Message{
+		launch.event(&bus.Message{
 			State:   stateInProgress,
 			Command: commandConnectBastion,
 			Message: "waiting for bastion connection",

@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
 	log "github.com/sirupsen/logrus"
@@ -79,7 +80,7 @@ func (r *LaunchBastionsRequest) Validate() error {
 	return nil
 }
 
-func (s *service) LaunchBastions(user *com.User, request *LaunchBastionsRequest) (*LaunchBastionsResponse, error) {
+func (s *service) LaunchBastions(user *schema.User, request *LaunchBastionsRequest) (*LaunchBastionsResponse, error) {
 	creds := credentials.NewStaticCredentials(
 		request.AccessKey,
 		request.SecretKey,
@@ -123,14 +124,14 @@ func (r *ListBastionsRequest) Validate() error {
 	return nil
 }
 
-func (s *service) ListBastions(user *com.User, request *ListBastionsRequest) (*ListBastionsResponse, error) {
+func (s *service) ListBastions(user *schema.User, request *ListBastionsRequest) (*ListBastionsResponse, error) {
 	response, err := s.db.ListBastions(&store.ListBastionsRequest{
-		CustomerID: user.CustomerID,
+		CustomerID: user.CustomerId,
 		State:      request.State,
 	})
 
 	if err != nil {
-		log.WithError(err).WithFields(log.Fields{"customer_id": user.CustomerID, "state": request.State}).Errorf("error querying database")
+		log.WithError(err).WithFields(log.Fields{"customer_id": user.CustomerId, "state": request.State}).Errorf("error querying database")
 		return nil, err
 	}
 
@@ -139,9 +140,9 @@ func (s *service) ListBastions(user *com.User, request *ListBastionsRequest) (*L
 
 		if err != nil {
 			if err != router.ErrNotFound {
-				log.WithError(err).WithFields(log.Fields{"customer_id": user.CustomerID, "bastion_id": bastion.ID}).Error("bastion router error")
+				log.WithError(err).WithFields(log.Fields{"customer_id": user.CustomerId, "bastion_id": bastion.ID}).Error("bastion router error")
 			} else {
-				log.WithFields(log.Fields{"customer_id": user.CustomerID, "bastion_id": bastion.ID}).Warn("bastion not found in router")
+				log.WithFields(log.Fields{"customer_id": user.CustomerId, "bastion_id": bastion.ID}).Warn("bastion not found in router")
 			}
 		} else {
 			bastion.Connected = true
