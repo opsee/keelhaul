@@ -19,13 +19,13 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type User struct {
-	Id         int32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	CustomerId string `protobuf:"bytes,2,opt,name=customer_id,proto3" json:"customer_id,omitempty"`
-	Email      string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	Name       string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
-	Verified   bool   `protobuf:"varint,5,opt,name=verified,proto3" json:"verified,omitempty"`
-	Admin      bool   `protobuf:"varint,6,opt,name=admin,proto3" json:"admin,omitempty"`
-	Active     bool   `protobuf:"varint,7,opt,name=active,proto3" json:"active,omitempty"`
+	Id         int32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty" token:"id"`
+	CustomerId string `protobuf:"bytes,2,opt,name=customer_id,proto3" json:"customer_id,omitempty" token:"customer_id"`
+	Email      string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty" token:"email"`
+	Name       string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty" token:"name"`
+	Verified   bool   `protobuf:"varint,5,opt,name=verified,proto3" json:"verified,omitempty" token:"verified"`
+	Admin      bool   `protobuf:"varint,6,opt,name=admin,proto3" json:"admin,omitempty" token:"admin"`
+	Active     bool   `protobuf:"varint,7,opt,name=active,proto3" json:"active,omitempty" token:"active"`
 }
 
 func (m *User) Reset()         { *m = User{} }

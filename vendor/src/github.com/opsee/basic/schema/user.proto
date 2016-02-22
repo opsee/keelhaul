@@ -15,11 +15,11 @@ option go_package = "schema";
 option (opseeproto.graphql) = true;
 
 message User {
-	int32 id = 1 [(opseeproto.required) = true];
-	string customer_id = 2 [(opseeproto.required) = true];
-	string email = 3 [(opseeproto.required) = true];
-	string name = 4 [(opseeproto.required) = true];
-	bool verified = 5 [(opseeproto.required) = true];
-	bool admin = 6 [(opseeproto.required) = true];
-	bool active = 7 [(opseeproto.required) = true];
+	int32 id = 1 [(opseeproto.required) = true, (gogoproto.moretags) = "token:\"id\""];
+	string customer_id = 2 [(opseeproto.required) = true, (gogoproto.moretags) = "token:\"customer_id\""];
+	string email = 3 [(opseeproto.required) = true, (gogoproto.moretags) = "token:\"email\""];
+	string name = 4 [(opseeproto.required) = true, (gogoproto.moretags) = "token:\"name\""];
+	bool verified = 5 [(opseeproto.required) = true, (gogoproto.moretags) = "token:\"verified\""];
+	bool admin = 6 [(opseeproto.required) = true, (gogoproto.moretags) = "token:\"admin\""];
+	bool active = 7 [(opseeproto.required) = true, (gogoproto.moretags) = "token:\"active\""];
 }
