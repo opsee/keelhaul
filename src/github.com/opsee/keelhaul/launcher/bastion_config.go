@@ -47,9 +47,9 @@ coreos:
     - name: "docker.service"
       drop-ins:
         - name: "10-cgroupfs.conf"
-	  content: |
-	    [Service]
-	    Environment="DOCKER_OPTS=--exec-opt=native.cgroupdriver=cgroupfs"
+          content: |
+            [Service]
+            Environment="DOCKER_OPTS=--exec-opt=native.cgroupdriver=cgroupfs"
         - name: "50-reboot.conf"
           content: |
             [Service]
