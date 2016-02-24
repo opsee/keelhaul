@@ -146,6 +146,7 @@ func (t *tracker) updateSeen() {
 				err = t.db.UpdateTrackingSeen(bastBatch, custBatch)
 				if err != nil {
 					log.WithError(err).Error("tracking table update failed")
+					return
 				}
 				bastBatch = make([]string, 0, updateBatchSize)
 				custBatch = make([]string, 0, updateBatchSize)
@@ -156,6 +157,7 @@ func (t *tracker) updateSeen() {
 		err = t.db.UpdateTrackingSeen(bastBatch, custBatch)
 		if err != nil {
 			log.WithError(err).Error("tracking table update failed")
+			return
 		}
 	}
 
