@@ -5,6 +5,8 @@ import (
 	"github.com/opsee/basic/tp"
 	"golang.org/x/net/context"
 	"net/http"
+	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -12,6 +14,7 @@ const (
 	serviceKey = iota
 	userKey
 	requestKey
+	paramsKey
 )
 
 func (s *service) StartHTTP(addr string) {
@@ -30,6 +33,8 @@ func (s *service) StartHTTP(addr string) {
 	router.Handle("POST", "/vpcs/launch", decoders(schema.User{}, LaunchBastionsRequest{}), s.launchBastions())
 	router.Handle("GET", "/vpcs/bastions", decoders(schema.User{}, ListBastionsRequest{}), s.listBastions())
 	router.Handle("POST", "/bastions/authenticate", []tp.DecodeFunc{tp.RequestDecodeFunc(requestKey, AuthenticateBastionRequest{})}, s.authenticateBastion())
+
+	router.Handle("GET", "/admin/bastions", []tp.DecodeFunc{tp.QueryDecoder(paramsKey)}, s.listTrackerStates())
 
 	// websocket
 	router.HandlerFunc("GET", "/stream/", s.websocketHandlerFunc)
@@ -129,5 +134,46 @@ func (s *service) authenticateBastion() tp.HandleFunc {
 		}
 
 		return resp, http.StatusOK, nil
+	}
+}
+
+func (s *service) listTrackerStates() tp.HandleFunc {
+	return func(ctx context.Context) (interface{}, int, error) {
+		var (
+			err      error
+			limit    = 0
+			offset   = 0
+			bastions []string
+			resp     interface{}
+		)
+
+		// TODO: make this use the general purporse parameter decoding
+		params, _ := ctx.Value(paramsKey).(url.Values)
+
+		bastions = params["bastionID"]
+		if len(bastions) > 0 {
+			resp, err = s.ListBastionStates(bastions)
+		} else {
+			l := params.Get("limit")
+			o := params.Get("offset")
+			if l != "" {
+				limit, err = strconv.Atoi(l)
+				if err != nil {
+					return nil, http.StatusInternalServerError, err
+				}
+			}
+			if o != "" {
+				offset, err = strconv.Atoi(l)
+				if err != nil {
+					return nil, http.StatusInternalServerError, err
+				}
+			}
+			resp, err = s.ListTrackerStates(offset, limit)
+		}
+
+		if err == nil {
+			return resp, http.StatusOK, nil
+		}
+		return nil, http.StatusInternalServerError, err
 	}
 }

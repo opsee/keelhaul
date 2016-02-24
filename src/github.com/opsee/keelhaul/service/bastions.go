@@ -188,3 +188,26 @@ func (s *service) AuthenticateBastion(request *AuthenticateBastionRequest) (*Aut
 
 	return &AuthenticateBastionResponse{}, nil
 }
+
+func (s *service) ListTrackerStates(offset int, limit int) (*store.TrackingStateResponse, error) {
+	states, err := s.db.ListTrackingStates(offset, limit)
+	if err != nil {
+		log.WithError(err).Error("failed to list tracking states")
+		return nil, err
+	}
+
+	return states, nil
+}
+
+func (s *service) ListBastionStates(bastions []string) (*store.TrackingStateResponse, error) {
+	log.WithFields(log.Fields{
+		"bastions": bastions,
+	}).Info("ListBastionsStates")
+	states, err := s.db.ListBastionStates(bastions)
+	if err != nil {
+		log.WithError(err).Error("failed to list bastion states")
+		return nil, err
+	}
+
+	return states, nil
+}

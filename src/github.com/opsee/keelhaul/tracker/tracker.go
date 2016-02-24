@@ -161,7 +161,7 @@ func (t *tracker) updateSeen() {
 		}
 	}
 
-	states, err := t.db.ListTrackingStates(inactiveInterval)
+	states, err := t.db.GetPendingTrackingStates(inactiveInterval)
 	if err != nil {
 		log.WithError(err).Error("failed to list tracking states")
 		return

@@ -14,7 +14,9 @@ type Store interface {
 	ListBastions(*ListBastionsRequest) (*ListBastionsResponse, error)
 
 	UpdateTrackingSeen([]string, []string) error
-	ListTrackingStates(string) (*TrackingStateResponse, error)
+	GetPendingTrackingStates(string) (*TrackingStateResponse, error)
+	ListTrackingStates(int, int) (*TrackingStateResponse, error)
+	ListBastionStates([]string) (*TrackingStateResponse, error)
 	UpdateTrackingState(string, string) error
 }
 

@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/opsee/basic/com"
+	log "github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -154,7 +155,49 @@ func in(ordStart, listLen int) string {
 	return strings.Join(ords, ",")
 }
 
-func (pg *Postgres) ListTrackingStates(inactiveInterval string) (*TrackingStateResponse, error) {
+func (pg *Postgres) ListTrackingStates(offset int, limit int) (*TrackingStateResponse, error) {
+	query := "select id,customer_id,status,last_seen from bastion_tracking order by id"
+	if limit > 0 {
+		query += fmt.Sprintf(" limit %d", limit)
+	}
+	if offset > 0 {
+		query += fmt.Sprintf(" offset %d", offset)
+	}
+
+	states := make([]*TrackingState, 0)
+	args := make([]interface{}, 0)
+	err := pg.db.Select(&states, query, args...)
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	return &TrackingStateResponse{States: states}, nil
+}
+
+func (pg *Postgres) ListBastionStates(bastions []string) (*TrackingStateResponse, error) {
+	query := "select id,customer_id,status,last_seen from bastion_tracking where id in"
+
+	bCast := make([]string, 0, len(bastions))
+	for _, b := range bastions {
+		bCast = append(bCast, fmt.Sprintf("cast('%s' as uuid)", b))
+	}
+	bastionSet := strings.Join(bCast, ", ")
+
+	states := make([]*TrackingState, 0)
+	args := make([]interface{}, 0)
+	q := fmt.Sprintf("%s (%s)", query, bastionSet)
+	log.Info(q)
+	err := pg.db.Select(&states, q, args...)
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	return &TrackingStateResponse{States: states}, nil
+}
+
+func (pg *Postgres) GetPendingTrackingStates(inactiveInterval string) (*TrackingStateResponse, error) {
 	query := fmt.Sprintf("select id,customer_id,status,last_seen from bastion_tracking "+
 		"where (status = 'active' and last_seen <= (now() - interval '%s')) "+
 		"or (status = 'inactive' and last_seen >= (now() - interval '%s'))",
