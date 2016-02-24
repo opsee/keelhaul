@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-import "github.com/opsee/protobuf/proto/google/protobuf/timestamp.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "github.com/opsee/protobuf/opseeproto/opsee.proto";
+import "github.com/opsee/protobuf/opseeproto/types/timestamp.proto";
 import "github.com/opsee/basic/schema/aws/autoscaling/types.proto";
 import "github.com/opsee/basic/schema/aws/ec2/types.proto";
 import "github.com/opsee/basic/schema/aws/elb/types.proto";
@@ -48,8 +48,8 @@ message Group {
   // The last seen instances in the group target. This value is cached, so it may not be consistent.
   repeated Instance instances = 5;
 
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
+  opsee.types.Timestamp created_at = 6;
+  opsee.types.Timestamp updated_at = 7;
 }
 
 
@@ -77,6 +77,6 @@ message Instance {
   // The last seen group targets that the instance belongs to. This value is cached, so it may not be consistent.
   repeated Group groups = 4;
 
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
+  opsee.types.Timestamp created_at = 5;
+  opsee.types.Timestamp updated_at = 6;
 }

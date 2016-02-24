@@ -51,7 +51,6 @@ var (
 
 	basePath = flag.String("basepath", "", "the base path for aws proto")
 	header   = `syntax = "proto2";
-import "github.com/opsee/protobuf/proto/google/protobuf/timestamp.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "github.com/opsee/protobuf/opseeproto/opsee.proto";
 
