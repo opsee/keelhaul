@@ -275,8 +275,8 @@
 		},
 		{
 			"importpath": "github.com/opsee/basic",
-			"repository": "https://github.com/opsee/basic",
-			"revision": "af05d99910136b75b8e8c0a32aeb426da2cb6073",
+			"repository": "ssh://github.com/opsee/basic",
+			"revision": "43bfd60e25b65e2b07a01c752b595a3b52b57e2f",
 			"branch": "master"
 		},
 		{
@@ -292,6 +292,20 @@
 			"revision": "c54e5215f1a45512fba78eeaddd1fcc19095afd5",
 			"branch": "master",
 			"path": "/opseeproto"
+		},
+		{
+			"importpath": "github.com/opsee/protobuf/opseeproto/types",
+			"repository": "ssh://github.com/opsee/protobuf",
+			"revision": "90c72c25c41b2f8b1e1a210994a90e8ad36ad6db",
+			"branch": "master",
+			"path": "/opseeproto/types"
+		},
+		{
+			"importpath": "github.com/opsee/protobuf/plugin/graphql/scalars",
+			"repository": "ssh://github.com/opsee/protobuf",
+			"revision": "90c72c25c41b2f8b1e1a210994a90e8ad36ad6db",
+			"branch": "master",
+			"path": "/plugin/graphql/scalars"
 		},
 		{
 			"importpath": "github.com/opsee/protobuf/proto/google/protobuf",

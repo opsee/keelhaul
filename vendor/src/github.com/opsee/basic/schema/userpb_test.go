@@ -12,9 +12,9 @@ import github_com_gogo_protobuf_jsonpb "github.com/gogo/protobuf/jsonpb"
 import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import _ "github.com/opsee/protobuf/proto/google/protobuf"
 import _ "github.com/gogo/protobuf/gogoproto"
 import _ "github.com/opsee/protobuf/opseeproto"
+import _ "github.com/opsee/protobuf/opseeproto/types"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal

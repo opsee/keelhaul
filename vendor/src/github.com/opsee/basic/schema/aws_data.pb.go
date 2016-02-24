@@ -37,16 +37,16 @@ package schema
 import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import google_protobuf "github.com/opsee/protobuf/proto/google/protobuf"
 import _ "github.com/gogo/protobuf/gogoproto"
 import _ "github.com/opsee/protobuf/opseeproto"
+import opsee_types "github.com/opsee/protobuf/opseeproto/types"
 import opsee_aws_autoscaling "github.com/opsee/basic/schema/aws/autoscaling"
 import opsee_aws_ec2 "github.com/opsee/basic/schema/aws/ec2"
 import opsee_aws_elb "github.com/opsee/basic/schema/aws/elb"
 import opsee_aws_rds "github.com/opsee/basic/schema/aws/rds"
 
 import github_com_graphql_go_graphql "github.com/graphql-go/graphql"
-import github_com_opsee_protobuf_opseeproto "github.com/opsee/protobuf/opseeproto"
+import github_com_opsee_protobuf_plugin_graphql_scalars "github.com/opsee/protobuf/plugin/graphql/scalars"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -70,9 +70,9 @@ type Group struct {
 	// The last seen number of instances in the group target. This value is cached, so it may not be consistent.
 	InstanceCount int32 `protobuf:"varint,4,opt,name=instance_count,proto3" json:"instance_count,omitempty"`
 	// The last seen instances in the group target. This value is cached, so it may not be consistent.
-	Instances []*Instance                `protobuf:"bytes,5,rep,name=instances" json:"instances,omitempty"`
-	CreatedAt *google_protobuf.Timestamp `protobuf:"bytes,6,opt,name=created_at" json:"created_at,omitempty"`
-	UpdatedAt *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=updated_at" json:"updated_at,omitempty"`
+	Instances []*Instance            `protobuf:"bytes,5,rep,name=instances" json:"instances,omitempty"`
+	CreatedAt *opsee_types.Timestamp `protobuf:"bytes,6,opt,name=created_at" json:"created_at,omitempty"`
+	UpdatedAt *opsee_types.Timestamp `protobuf:"bytes,7,opt,name=updated_at" json:"updated_at,omitempty"`
 }
 
 func (m *Group) Reset()         { *m = Group{} }
@@ -133,14 +133,14 @@ func (m *Group) GetInstances() []*Instance {
 	return nil
 }
 
-func (m *Group) GetCreatedAt() *google_protobuf.Timestamp {
+func (m *Group) GetCreatedAt() *opsee_types.Timestamp {
 	if m != nil {
 		return m.CreatedAt
 	}
 	return nil
 }
 
-func (m *Group) GetUpdatedAt() *google_protobuf.Timestamp {
+func (m *Group) GetUpdatedAt() *opsee_types.Timestamp {
 	if m != nil {
 		return m.UpdatedAt
 	}
@@ -228,9 +228,9 @@ type Instance struct {
 	//	*Instance_DbInstance
 	Resource isInstance_Resource `protobuf_oneof:"resource"`
 	// The last seen group targets that the instance belongs to. This value is cached, so it may not be consistent.
-	Groups    []*Group                   `protobuf:"bytes,4,rep,name=groups" json:"groups,omitempty"`
-	CreatedAt *google_protobuf.Timestamp `protobuf:"bytes,5,opt,name=created_at" json:"created_at,omitempty"`
-	UpdatedAt *google_protobuf.Timestamp `protobuf:"bytes,6,opt,name=updated_at" json:"updated_at,omitempty"`
+	Groups    []*Group               `protobuf:"bytes,4,rep,name=groups" json:"groups,omitempty"`
+	CreatedAt *opsee_types.Timestamp `protobuf:"bytes,5,opt,name=created_at" json:"created_at,omitempty"`
+	UpdatedAt *opsee_types.Timestamp `protobuf:"bytes,6,opt,name=updated_at" json:"updated_at,omitempty"`
 }
 
 func (m *Instance) Reset()         { *m = Instance{} }
@@ -280,14 +280,14 @@ func (m *Instance) GetGroups() []*Group {
 	return nil
 }
 
-func (m *Instance) GetCreatedAt() *google_protobuf.Timestamp {
+func (m *Instance) GetCreatedAt() *opsee_types.Timestamp {
 	if m != nil {
 		return m.CreatedAt
 	}
 	return nil
 }
 
-func (m *Instance) GetUpdatedAt() *google_protobuf.Timestamp {
+func (m *Instance) GetUpdatedAt() *opsee_types.Timestamp {
 	if m != nil {
 		return m.UpdatedAt
 	}
@@ -755,7 +755,7 @@ func init() {
 					},
 				},
 				"created_at": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_opseeproto.ByteString,
+					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.ByteString,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Group)
@@ -780,7 +780,7 @@ func init() {
 					},
 				},
 				"updated_at": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_opseeproto.ByteString,
+					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.ByteString,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Group)
@@ -900,7 +900,7 @@ func init() {
 					},
 				},
 				"created_at": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_opseeproto.ByteString,
+					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.ByteString,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Instance)
@@ -925,7 +925,7 @@ func init() {
 					},
 				},
 				"updated_at": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_opseeproto.ByteString,
+					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.ByteString,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Instance)
@@ -1027,10 +1027,10 @@ func NewPopulatedGroup(r randyAwsData, easy bool) *Group {
 		}
 	}
 	if r.Intn(10) != 0 {
-		this.CreatedAt = google_protobuf.NewPopulatedTimestamp(r, easy)
+		this.CreatedAt = opsee_types.NewPopulatedTimestamp(r, easy)
 	}
 	if r.Intn(10) != 0 {
-		this.UpdatedAt = google_protobuf.NewPopulatedTimestamp(r, easy)
+		this.UpdatedAt = opsee_types.NewPopulatedTimestamp(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
 	}
@@ -1072,10 +1072,10 @@ func NewPopulatedInstance(r randyAwsData, easy bool) *Instance {
 		}
 	}
 	if r.Intn(10) != 0 {
-		this.CreatedAt = google_protobuf.NewPopulatedTimestamp(r, easy)
+		this.CreatedAt = opsee_types.NewPopulatedTimestamp(r, easy)
 	}
 	if r.Intn(10) != 0 {
-		this.UpdatedAt = google_protobuf.NewPopulatedTimestamp(r, easy)
+		this.UpdatedAt = opsee_types.NewPopulatedTimestamp(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
 	}
