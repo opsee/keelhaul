@@ -8,7 +8,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/opsee/basic/com"
-	log "github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -175,19 +174,18 @@ func (pg *Postgres) ListTrackingStates(offset int, limit int) (*TrackingStateRes
 	return &TrackingStateResponse{States: states}, nil
 }
 
-func (pg *Postgres) ListBastionStates(bastions []string) (*TrackingStateResponse, error) {
-	query := "select id,customer_id,status,last_seen from bastion_tracking where id in"
+func (pg *Postgres) ListBastionStates(customers []string) (*TrackingStateResponse, error) {
+	query := "select id,customer_id,status,last_seen from bastion_tracking where customer_id in"
 
-	bCast := make([]string, 0, len(bastions))
-	for _, b := range bastions {
-		bCast = append(bCast, fmt.Sprintf("cast('%s' as uuid)", b))
+	casted := make([]string, 0, len(customers))
+	for _, b := range customers {
+		casted = append(casted, fmt.Sprintf("cast('%s' as uuid)", b))
 	}
-	bastionSet := strings.Join(bCast, ", ")
+	custSet := strings.Join(casted, ", ")
 
 	states := make([]*TrackingState, 0)
 	args := make([]interface{}, 0)
-	q := fmt.Sprintf("%s (%s)", query, bastionSet)
-	log.Info(q)
+	q := fmt.Sprintf("%s (%s)", query, custSet)
 	err := pg.db.Select(&states, q, args...)
 
 	if err != nil && err != sql.ErrNoRows {

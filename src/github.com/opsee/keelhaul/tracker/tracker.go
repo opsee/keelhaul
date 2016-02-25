@@ -198,3 +198,23 @@ func (t *tracker) updateSeen() {
 		}
 	}
 }
+
+func (t *tracker) ListBastionStates(customerIDs []string) (*store.TrackingStateResponse, error) {
+	states, err := t.db.ListBastionStates(customerIDs)
+	if err != nil {
+		log.WithError(err).Error("failed to list bastion states")
+		return nil, err
+	}
+
+	return states, nil
+}
+
+func (t *tracker) ListTrackerStates(offset int, limit int) (*store.TrackingStateResponse, error) {
+	states, err := t.db.ListTrackingStates(offset, limit)
+	if err != nil {
+		log.WithError(err).Error("failed to list tracking states")
+		return nil, err
+	}
+
+	return states, nil
+}
