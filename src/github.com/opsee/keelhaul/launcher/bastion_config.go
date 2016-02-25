@@ -2,9 +2,10 @@ package launcher
 
 import (
 	"bytes"
+	"text/template"
+
 	"github.com/opsee/basic/com"
 	"github.com/opsee/basic/schema"
-	"text/template"
 )
 
 type BastionConfig struct {
@@ -23,7 +24,7 @@ const userdata = `#cloud-config
 write_files:
   - path: "/etc/opsee/bastion-env.sh"
     permissions: "0644"
-    owner: root
+    owner: "root"
     content: |
       CUSTOMER_ID={{.User.CustomerId}}
       CUSTOMER_EMAIL={{.User.Email}}
@@ -37,11 +38,11 @@ write_files:
       BASTION_AUTH_TYPE={{.Config.AuthType}}
       GODEBUG=netdns=cgo
 {{ with .BastionUsers }}users:{{ range . }}
-  - name: {{ .Username }}
+  - name: "{{ .Username }}"
     groups:
-      - sudo
+      - "sudo"
     ssh-authorized-keys:
-      - {{ .Key }}{{ end }}{{ end }}
+      - "{{ .Key }}{{ end }}{{ end }}"
 coreos:
   units:
     - name: "docker.service"
@@ -55,8 +56,8 @@ coreos:
             [Service]
             FailureAction=reboot-force
   update:
-    reboot-strategy: off
-    group: beta
+    reboot-strategy: "off"
+    group: "beta"
 `
 
 var userdataTmpl = template.Must(template.New("userdata").Parse(userdata))
