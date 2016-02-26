@@ -5,7 +5,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/cenkalti/backoff"
+	opseeawscredentials "github.com/opsee/basic/schema/aws/credentials"
+	"github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/bus"
+	"golang.org/x/net/context"
 	"time"
 )
 
@@ -25,7 +28,13 @@ func (s putRole) Execute(launch *Launch) {
 		return
 	}
 
-	stscreds, err := launch.spanx.PutRole(launch.User, credValue.AccessKeyID, credValue.SecretAccessKey)
+	stscreds, err := launch.spanx.PutRole(context.Background(), &service.PutRoleRequest{
+		User: launch.User,
+		Credentials: &opseeawscredentials.Value{
+			AccessKeyID:     aws.String(credValue.AccessKeyID),
+			SecretAccessKey: aws.String(credValue.SecretAccessKey),
+		},
+	})
 	if err != nil {
 		launch.error(
 			err,
@@ -42,9 +51,9 @@ func (s putRole) Execute(launch *Launch) {
 	ec2Client := ec2.New(
 		launch.session.Copy(&aws.Config{
 			Credentials: credentials.NewStaticCredentials(
-				stscreds.AccessKeyID,
-				stscreds.SecretAccessKey,
-				stscreds.SessionToken,
+				stscreds.Credentials.GetAccessKeyID(),
+				stscreds.Credentials.GetSecretAccessKey(),
+				stscreds.Credentials.GetSessionToken(),
 			),
 		}),
 	)
