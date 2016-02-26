@@ -1,15 +1,18 @@
 package launcher
 
 import (
+	"crypto/tls"
 	"github.com/aws/aws-sdk-go/aws/session"
 	etcd "github.com/coreos/etcd/client"
-	"github.com/opsee/basic/clients/spanx"
 	"github.com/opsee/basic/schema"
+	"github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/notifier"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type Launcher interface {
@@ -21,21 +24,28 @@ type launcher struct {
 	etcd     etcd.KeysAPI
 	bus      bus.Bus
 	router   router.Router
-	spanx    spanx.Client
+	spanx    service.SpanxClient
 	config   *config.Config
 	notifier notifier.Notifier
 }
 
-func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bus, notifier notifier.Notifier, cfg *config.Config) *launcher {
+func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bus, notifier notifier.Notifier, cfg *config.Config) (*launcher, error) {
+	spanxconn, err := grpc.Dial(cfg.SpanxEndpoint, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
+	if err != nil {
+		return nil, err
+	}
+
+	spanxclient := service.NewSpanxClient(spanxconn)
+
 	return &launcher{
 		db:       db,
 		router:   router,
 		etcd:     etcdKAPI,
 		bus:      bus,
-		spanx:    spanx.New(cfg.SpanxEndpoint),
+		spanx:    spanxclient,
 		config:   cfg,
 		notifier: notifier,
-	}
+	}, nil
 }
 
 func (l *launcher) LaunchBastion(sess *session.Session, user *schema.User, vpcID, subnetID, subnetRouting, instanceType string) (*Launch, error) {

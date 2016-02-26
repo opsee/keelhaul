@@ -72,7 +72,10 @@ func main() {
 
 	notifier := notifier.New(cfg)
 
-	launcher := launcher.New(db, router, etcdKeysAPI, bus, notifier, cfg)
+	launcher, err := launcher.New(db, router, etcdKeysAPI, bus, notifier, cfg)
+	if err != nil {
+		log.Fatalf("couldn't initialize launcher: ", err)
+	}
 
 	tracker := tracker.New(db, etcdKeysAPI, notifier)
 	tracker.Start()

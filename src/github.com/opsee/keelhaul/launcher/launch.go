@@ -10,9 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
 	etcd "github.com/coreos/etcd/client"
-	"github.com/opsee/basic/clients/spanx"
 	"github.com/opsee/basic/com"
 	"github.com/opsee/basic/schema"
+	"github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/checkgen"
 	"github.com/opsee/keelhaul/config"
@@ -40,7 +40,7 @@ type Launch struct {
 	db                       store.Store
 	router                   router.Router
 	etcd                     etcd.KeysAPI
-	spanx                    spanx.Client
+	spanx                    service.SpanxClient
 	config                   *config.Config
 	bastionConfig            *BastionConfig
 	imageID                  string
@@ -83,7 +83,7 @@ const (
 	stateFailed     = "failed"
 )
 
-func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, spanx spanx.Client, cfg *config.Config, sess *session.Session, user *schema.User) *Launch {
+func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, spanx service.SpanxClient, cfg *config.Config, sess *session.Session, user *schema.User) *Launch {
 	return &Launch{
 		User:           user,
 		EventChan:      make(chan *Event),

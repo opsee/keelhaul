@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
@@ -46,6 +47,9 @@ var (
 		},
 		"rds": []interface{}{
 			rds.DBInstance{},
+		},
+		"credentials": []interface{}{
+			credentials.Value{},
 		},
 	}
 
