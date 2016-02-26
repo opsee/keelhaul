@@ -90,6 +90,7 @@ func main() {
 		protobuf.GenerateProtobufDefinition(buf, allTypes, nil, &protonamer{})
 
 		sanitized := bytes.Replace(buf.Bytes(), []byte("  required  _ = 1;\n"), []byte{}, -1)
+		sanitized = bytes.Replace(sanitized, []byte("  required"), []byte("  optional"), -1)
 
 		p := path.Join(*basePath, pkg)
 		if err := os.MkdirAll(p, 0777); err != nil {

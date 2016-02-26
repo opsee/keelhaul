@@ -29,10 +29,10 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type Value struct {
-	AccessKeyID      *string `protobuf:"bytes,1,req,name=AccessKeyID" json:"AccessKeyID,omitempty"`
-	SecretAccessKey  *string `protobuf:"bytes,2,req,name=SecretAccessKey" json:"SecretAccessKey,omitempty"`
-	SessionToken     *string `protobuf:"bytes,3,req,name=SessionToken" json:"SessionToken,omitempty"`
-	ProviderName     *string `protobuf:"bytes,4,req,name=ProviderName" json:"ProviderName,omitempty"`
+	AccessKeyID      *string `protobuf:"bytes,1,opt,name=AccessKeyID" json:"AccessKeyID,omitempty"`
+	SecretAccessKey  *string `protobuf:"bytes,2,opt,name=SecretAccessKey" json:"SecretAccessKey,omitempty"`
+	SessionToken     *string `protobuf:"bytes,3,opt,name=SessionToken" json:"SessionToken,omitempty"`
+	ProviderName     *string `protobuf:"bytes,4,opt,name=ProviderName" json:"ProviderName,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
@@ -151,7 +151,7 @@ func init() {
 		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
 			return github_com_graphql_go_graphql.Fields{
 				"AccessKeyID": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_graphql_go_graphql.NewNonNull(github_com_graphql_go_graphql.String),
+					Type:        github_com_graphql_go_graphql.String,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Value)
@@ -176,7 +176,7 @@ func init() {
 					},
 				},
 				"SecretAccessKey": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_graphql_go_graphql.NewNonNull(github_com_graphql_go_graphql.String),
+					Type:        github_com_graphql_go_graphql.String,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Value)
@@ -201,7 +201,7 @@ func init() {
 					},
 				},
 				"SessionToken": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_graphql_go_graphql.NewNonNull(github_com_graphql_go_graphql.String),
+					Type:        github_com_graphql_go_graphql.String,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Value)
@@ -226,7 +226,7 @@ func init() {
 					},
 				},
 				"ProviderName": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_graphql_go_graphql.NewNonNull(github_com_graphql_go_graphql.String),
+					Type:        github_com_graphql_go_graphql.String,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Value)
@@ -256,14 +256,22 @@ func init() {
 }
 func NewPopulatedValue(r randyTypes, easy bool) *Value {
 	this := &Value{}
-	v1 := randStringTypes(r)
-	this.AccessKeyID = &v1
-	v2 := randStringTypes(r)
-	this.SecretAccessKey = &v2
-	v3 := randStringTypes(r)
-	this.SessionToken = &v3
-	v4 := randStringTypes(r)
-	this.ProviderName = &v4
+	if r.Intn(10) != 0 {
+		v1 := randStringTypes(r)
+		this.AccessKeyID = &v1
+	}
+	if r.Intn(10) != 0 {
+		v2 := randStringTypes(r)
+		this.SecretAccessKey = &v2
+	}
+	if r.Intn(10) != 0 {
+		v3 := randStringTypes(r)
+		this.SessionToken = &v3
+	}
+	if r.Intn(10) != 0 {
+		v4 := randStringTypes(r)
+		this.ProviderName = &v4
+	}
 	if !easy && r.Intn(10) != 0 {
 		this.XXX_unrecognized = randUnrecognizedTypes(r, 5)
 	}
