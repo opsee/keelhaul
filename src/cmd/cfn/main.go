@@ -33,6 +33,7 @@ var (
 	templatePath         string
 	region               string
 	public               string
+	keyName              string
 	doDelete             bool
 	cloudformationClient *cloudformation.CloudFormation
 	role                 string
@@ -49,6 +50,7 @@ var (
 func init() {
 	flag.StringVar(&templatePath, "template_path", "", "Path to CloudFormation template")
 	flag.StringVar(&region, "region", "us-west-1", "AWS Region")
+	flag.StringVar(&keyName, "key_name", "", "AWS Region")
 	flag.StringVar(&public, "public", "True", "True or False - Whether to associate a public IP")
 	flag.StringVar(&role, "role", "", "Opsee IAM Role name")
 	flag.BoolVar(&doDelete, "delete", true, "Delete stack after creation")
@@ -155,6 +157,10 @@ func launch(imageID string) (string, error) {
 			ParameterValue: aws.String(base64.StdEncoding.EncodeToString(userdata)),
 		},
 		{
+			ParameterKey:   aws.String("KeyName"),
+			ParameterValue: aws.String(keyName),
+		},
+		{
 			ParameterKey:   aws.String("VpcId"),
 			ParameterValue: aws.String(bastion.VPCID),
 		},
@@ -177,6 +183,10 @@ func launch(imageID string) (string, error) {
 		{
 			ParameterKey:   aws.String("OpseeRole"),
 			ParameterValue: aws.String(role),
+		},
+		{
+			ParameterKey:   aws.String("BastionIngressStackUrl"),
+			ParameterValue: aws.String("https://s3.amazonaws.com/opsee-bastion-cf/beta/bastion-ingress-cf.template"),
 		},
 	}
 
@@ -234,7 +244,6 @@ func launch(imageID string) (string, error) {
 			}
 
 			// fmt.Println(awsutil.Prettify(stackResourcesResponse))
-
 			fmt.Printf(fmtString, "RESOURCE TYPE", "RESOURCE STATUS", "RESOURCE STATUS REASON")
 			for _, res := range stackResourcesResponse.StackResources {
 				fmt.Printf(fmtString, ptos(res.ResourceType), ptos(res.ResourceStatus), ptos(res.ResourceStatusReason))

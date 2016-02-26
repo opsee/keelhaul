@@ -49,6 +49,11 @@
         "OpseeRole": {
             "Description": "Opsee Role",
             "Type": "String"
+        },
+        "BastionIngressTemplateUrl": {
+            "Description": "S3 URL for ingress cfn template.",
+            "Type": "String",
+            "Default": "https://s3.amazonaws.com/opsee-bastion-cf/beta/bastion-ingress-cf.template"
         }
     },
     "Conditions": {
@@ -139,7 +144,20 @@
                 }
             }
         },
-
+        "OpseeBastionIngressStack" : {
+           "Type" : "AWS::CloudFormation::Stack",
+           "Properties" : {
+                "Parameters" : { 
+                    "BastionSecurityGroupId": { 
+                        "Ref":"OpseeSecurityGroup" 
+                    },
+                    "VpcId": { 
+                        "Ref":"VpcId" 
+                    }
+                },
+                "TemplateURL" : { "Ref": "BastionIngressTemplateUrl" }
+            }
+        },
         "OpseeLaunchConfig" : {
             "Type" : "AWS::AutoScaling::LaunchConfiguration",
                "Properties" : {
