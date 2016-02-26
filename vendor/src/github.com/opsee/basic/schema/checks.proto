@@ -84,34 +84,6 @@ message HttpResponse {
 	string host = 5;
 }
 
-message CheckResourceResponse {
-	string id = 1;
-	Check check = 2;
-	string error = 3;
-}
-
-message ResourceResponse {
-	repeated CheckResourceResponse responses = 1;
-}
-
-message CheckResourceRequest {
-	repeated Check checks = 1;
-}
-
-message ResultsResource {
-  repeated CheckResult results = 1;
-}
-
-message TestCheckRequest {
-	int32 max_hosts = 1 [(opseeproto.required) = true];
-	opsee.types.Timestamp deadline = 2 [(opseeproto.required) = true];
-	Check check = 3 [(opseeproto.required) = true];
-}
-
-message TestCheckResponse {
-	repeated CheckResponse responses = 1;
-	string error = 2;
-}
 
 message CheckResponse {
 	Target target = 1;
