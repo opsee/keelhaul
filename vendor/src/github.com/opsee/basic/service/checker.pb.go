@@ -7,6 +7,7 @@ Package service is a generated protocol buffer package.
 
 It is generated from these files:
 	checker.proto
+	keelhaul.proto
 	spanx.proto
 	vape.proto
 
@@ -17,6 +18,8 @@ It has these top-level messages:
 	ResultsResource
 	TestCheckRequest
 	TestCheckResponse
+	ListBastionsRequest
+	ListBastionsResponse
 	PutRoleRequest
 	PutRoleResponse
 	GetCredentialsRequest
@@ -35,6 +38,9 @@ import _ "github.com/opsee/protobuf/opseeproto/types"
 import opsee_types1 "github.com/opsee/protobuf/opseeproto/types"
 import _ "github.com/opsee/protobuf/opseeproto"
 import opsee "github.com/opsee/basic/schema"
+
+import github_com_graphql_go_graphql "github.com/graphql-go/graphql"
+import github_com_opsee_protobuf_plugin_graphql_scalars "github.com/opsee/protobuf/plugin/graphql/scalars"
 
 import (
 	context "golang.org/x/net/context"
@@ -370,6 +376,320 @@ func (this *TestCheckResponse) Equal(that interface{}) bool {
 		return false
 	}
 	return true
+}
+
+type CheckResourceResponseGetter interface {
+	GetCheckResourceResponse() *CheckResourceResponse
+}
+
+var GraphQLCheckResourceResponseType *github_com_graphql_go_graphql.Object
+
+type ResourceResponseGetter interface {
+	GetResourceResponse() *ResourceResponse
+}
+
+var GraphQLResourceResponseType *github_com_graphql_go_graphql.Object
+
+type CheckResourceRequestGetter interface {
+	GetCheckResourceRequest() *CheckResourceRequest
+}
+
+var GraphQLCheckResourceRequestType *github_com_graphql_go_graphql.Object
+
+type ResultsResourceGetter interface {
+	GetResultsResource() *ResultsResource
+}
+
+var GraphQLResultsResourceType *github_com_graphql_go_graphql.Object
+
+type TestCheckRequestGetter interface {
+	GetTestCheckRequest() *TestCheckRequest
+}
+
+var GraphQLTestCheckRequestType *github_com_graphql_go_graphql.Object
+
+type TestCheckResponseGetter interface {
+	GetTestCheckResponse() *TestCheckResponse
+}
+
+var GraphQLTestCheckResponseType *github_com_graphql_go_graphql.Object
+
+func init() {
+	GraphQLCheckResourceResponseType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "serviceCheckResourceResponse",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"id": &github_com_graphql_go_graphql.Field{
+					Type:        github_com_graphql_go_graphql.String,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*CheckResourceResponse)
+						if ok {
+							return obj.Id, nil
+						}
+						inter, ok := p.Source.(CheckResourceResponseGetter)
+						if ok {
+							face := inter.GetCheckResourceResponse()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Id, nil
+						}
+						return nil, fmt.Errorf("field id not resolved")
+					},
+				},
+				"check": &github_com_graphql_go_graphql.Field{
+					Type:        opsee.GraphQLCheckType,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*CheckResourceResponse)
+						if ok {
+							if obj.Check == nil {
+								return nil, nil
+							}
+							return obj.GetCheck(), nil
+						}
+						inter, ok := p.Source.(CheckResourceResponseGetter)
+						if ok {
+							face := inter.GetCheckResourceResponse()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Check == nil {
+								return nil, nil
+							}
+							return face.GetCheck(), nil
+						}
+						return nil, fmt.Errorf("field check not resolved")
+					},
+				},
+				"error": &github_com_graphql_go_graphql.Field{
+					Type:        github_com_graphql_go_graphql.String,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*CheckResourceResponse)
+						if ok {
+							return obj.Error, nil
+						}
+						inter, ok := p.Source.(CheckResourceResponseGetter)
+						if ok {
+							face := inter.GetCheckResourceResponse()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Error, nil
+						}
+						return nil, fmt.Errorf("field error not resolved")
+					},
+				},
+			}
+		}),
+	})
+	GraphQLResourceResponseType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "serviceResourceResponse",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"responses": &github_com_graphql_go_graphql.Field{
+					Type:        github_com_graphql_go_graphql.NewList(GraphQLCheckResourceResponseType),
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*ResourceResponse)
+						if ok {
+							return obj.Responses, nil
+						}
+						inter, ok := p.Source.(ResourceResponseGetter)
+						if ok {
+							face := inter.GetResourceResponse()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Responses, nil
+						}
+						return nil, fmt.Errorf("field responses not resolved")
+					},
+				},
+			}
+		}),
+	})
+	GraphQLCheckResourceRequestType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "serviceCheckResourceRequest",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"checks": &github_com_graphql_go_graphql.Field{
+					Type:        github_com_graphql_go_graphql.NewList(opsee.GraphQLCheckType),
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*CheckResourceRequest)
+						if ok {
+							return obj.Checks, nil
+						}
+						inter, ok := p.Source.(CheckResourceRequestGetter)
+						if ok {
+							face := inter.GetCheckResourceRequest()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Checks, nil
+						}
+						return nil, fmt.Errorf("field checks not resolved")
+					},
+				},
+			}
+		}),
+	})
+	GraphQLResultsResourceType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "serviceResultsResource",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"results": &github_com_graphql_go_graphql.Field{
+					Type:        github_com_graphql_go_graphql.NewList(opsee.GraphQLCheckResultType),
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*ResultsResource)
+						if ok {
+							return obj.Results, nil
+						}
+						inter, ok := p.Source.(ResultsResourceGetter)
+						if ok {
+							face := inter.GetResultsResource()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Results, nil
+						}
+						return nil, fmt.Errorf("field results not resolved")
+					},
+				},
+			}
+		}),
+	})
+	GraphQLTestCheckRequestType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "serviceTestCheckRequest",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"max_hosts": &github_com_graphql_go_graphql.Field{
+					Type:        github_com_graphql_go_graphql.Int,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*TestCheckRequest)
+						if ok {
+							return obj.MaxHosts, nil
+						}
+						inter, ok := p.Source.(TestCheckRequestGetter)
+						if ok {
+							face := inter.GetTestCheckRequest()
+							if face == nil {
+								return nil, nil
+							}
+							return face.MaxHosts, nil
+						}
+						return nil, fmt.Errorf("field max_hosts not resolved")
+					},
+				},
+				"deadline": &github_com_graphql_go_graphql.Field{
+					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.Timestamp,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*TestCheckRequest)
+						if ok {
+							if obj.Deadline == nil {
+								return nil, nil
+							}
+							return obj.GetDeadline(), nil
+						}
+						inter, ok := p.Source.(TestCheckRequestGetter)
+						if ok {
+							face := inter.GetTestCheckRequest()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Deadline == nil {
+								return nil, nil
+							}
+							return face.GetDeadline(), nil
+						}
+						return nil, fmt.Errorf("field deadline not resolved")
+					},
+				},
+				"check": &github_com_graphql_go_graphql.Field{
+					Type:        opsee.GraphQLCheckType,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*TestCheckRequest)
+						if ok {
+							if obj.Check == nil {
+								return nil, nil
+							}
+							return obj.GetCheck(), nil
+						}
+						inter, ok := p.Source.(TestCheckRequestGetter)
+						if ok {
+							face := inter.GetTestCheckRequest()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Check == nil {
+								return nil, nil
+							}
+							return face.GetCheck(), nil
+						}
+						return nil, fmt.Errorf("field check not resolved")
+					},
+				},
+			}
+		}),
+	})
+	GraphQLTestCheckResponseType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "serviceTestCheckResponse",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"responses": &github_com_graphql_go_graphql.Field{
+					Type:        github_com_graphql_go_graphql.NewList(opsee.GraphQLCheckResponseType),
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*TestCheckResponse)
+						if ok {
+							return obj.Responses, nil
+						}
+						inter, ok := p.Source.(TestCheckResponseGetter)
+						if ok {
+							face := inter.GetTestCheckResponse()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Responses, nil
+						}
+						return nil, fmt.Errorf("field responses not resolved")
+					},
+				},
+				"error": &github_com_graphql_go_graphql.Field{
+					Type:        github_com_graphql_go_graphql.String,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*TestCheckResponse)
+						if ok {
+							return obj.Error, nil
+						}
+						inter, ok := p.Source.(TestCheckResponseGetter)
+						if ok {
+							face := inter.GetTestCheckResponse()
+							if face == nil {
+								return nil, nil
+							}
+							return face.Error, nil
+						}
+						return nil, fmt.Errorf("field error not resolved")
+					},
+				},
+			}
+		}),
+	})
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
