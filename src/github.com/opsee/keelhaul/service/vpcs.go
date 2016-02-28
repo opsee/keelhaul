@@ -7,8 +7,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/opsee/basic/com"
 	"github.com/opsee/basic/schema"
+	opsee "github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/scanner"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
 	"regexp"
 )
 
@@ -48,7 +50,7 @@ func (r *ScanVPCsRequest) Validate() error {
 	return nil
 }
 
-func (s *service) ScanVPCs(user *schema.User, request *ScanVPCsRequest) (*ScanVPCsResponse, error) {
+func (s *service) DeprecatedScanVPCs(user *schema.User, request *ScanVPCsRequest) (*ScanVPCsResponse, error) {
 	logger := log.WithFields(log.Fields{
 		"customer-id": user.CustomerId,
 		"user-id":     user.Id,
@@ -102,4 +104,8 @@ func (s *service) ScanVPCs(user *schema.User, request *ScanVPCsRequest) (*ScanVP
 	return &ScanVPCsResponse{
 		Regions: vpcRegions,
 	}, nil
+}
+
+func (s *service) ScanVpcs(ctx context.Context, req *opsee.ScanVpcsRequest) (*opsee.ScanVpcsResponse, error) {
+	return nil, nil
 }

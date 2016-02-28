@@ -7,9 +7,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/opsee/basic/com"
 	"github.com/opsee/basic/schema"
+	opsee "github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
 )
 
 type LaunchBastionsRequest struct {
@@ -152,39 +154,24 @@ func (s *service) ListBastions(user *schema.User, request *ListBastionsRequest) 
 	return &ListBastionsResponse{Bastions: response.Bastions}, nil
 }
 
-type AuthenticateBastionRequest struct {
-	ID       string `json:"id"`
-	Password string `json:"password"`
-}
-
-type AuthenticateBastionResponse struct{}
-
-func (r *AuthenticateBastionRequest) Validate() error {
-	if r.ID == "" || r.Password == "" {
-		return fmt.Errorf("must provide id and password")
-	}
-
-	return nil
-}
-
-func (s *service) AuthenticateBastion(request *AuthenticateBastionRequest) (*AuthenticateBastionResponse, error) {
+func (s *service) AuthenticateBastion(ctx context.Context, request *opsee.AuthenticateBastionRequest) (*opsee.AuthenticateBastionResponse, error) {
 	response, err := s.db.GetBastion(&store.GetBastionRequest{
-		ID:    request.ID,
+		ID:    request.Id,
 		State: "active",
 	})
 
 	if err != nil {
-		log.WithError(err).WithField("bastion_id", request.ID).Error("not found in database")
+		log.WithError(err).WithField("bastion_id", request.Id).Error("not found in database")
 		return nil, errUnauthorized
 	}
 
 	err = response.Bastion.Authenticate(request.Password)
 	if err != nil {
-		log.WithError(err).WithField("bastion_id", request.ID).Error("bcrypt comparison failed")
+		log.WithError(err).WithField("bastion_id", request.Id).Error("bcrypt comparison failed")
 		return nil, errUnauthorized
 	}
 
-	log.WithField("bastion_id", request.ID).Info("bastion auth successful")
+	log.WithField("bastion_id", request.Id).Info("bastion auth successful")
 
-	return &AuthenticateBastionResponse{}, nil
+	return &opsee.AuthenticateBastionResponse{true}, nil
 }

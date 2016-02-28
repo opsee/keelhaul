@@ -1,9 +1,13 @@
 package service
 
 import (
+	"crypto/tls"
+	"github.com/opsee/basic/grpcutil"
 	"github.com/opsee/basic/schema"
+	opsee "github.com/opsee/basic/service"
 	"github.com/opsee/basic/tp"
 	"golang.org/x/net/context"
+	"golang.org/x/net/http2"
 	"net/http"
 	"time"
 )
@@ -15,7 +19,7 @@ const (
 	paramsKey
 )
 
-func (s *service) StartHTTP(addr string) {
+func (s *service) StartMux(addr, certfile, certkeyfile string) error {
 	router := tp.NewHTTPRouter(context.Background())
 
 	router.CORS(
@@ -30,7 +34,7 @@ func (s *service) StartHTTP(addr string) {
 	router.Handle("POST", "/vpcs/scan", decoders(schema.User{}, ScanVPCsRequest{}), s.scanVPCs())
 	router.Handle("POST", "/vpcs/launch", decoders(schema.User{}, LaunchBastionsRequest{}), s.launchBastions())
 	router.Handle("GET", "/vpcs/bastions", decoders(schema.User{}, ListBastionsRequest{}), s.listBastions())
-	router.Handle("POST", "/bastions/authenticate", []tp.DecodeFunc{tp.RequestDecodeFunc(requestKey, AuthenticateBastionRequest{})}, s.authenticateBastion())
+	router.Handle("POST", "/bastions/authenticate", []tp.DecodeFunc{tp.RequestDecodeFunc(requestKey, opsee.AuthenticateBastionRequest{})}, s.authenticateBastion())
 
 	// websocket
 	router.HandlerFunc("GET", "/stream/", s.websocketHandlerFunc)
@@ -38,7 +42,17 @@ func (s *service) StartHTTP(addr string) {
 	// set a big timeout bc aws be slow
 	router.Timeout(5 * time.Minute)
 
-	http.ListenAndServe(addr, router)
+	httpServer := &http.Server{
+		Addr:      addr,
+		Handler:   grpcutil.GRPCHandlerFunc(s.grpcServer, router),
+		TLSConfig: &tls.Config{},
+	}
+
+	if err := http2.ConfigureServer(httpServer, nil); err != nil {
+		return err
+	}
+
+	return httpServer.ListenAndServeTLS(certfile, certkeyfile)
 }
 
 func decoders(userType interface{}, requestType interface{}) []tp.DecodeFunc {
@@ -66,7 +80,7 @@ func (s *service) scanVPCs() tp.HandleFunc {
 			return ctx, http.StatusUnauthorized, errUnknown
 		}
 
-		vpcs, err := s.ScanVPCs(user, request)
+		vpcs, err := s.DeprecatedScanVPCs(user, request)
 		if err != nil {
 			return nil, http.StatusInternalServerError, err
 		}
@@ -119,12 +133,12 @@ func (s *service) listBastions() tp.HandleFunc {
 
 func (s *service) authenticateBastion() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
-		request, ok := ctx.Value(requestKey).(*AuthenticateBastionRequest)
+		request, ok := ctx.Value(requestKey).(*opsee.AuthenticateBastionRequest)
 		if !ok {
 			return ctx, http.StatusBadRequest, errUnknown
 		}
 
-		resp, err := s.AuthenticateBastion(request)
+		resp, err := s.AuthenticateBastion(ctx, request)
 		if err != nil {
 			return nil, http.StatusUnauthorized, err
 		}

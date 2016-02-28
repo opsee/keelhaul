@@ -80,8 +80,11 @@ func main() {
 	tracker := tracker.New(db, etcdKeysAPI, notifier)
 	tracker.Start()
 
+	certfile := mustEnvString("KEELHAUL_CERT")
+	certkeyfile := mustEnvString("KEELHAUL_CERT_KEY")
+
 	svc := service.New(db, bus, launcher, router, cfg)
-	svc.StartHTTP(cfg.PublicHost)
+	svc.StartMux(cfg.PublicHost, certfile, certkeyfile)
 
 	tracker.Stop()
 	bus.Stop()

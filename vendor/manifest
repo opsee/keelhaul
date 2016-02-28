@@ -276,7 +276,7 @@
 		{
 			"importpath": "github.com/opsee/basic",
 			"repository": "https://github.com/opsee/basic",
-			"revision": "d1ecdcda4060b129bfff973a0ac3be002ec23729",
+			"revision": "2cb4892f94abeb4621833146c1e0c6f9305f003f",
 			"branch": "master"
 		},
 		{
@@ -342,7 +342,7 @@
 		{
 			"importpath": "golang.org/x/net/http2",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "d75b1902409c457a51e4bd1895031872c370983a",
+			"revision": "6acef71eb69611914f7a30939ea9f6e194c78172",
 			"branch": "master",
 			"path": "/http2"
 		},
@@ -383,7 +383,7 @@
 		{
 			"importpath": "google.golang.org/grpc",
 			"repository": "https://github.com/grpc/grpc-go",
-			"revision": "a0f854fec276bf9ba66f968f160f4b6e8222ee0d",
+			"revision": "b4b62c5f29c6bc2411c38b00b1e41b1b521eedd4",
 			"branch": "master"
 		},
 		{
