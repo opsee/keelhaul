@@ -43,7 +43,7 @@ func RequestDecodeFunc(requestKey int, requestType interface{}) DecodeFunc {
 			}
 		}
 
-		return context.WithValue(ctx, requestKey, request), 0, nil
+		return context.WithValue(ctx, requestInterface, request), 0, nil
 	}
 }
 
