@@ -2,11 +2,13 @@ package service
 
 import (
 	"errors"
+	opsee "github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/launcher"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -46,19 +48,27 @@ var regions = map[string]bool{
 }
 
 type service struct {
-	db       store.Store
-	launcher launcher.Launcher
-	bus      bus.Bus
-	router   router.Router
-	config   *config.Config
+	db         store.Store
+	launcher   launcher.Launcher
+	bus        bus.Bus
+	router     router.Router
+	config     *config.Config
+	grpcServer *grpc.Server
 }
 
 func New(db store.Store, bus bus.Bus, launch launcher.Launcher, router router.Router, cfg *config.Config) *service {
-	return &service{
+	s := &service{
 		db:       db,
 		launcher: launch,
 		bus:      bus,
 		router:   router,
 		config:   cfg,
 	}
+
+	server := grpc.NewServer()
+	opsee.RegisterKeelhaulServer(server, s)
+
+	s.grpcServer = server
+
+	return s
 }

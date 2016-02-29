@@ -7,9 +7,12 @@ package service
 import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import _ "github.com/opsee/protobuf/opseeproto"
 import _ "github.com/opsee/protobuf/opseeproto/types"
 import opsee_aws_credentials "github.com/opsee/basic/schema/aws/credentials"
-import opsee1 "github.com/opsee/basic/schema"
+import opsee2 "github.com/opsee/basic/schema"
+
+import github_com_graphql_go_graphql "github.com/graphql-go/graphql"
 
 import (
 	context "golang.org/x/net/context"
@@ -22,7 +25,7 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type PutRoleRequest struct {
-	User        *opsee1.User                 `protobuf:"bytes,1,opt,name=user" json:"user,omitempty"`
+	User        *opsee2.User                 `protobuf:"bytes,1,opt,name=user" json:"user,omitempty"`
 	Credentials *opsee_aws_credentials.Value `protobuf:"bytes,2,opt,name=credentials" json:"credentials,omitempty"`
 }
 
@@ -30,7 +33,7 @@ func (m *PutRoleRequest) Reset()         { *m = PutRoleRequest{} }
 func (m *PutRoleRequest) String() string { return proto.CompactTextString(m) }
 func (*PutRoleRequest) ProtoMessage()    {}
 
-func (m *PutRoleRequest) GetUser() *opsee1.User {
+func (m *PutRoleRequest) GetUser() *opsee2.User {
 	if m != nil {
 		return m.User
 	}
@@ -60,14 +63,14 @@ func (m *PutRoleResponse) GetCredentials() *opsee_aws_credentials.Value {
 }
 
 type GetCredentialsRequest struct {
-	User *opsee1.User `protobuf:"bytes,1,opt,name=user" json:"user,omitempty"`
+	User *opsee2.User `protobuf:"bytes,1,opt,name=user" json:"user,omitempty"`
 }
 
 func (m *GetCredentialsRequest) Reset()         { *m = GetCredentialsRequest{} }
 func (m *GetCredentialsRequest) String() string { return proto.CompactTextString(m) }
 func (*GetCredentialsRequest) ProtoMessage()    {}
 
-func (m *GetCredentialsRequest) GetUser() *opsee1.User {
+func (m *GetCredentialsRequest) GetUser() *opsee2.User {
 	if m != nil {
 		return m.User
 	}
@@ -219,6 +222,190 @@ func (this *GetCredentialsResponse) Equal(that interface{}) bool {
 	return true
 }
 
+type PutRoleRequestGetter interface {
+	GetPutRoleRequest() *PutRoleRequest
+}
+
+var GraphQLPutRoleRequestType *github_com_graphql_go_graphql.Object
+
+type PutRoleResponseGetter interface {
+	GetPutRoleResponse() *PutRoleResponse
+}
+
+var GraphQLPutRoleResponseType *github_com_graphql_go_graphql.Object
+
+type GetCredentialsRequestGetter interface {
+	GetGetCredentialsRequest() *GetCredentialsRequest
+}
+
+var GraphQLGetCredentialsRequestType *github_com_graphql_go_graphql.Object
+
+type GetCredentialsResponseGetter interface {
+	GetGetCredentialsResponse() *GetCredentialsResponse
+}
+
+var GraphQLGetCredentialsResponseType *github_com_graphql_go_graphql.Object
+
+func init() {
+	GraphQLPutRoleRequestType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "servicePutRoleRequest",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"user": &github_com_graphql_go_graphql.Field{
+					Type:        opsee2.GraphQLUserType,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*PutRoleRequest)
+						if ok {
+							if obj.User == nil {
+								return nil, nil
+							}
+							return obj.GetUser(), nil
+						}
+						inter, ok := p.Source.(PutRoleRequestGetter)
+						if ok {
+							face := inter.GetPutRoleRequest()
+							if face == nil {
+								return nil, nil
+							}
+							if face.User == nil {
+								return nil, nil
+							}
+							return face.GetUser(), nil
+						}
+						return nil, fmt.Errorf("field user not resolved")
+					},
+				},
+				"credentials": &github_com_graphql_go_graphql.Field{
+					Type:        opsee_aws_credentials.GraphQLValueType,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*PutRoleRequest)
+						if ok {
+							if obj.Credentials == nil {
+								return nil, nil
+							}
+							return obj.GetCredentials(), nil
+						}
+						inter, ok := p.Source.(PutRoleRequestGetter)
+						if ok {
+							face := inter.GetPutRoleRequest()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Credentials == nil {
+								return nil, nil
+							}
+							return face.GetCredentials(), nil
+						}
+						return nil, fmt.Errorf("field credentials not resolved")
+					},
+				},
+			}
+		}),
+	})
+	GraphQLPutRoleResponseType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "servicePutRoleResponse",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"credentials": &github_com_graphql_go_graphql.Field{
+					Type:        opsee_aws_credentials.GraphQLValueType,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*PutRoleResponse)
+						if ok {
+							if obj.Credentials == nil {
+								return nil, nil
+							}
+							return obj.GetCredentials(), nil
+						}
+						inter, ok := p.Source.(PutRoleResponseGetter)
+						if ok {
+							face := inter.GetPutRoleResponse()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Credentials == nil {
+								return nil, nil
+							}
+							return face.GetCredentials(), nil
+						}
+						return nil, fmt.Errorf("field credentials not resolved")
+					},
+				},
+			}
+		}),
+	})
+	GraphQLGetCredentialsRequestType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "serviceGetCredentialsRequest",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"user": &github_com_graphql_go_graphql.Field{
+					Type:        opsee2.GraphQLUserType,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*GetCredentialsRequest)
+						if ok {
+							if obj.User == nil {
+								return nil, nil
+							}
+							return obj.GetUser(), nil
+						}
+						inter, ok := p.Source.(GetCredentialsRequestGetter)
+						if ok {
+							face := inter.GetGetCredentialsRequest()
+							if face == nil {
+								return nil, nil
+							}
+							if face.User == nil {
+								return nil, nil
+							}
+							return face.GetUser(), nil
+						}
+						return nil, fmt.Errorf("field user not resolved")
+					},
+				},
+			}
+		}),
+	})
+	GraphQLGetCredentialsResponseType = github_com_graphql_go_graphql.NewObject(github_com_graphql_go_graphql.ObjectConfig{
+		Name:        "serviceGetCredentialsResponse",
+		Description: "",
+		Fields: (github_com_graphql_go_graphql.FieldsThunk)(func() github_com_graphql_go_graphql.Fields {
+			return github_com_graphql_go_graphql.Fields{
+				"credentials": &github_com_graphql_go_graphql.Field{
+					Type:        opsee_aws_credentials.GraphQLValueType,
+					Description: "",
+					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
+						obj, ok := p.Source.(*GetCredentialsResponse)
+						if ok {
+							if obj.Credentials == nil {
+								return nil, nil
+							}
+							return obj.GetCredentials(), nil
+						}
+						inter, ok := p.Source.(GetCredentialsResponseGetter)
+						if ok {
+							face := inter.GetGetCredentialsResponse()
+							if face == nil {
+								return nil, nil
+							}
+							if face.Credentials == nil {
+								return nil, nil
+							}
+							return face.GetCredentials(), nil
+						}
+						return nil, fmt.Errorf("field credentials not resolved")
+					},
+				},
+			}
+		}),
+	})
+}
+
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
 var _ grpc.ClientConn
@@ -310,7 +497,7 @@ var _Spanx_serviceDesc = grpc.ServiceDesc{
 func NewPopulatedPutRoleRequest(r randySpanx, easy bool) *PutRoleRequest {
 	this := &PutRoleRequest{}
 	if r.Intn(10) != 0 {
-		this.User = opsee1.NewPopulatedUser(r, easy)
+		this.User = opsee2.NewPopulatedUser(r, easy)
 	}
 	if r.Intn(10) != 0 {
 		this.Credentials = opsee_aws_credentials.NewPopulatedValue(r, easy)
@@ -333,7 +520,7 @@ func NewPopulatedPutRoleResponse(r randySpanx, easy bool) *PutRoleResponse {
 func NewPopulatedGetCredentialsRequest(r randySpanx, easy bool) *GetCredentialsRequest {
 	this := &GetCredentialsRequest{}
 	if r.Intn(10) != 0 {
-		this.User = opsee1.NewPopulatedUser(r, easy)
+		this.User = opsee2.NewPopulatedUser(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
 	}

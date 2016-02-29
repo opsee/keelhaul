@@ -8,6 +8,7 @@ import "github.com/opsee/basic/schema/checks.proto";
 package opsee;
 
 option go_package = "service";
+option (opseeproto.graphql) = true;
 
 service Checker {
 	rpc TestCheck(TestCheckRequest) returns (TestCheckResponse) {}

@@ -276,7 +276,7 @@
 		{
 			"importpath": "github.com/opsee/basic",
 			"repository": "https://github.com/opsee/basic",
-			"revision": "d4b73065fac89f5fb5ece45341b0fa20d349d144",
+			"revision": "2cb4892f94abeb4621833146c1e0c6f9305f003f",
 			"branch": "master"
 		},
 		{
@@ -289,30 +289,16 @@
 		{
 			"importpath": "github.com/opsee/protobuf/opseeproto",
 			"repository": "https://github.com/opsee/protobuf",
-			"revision": "c54e5215f1a45512fba78eeaddd1fcc19095afd5",
+			"revision": "1776823a8fe8856c8e3a75c9d4f846c9008c6935",
 			"branch": "master",
 			"path": "/opseeproto"
 		},
 		{
-			"importpath": "github.com/opsee/protobuf/opseeproto/types",
-			"repository": "ssh://github.com/opsee/protobuf",
-			"revision": "90c72c25c41b2f8b1e1a210994a90e8ad36ad6db",
-			"branch": "master",
-			"path": "/opseeproto/types"
-		},
-		{
 			"importpath": "github.com/opsee/protobuf/plugin/graphql/scalars",
-			"repository": "ssh://github.com/opsee/protobuf",
-			"revision": "90c72c25c41b2f8b1e1a210994a90e8ad36ad6db",
+			"repository": "https://github.com/opsee/protobuf",
+			"revision": "1776823a8fe8856c8e3a75c9d4f846c9008c6935",
 			"branch": "master",
 			"path": "/plugin/graphql/scalars"
-		},
-		{
-			"importpath": "github.com/opsee/protobuf/proto/google/protobuf",
-			"repository": "https://github.com/opsee/protobuf",
-			"revision": "c54e5215f1a45512fba78eeaddd1fcc19095afd5",
-			"branch": "master",
-			"path": "/proto/google/protobuf"
 		},
 		{
 			"importpath": "github.com/opsee/vaper",
@@ -356,7 +342,7 @@
 		{
 			"importpath": "golang.org/x/net/http2",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "d75b1902409c457a51e4bd1895031872c370983a",
+			"revision": "6acef71eb69611914f7a30939ea9f6e194c78172",
 			"branch": "master",
 			"path": "/http2"
 		},
@@ -397,7 +383,7 @@
 		{
 			"importpath": "google.golang.org/grpc",
 			"repository": "https://github.com/grpc/grpc-go",
-			"revision": "a0f854fec276bf9ba66f968f160f4b6e8222ee0d",
+			"revision": "b4b62c5f29c6bc2411c38b00b1e41b1b521eedd4",
 			"branch": "master"
 		},
 		{

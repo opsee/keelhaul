@@ -154,7 +154,48 @@ func in(ordStart, listLen int) string {
 	return strings.Join(ords, ",")
 }
 
-func (pg *Postgres) ListTrackingStates(inactiveInterval string) (*TrackingStateResponse, error) {
+func (pg *Postgres) ListTrackingStates(offset int, limit int) (*TrackingStateResponse, error) {
+	query := "select id,customer_id,status,last_seen from bastion_tracking order by id"
+	if limit > 0 {
+		query += fmt.Sprintf(" limit %d", limit)
+	}
+	if offset > 0 {
+		query += fmt.Sprintf(" offset %d", offset)
+	}
+
+	states := make([]*TrackingState, 0)
+	args := make([]interface{}, 0)
+	err := pg.db.Select(&states, query, args...)
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	return &TrackingStateResponse{States: states}, nil
+}
+
+func (pg *Postgres) ListBastionStates(customers []string) (*TrackingStateResponse, error) {
+	query := "select id,customer_id,status,last_seen from bastion_tracking where customer_id in"
+
+	casted := make([]string, 0, len(customers))
+	for _, b := range customers {
+		casted = append(casted, fmt.Sprintf("cast('%s' as uuid)", b))
+	}
+	custSet := strings.Join(casted, ", ")
+
+	states := make([]*TrackingState, 0)
+	args := make([]interface{}, 0)
+	q := fmt.Sprintf("%s (%s)", query, custSet)
+	err := pg.db.Select(&states, q, args...)
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	return &TrackingStateResponse{States: states}, nil
+}
+
+func (pg *Postgres) GetPendingTrackingStates(inactiveInterval string) (*TrackingStateResponse, error) {
 	query := fmt.Sprintf("select id,customer_id,status,last_seen from bastion_tracking "+
 		"where (status = 'active' and last_seen <= (now() - interval '%s')) "+
 		"or (status = 'inactive' and last_seen >= (now() - interval '%s'))",

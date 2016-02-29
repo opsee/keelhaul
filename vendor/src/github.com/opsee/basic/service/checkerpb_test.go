@@ -7,6 +7,7 @@ Package service is a generated protocol buffer package.
 
 It is generated from these files:
 	checker.proto
+	keelhaul.proto
 	spanx.proto
 	vape.proto
 
@@ -17,6 +18,14 @@ It has these top-level messages:
 	ResultsResource
 	TestCheckRequest
 	TestCheckResponse
+	ListBastionStatesRequest
+	ListBastionStatesResponse
+	ScanVpcsRequest
+	ScanVpcsResponse
+	LaunchStackRequest
+	LaunchStackResponse
+	AuthenticateBastionRequest
+	AuthenticateBastionResponse
 	PutRoleRequest
 	PutRoleResponse
 	GetCredentialsRequest
@@ -505,6 +514,61 @@ func TestTestCheckResponseProtoCompactText(t *testing.T) {
 	}
 	if !p.Equal(msg) {
 		t.Fatalf("seed = %d, %#v !Proto %#v", seed, msg, p)
+	}
+}
+
+func TestCheckResourceResponseGraphQL(t *testing.T) {
+	popr := math_rand.New(math_rand.NewSource(time.Now().UnixNano()))
+	_ = NewPopulatedCheckResourceResponse(popr, false)
+	objdesc := ""
+	pdesc := GraphQLCheckResourceResponseType.PrivateDescription
+	if pdesc != objdesc {
+		t.Fatalf("String want %v got %v", objdesc, pdesc)
+	}
+}
+func TestResourceResponseGraphQL(t *testing.T) {
+	popr := math_rand.New(math_rand.NewSource(time.Now().UnixNano()))
+	_ = NewPopulatedResourceResponse(popr, false)
+	objdesc := ""
+	pdesc := GraphQLResourceResponseType.PrivateDescription
+	if pdesc != objdesc {
+		t.Fatalf("String want %v got %v", objdesc, pdesc)
+	}
+}
+func TestCheckResourceRequestGraphQL(t *testing.T) {
+	popr := math_rand.New(math_rand.NewSource(time.Now().UnixNano()))
+	_ = NewPopulatedCheckResourceRequest(popr, false)
+	objdesc := ""
+	pdesc := GraphQLCheckResourceRequestType.PrivateDescription
+	if pdesc != objdesc {
+		t.Fatalf("String want %v got %v", objdesc, pdesc)
+	}
+}
+func TestResultsResourceGraphQL(t *testing.T) {
+	popr := math_rand.New(math_rand.NewSource(time.Now().UnixNano()))
+	_ = NewPopulatedResultsResource(popr, false)
+	objdesc := ""
+	pdesc := GraphQLResultsResourceType.PrivateDescription
+	if pdesc != objdesc {
+		t.Fatalf("String want %v got %v", objdesc, pdesc)
+	}
+}
+func TestTestCheckRequestGraphQL(t *testing.T) {
+	popr := math_rand.New(math_rand.NewSource(time.Now().UnixNano()))
+	_ = NewPopulatedTestCheckRequest(popr, false)
+	objdesc := ""
+	pdesc := GraphQLTestCheckRequestType.PrivateDescription
+	if pdesc != objdesc {
+		t.Fatalf("String want %v got %v", objdesc, pdesc)
+	}
+}
+func TestTestCheckResponseGraphQL(t *testing.T) {
+	popr := math_rand.New(math_rand.NewSource(time.Now().UnixNano()))
+	_ = NewPopulatedTestCheckResponse(popr, false)
+	objdesc := ""
+	pdesc := GraphQLTestCheckResponseType.PrivateDescription
+	if pdesc != objdesc {
+		t.Fatalf("String want %v got %v", objdesc, pdesc)
 	}
 }
 

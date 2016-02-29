@@ -1220,7 +1220,7 @@ func init() {
 					},
 				},
 				"last_run": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.ByteString,
+					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.Timestamp,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Check)
@@ -1245,7 +1245,7 @@ func init() {
 					},
 				},
 				"check_spec": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.ByteString,
+					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.Any,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Check)
@@ -1764,7 +1764,7 @@ func init() {
 					},
 				},
 				"timestamp": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.ByteString,
+					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.Timestamp,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*Metric)
@@ -1925,7 +1925,7 @@ func init() {
 					},
 				},
 				"response": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.ByteString,
+					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.Any,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*CheckResponse)
@@ -2045,7 +2045,7 @@ func init() {
 					},
 				},
 				"timestamp": &github_com_graphql_go_graphql.Field{
-					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.ByteString,
+					Type:        github_com_opsee_protobuf_plugin_graphql_scalars.Timestamp,
 					Description: "",
 					Resolve: func(p github_com_graphql_go_graphql.ResolveParams) (interface{}, error) {
 						obj, ok := p.Source.(*CheckResult)
@@ -2173,20 +2173,6 @@ func init() {
 			}
 		}),
 	})
-	GraphQLCheckResponseReplyUnion = github_com_graphql_go_graphql.NewUnion(github_com_graphql_go_graphql.UnionConfig{
-		Name:        "CheckResponseReply",
-		Description: "",
-		Types: []*github_com_graphql_go_graphql.Object{
-			GraphQLHttpResponseType,
-		},
-		ResolveType: func(value interface{}, info github_com_graphql_go_graphql.ResolveInfo) *github_com_graphql_go_graphql.Object {
-			switch value.(type) {
-			case *CheckResponse_HttpResponse:
-				return GraphQLHttpResponseType
-			}
-			return nil
-		},
-	})
 	GraphQLCheckSpecUnion = github_com_graphql_go_graphql.NewUnion(github_com_graphql_go_graphql.UnionConfig{
 		Name:        "CheckSpec",
 		Description: "",
@@ -2200,6 +2186,20 @@ func init() {
 				return GraphQLHttpCheckType
 			case *Check_CloudwatchCheck:
 				return GraphQLCloudWatchCheckType
+			}
+			return nil
+		},
+	})
+	GraphQLCheckResponseReplyUnion = github_com_graphql_go_graphql.NewUnion(github_com_graphql_go_graphql.UnionConfig{
+		Name:        "CheckResponseReply",
+		Description: "",
+		Types: []*github_com_graphql_go_graphql.Object{
+			GraphQLHttpResponseType,
+		},
+		ResolveType: func(value interface{}, info github_com_graphql_go_graphql.ResolveInfo) *github_com_graphql_go_graphql.Object {
+			switch value.(type) {
+			case *CheckResponse_HttpResponse:
+				return GraphQLHttpResponseType
 			}
 			return nil
 		},

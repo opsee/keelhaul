@@ -38,6 +38,8 @@ var (
 		"ec2": []interface{}{
 			ec2.Instance{},
 			ec2.SecurityGroup{},
+			ec2.Vpc{},
+			ec2.Subnet{},
 		},
 		"elb": []interface{}{
 			elb.LoadBalancerDescription{},

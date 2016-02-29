@@ -18,11 +18,8 @@ ENV SPANX_ENDPOINT ""
 ENV KEELHAUL_ADDRESS ""
 ENV BASTION_CONFIG_KEY ""
 ENV BASTION_CF_TEMPLATE ""
-ENV AWS_ACCESS_KEY_ID ""
-ENV AWS_SECRET_ACCESS_KEY ""
-ENV AWS_DEFAULT_REGION ""
-ENV AWS_INSTANCE_ID ""
-ENV AWS_SESSION_TOKEN ""
+ENV KEELHAUL_CERT="cert.pem"
+ENV KEELHAUL_CERT_KEY="key.pem"
 ENV APPENV ""
 
 RUN apk add --update bash ca-certificates curl
@@ -36,6 +33,8 @@ COPY target/linux/amd64/bin/* /
 COPY migrations /migrations
 COPY etc/bastion-cf.template /
 COPY vape.test.key /
+COPY cert.pem /
+COPY key.pem /
 
 EXPOSE 9092
 CMD ["/keelhaul"]
