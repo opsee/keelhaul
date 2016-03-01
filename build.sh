@@ -2,9 +2,9 @@
 set -e
 
 echo "loading schema for tests..."
-echo "create database keelhaul_test" | psql $POSTGRES_CONN
-#echo "drop database if exists keelhaul_test; create database keelhaul_test" | psql $POSTGRES_CONN
-migrate -url $POSTGRES_CONN -path ./migrations up
+echo "create database keelhaul_test" | psql $KEELHAUL_POSTGRES_CONN
+#echo "drop database if exists keelhaul_test; create database keelhaul_test" | psql $KEELHAUL_POSTGRES_CONN
+migrate -url $KEELHAUL_POSTGRES_CONN -path ./migrations up
 
 git submodule update --init
 
