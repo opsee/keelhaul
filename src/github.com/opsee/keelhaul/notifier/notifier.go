@@ -42,10 +42,11 @@ var (
 
 func New(c *config.Config) *notifier {
 	return &notifier{
-		VapeEmailEndpoint:     c.VapeEmailEndpoint,
-		VapeUserInfoEndpoint:  c.VapeUserInfoEndpoint,
-		LaunchesSlackEndpoint: c.LaunchesSlackEndpoint,
-		TrackerSlackEndpoint:  c.TrackerSlackEndpoint,
+		VapeEmailEndpoint:          c.VapeEmailEndpoint,
+		VapeUserInfoEndpoint:       c.VapeUserInfoEndpoint,
+		LaunchesSlackEndpoint:      c.LaunchesSlackEndpoint,
+		LaunchesErrorSlackEndpoint: c.LaunchesErrorSlackEndpoint,
+		TrackerSlackEndpoint:       c.TrackerSlackEndpoint,
 	}
 }
 
