@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"path"
+
 	"github.com/hoisie/mustache"
 	"github.com/opsee/keelhaul/config"
 	slacktmpl "github.com/opsee/notification-templates/dist/go/slack"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"net/url"
-	"path"
 )
 
 type Notifier interface {
@@ -20,10 +21,11 @@ type Notifier interface {
 }
 
 type notifier struct {
-	LaunchesSlackEndpoint string
-	TrackerSlackEndpoint  string
-	VapeEmailEndpoint     string
-	VapeUserInfoEndpoint  string
+	LaunchesSlackEndpoint      string
+	LaunchesErrorSlackEndpoint string
+	TrackerSlackEndpoint       string
+	VapeEmailEndpoint          string
+	VapeUserInfoEndpoint       string
 }
 
 const (
@@ -128,7 +130,7 @@ func (n *notifier) NotifyError(userID int, notifyVars interface{}) error {
 		return err
 	}
 
-	return n.notifySlack(notifyVars, slackErrorTemplate, n.LaunchesSlackEndpoint)
+	return n.notifySlack(notifyVars, slackErrorTemplate, n.LaunchesErrorSlackEndpoint)
 }
 
 func (n *notifier) notifyEmail(userID int, notifyVars interface{}, template string) error {

@@ -16,7 +16,7 @@ deps:
 	docker run --link keelhaul_postgresql:postgres aanand/wait
 
 migrate:
-	migrate -url $(POSTGRES_CONN) -path ./migrations up
+	migrate -url $(KEELHAUL_POSTGRES_CONN) -path ./migrations up
 
 docker: deps fmt dbuild
 
