@@ -1,22 +1,26 @@
 {
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Listing of bastion security-group ingress rules.",
-  "Parameters": {
-    "BastionSecurityGroupId": {
-      "Type": "String",
-      "Description": "Bastion's security group id."
-    }
-  },
-  "Resources": {
-    "OpseeTestSecurityGroup": {
-        "Type": "AWS::EC2::SecurityGroup",
-        "Properties": {
-            "GroupDescription": "Resource to fill resource requirement and test ingress param.",
-            "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : 80, "ToPort" : 80, "SourceSecurityGroupId": { "Ref" : "BastionSecurityGroupId" } } ]
-            "VpcId": {
-                "Ref": "VpcId"
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Listing of bastion security-group ingress rules.",
+    "Parameters": {
+        "BastionSecurityGroupId": {
+            "Type": "String",
+            "Description": "Bastion's security group id."
+        },
+        "VpcId": {
+            "Type": "String",
+            "Description": "Bastion's VpcId."
+        }
+    },
+    "Resources": {
+        "OpseeTestSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Resource to fill resource requirement and test ingress param.",
+                "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : 80, "ToPort" : 80, "SourceSecurityGroupId": { "Ref" : "BastionSecurityGroupId" } } ],
+                "VpcId": {
+                    "Ref": "VpcId"
+                }
             }
         }
-   }
+    }
 }
-
