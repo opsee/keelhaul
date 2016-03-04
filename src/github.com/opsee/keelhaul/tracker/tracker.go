@@ -2,6 +2,7 @@ package tracker
 
 import (
 	"path"
+	"regexp"
 	"time"
 
 	etcd "github.com/coreos/etcd/client"
@@ -20,6 +21,7 @@ const (
 	minUpdateDelay   = time.Duration(180) * time.Second // matches TTL for routes
 	updateBatchSize  = 128
 	inactiveInterval = "3 minutes"
+	uuidFormat       = `^[a-z0-9]{8}-[a-z0-9]{4}-[1-5][a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$`
 )
 
 type tracker struct {
@@ -139,9 +141,19 @@ func (t *tracker) updateSeen() {
 	bastBatch := make([]string, 0, updateBatchSize)
 	custBatch := make([]string, 0, updateBatchSize)
 	for _, custNode := range response.Node.Nodes {
+		custID := path.Base(custNode.Key)
+		if !checkUUID(custID) {
+			log.WithError(err).Warnf("invalid custID: %s", custID)
+			continue
+		}
 		for _, bastNode := range custNode.Nodes {
-			bastBatch = append(bastBatch, path.Base(bastNode.Key))
-			custBatch = append(custBatch, path.Base(custNode.Key))
+			bastID := path.Base(bastNode.Key)
+			if !checkUUID(bastID) {
+				log.WithError(err).Warnf("invalid bastID: %s", bastID)
+				continue
+			}
+			bastBatch = append(bastBatch, bastID)
+			custBatch = append(custBatch, custID)
 			if len(bastBatch) == updateBatchSize {
 				err = t.db.UpdateTrackingSeen(bastBatch, custBatch)
 				if err != nil {
@@ -197,4 +209,12 @@ func (t *tracker) updateSeen() {
 			log.WithError(err).Error("failed to update tracking state and/or notify")
 		}
 	}
+}
+
+func checkUUID(uuid string) bool {
+	uuidExp := regexp.MustCompile(uuidFormat)
+	if !uuidExp.MatchString(uuid) {
+		return false
+	}
+	return true
 }
