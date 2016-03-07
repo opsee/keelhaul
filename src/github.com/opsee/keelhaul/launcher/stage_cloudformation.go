@@ -27,6 +27,15 @@ import (
 
 type getBastionConfig struct{}
 
+func ingressTemplateUrl(region string, bucket string, obj string) string {
+	host := "s3.amazonaws.com"
+	if region != "us-east-1" {
+		host = fmt.Sprintf("s3-%s.amazonaws.com", region)
+	}
+	url := fmt.Sprintf("https://%s/%s/%s", host, bucket, obj)
+	return url
+}
+
 func (s getBastionConfig) Execute(launch *Launch) {
 	response, err := launch.etcd.Get(context.Background(), launch.config.BastionConfigKey, &etcd.GetOptions{
 		Recursive: true,
@@ -361,6 +370,10 @@ func (s createStack) Execute(launch *Launch) {
 		{
 			ParameterKey:   aws.String("OpseeRole"),
 			ParameterValue: aws.String(awsAccount.RoleName()),
+		},
+		{
+			ParameterKey:   aws.String("BastionIngressTemplateUrl"),
+			ParameterValue: aws.String(ingressTemplateUrl(*launch.session.Config.Region, "opsee-bastion-cf", "beta/bastion-ingress-cf.template")),
 		},
 	}
 
