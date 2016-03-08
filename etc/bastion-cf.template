@@ -54,6 +54,11 @@
             "Description": "S3 URL for ingress cfn template.",
             "Type": "String",
             "Default": "https://s3.amazonaws.com/opsee-bastion-cf/beta/bastion-ingress-cf.template"
+        },
+        "AllowSSH": {
+            "Description": "Allow SSH access to the Bastion host.",
+            "Type": "String",
+            "Default": "False"
         }
     },
     "Conditions": {
@@ -77,6 +82,14 @@
                 },
                 "True"
             ]
+        },
+        "AllowSSHAccess": {
+            "Fn::Equals": [
+                {
+                    "Ref": "AllowSSH"
+                },
+                "True"
+            ]
         }
     },
     "Resources": {
@@ -94,6 +107,18 @@
                     "Key": "opsee:customer-id",
                     "Value": {"Ref": "CustomerId"}
                 }],
+                "SecurityGroupIngress": {
+                        "Fn::If": [
+                            "AllowSSHAccess", 
+                            [{
+                              "CidrIp": "0.0.0.0/0",
+                              "FromPort": 22,
+                              "ToPort": 22,
+                              "IpProtocol": "tcp"
+                            }],
+                            []
+                        ]
+                },
                 "SecurityGroupEgress": [{
                     "CidrIp": "0.0.0.0/0",
                     "FromPort": -1,
