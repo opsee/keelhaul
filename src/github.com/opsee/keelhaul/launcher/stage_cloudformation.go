@@ -64,7 +64,7 @@ type ImageList []*ec2.Image
 
 func (l ImageList) Len() int           { return len(l) }
 func (l ImageList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
-func (l ImageList) Less(i, j int) bool { return *l[i].Name > *l[j].Name }
+func (l ImageList) Less(i, j int) bool { return *l[i].CreationDate > *l[j].CreationDate }
 
 type getLatestImageID struct{}
 
