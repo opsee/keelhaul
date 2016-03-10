@@ -3,6 +3,7 @@ package checkgen
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -120,8 +121,12 @@ func (checkRequestFactory *CheckRequestFactory) getAuthenticatedRequest(target s
 		return nil, err
 	}
 
-	userdata := fmt.Sprintf("{\"email\":\"%s\",\"customer_id\":\"%s\"}", checkRequestFactory.User.Email, checkRequestFactory.User.CustomerId)
+	userJson, err := json.Marshal(checkRequestFactory.User)
+	if err != nil {
+		return nil, err
+	}
+
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(userdata)))
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString(userJson))
 	return req, nil
 }
