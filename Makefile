@@ -1,3 +1,5 @@
+APPENV ?= testenv
+
 all: fmt build
 
 build:
@@ -10,8 +12,6 @@ fmt:
 	@gofmt -w ./
 
 deps:
-	docker-compose stop
-	docker-compose rm -f
 	docker-compose up -d
 	docker run --link keelhaul_postgresql:postgres aanand/wait
 
@@ -27,7 +27,7 @@ dbuild:
 		--link keelhaul_postgresql:postgresql \
 		--link keelhaul_nsqd:nsqd \
 		--link keelhaul_lookupd:lookupd \
-		--env-file ./$(APPENV) \
+		--env-file ./testenv \
 		-e "TARGETS=linux/amd64" \
 		-e GODEBUG=netdns=cgo \
 		-v `pwd`:/build quay.io/opsee/build-go:go15 \

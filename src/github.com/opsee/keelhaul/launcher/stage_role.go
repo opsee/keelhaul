@@ -3,7 +3,10 @@ package launcher
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/sns"
+	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/cenkalti/backoff"
 	opseeawscredentials "github.com/opsee/basic/schema/aws/credentials"
 	"github.com/opsee/basic/service"
@@ -47,16 +50,21 @@ func (s putRole) Execute(launch *Launch) {
 		return
 	}
 
+	// now graduate to our new session that uses the opsee role
+	launch.session = launch.session.Copy(&aws.Config{
+		Credentials: credentials.NewStaticCredentials(
+			stscreds.Credentials.GetAccessKeyID(),
+			stscreds.Credentials.GetSecretAccessKey(),
+			stscreds.Credentials.GetSessionToken(),
+		),
+	})
+
+	launch.sqsClient = sqs.New(launch.session)
+	launch.snsClient = sns.New(launch.session)
+	launch.cloudformationClient = cloudformation.New(launch.session)
+
 	// test to see if our role is actually usable by doing something with it
-	ec2Client := ec2.New(
-		launch.session.Copy(&aws.Config{
-			Credentials: credentials.NewStaticCredentials(
-				stscreds.Credentials.GetAccessKeyID(),
-				stscreds.Credentials.GetSecretAccessKey(),
-				stscreds.Credentials.GetSessionToken(),
-			),
-		}),
-	)
+	ec2Client := ec2.New(launch.session)
 
 	err = backoff.Retry(func() error {
 		_, err = ec2Client.DescribeVpcs(nil)
