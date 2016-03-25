@@ -480,7 +480,7 @@ func (s consumeSQS) Execute(launch *Launch) {
 				return
 			}
 
-			state = cfMessage.state()
+			state = cfMessage.state("opsee-stack-" + launch.User.CustomerId)
 			if state == cfFailed {
 				reason, _ = cfMessage["ResourceStatusReason"].(string)
 			}
@@ -526,20 +526,22 @@ const (
 	cfComplete  = "complete"
 )
 
-func (cf cfMessage) state() string {
+func (cf cfMessage) state(stackName string) string {
 	var (
 		status string
 		typ    string
+		id     string
 	)
 
 	status, _ = cf["ResourceStatus"].(string)
 	typ, _ = cf["ResourceType"].(string)
+	id, _ = cf["LogicalResourceId"].(string)
 
 	if status == "CREATE_FAILED" {
 		return cfFailed
 	}
 
-	if typ == "AWS::CloudFormation::Stack" {
+	if typ == "AWS::CloudFormation::Stack" && id == stackName {
 		switch status {
 		case "CREATE_COMPLETE":
 			return cfComplete

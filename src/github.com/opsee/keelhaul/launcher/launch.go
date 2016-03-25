@@ -100,11 +100,8 @@ func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, span
 			"customer-id": user.CustomerId,
 			"user-id":     user.Id,
 		}),
-		sqsClient:            sqs.New(sess),
-		snsClient:            sns.New(sess),
-		cloudformationClient: cloudformation.New(sess),
-		connectAttempts:      float64(1),
-		CheckRequestFactory:  checkgen.NewCheckRequestFactoryWithConfig(cfg, user),
+		connectAttempts:     float64(1),
+		CheckRequestFactory: checkgen.NewCheckRequestFactoryWithConfig(cfg, user),
 	}
 }
 

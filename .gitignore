@@ -38,3 +38,4 @@ _testmain.go
 /target/
 
 devenv
+prodenv
