@@ -101,9 +101,3 @@ func (s putRole) Execute(launch *Launch) {
 		Message: "created global opsee role",
 	})
 }
-
-type systemClock struct{}
-
-func (s *systemClock) Now() time.Time {
-	return time.Now()
-}

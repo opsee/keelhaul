@@ -19,10 +19,12 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/aws/aws-sdk-go/service/sqs"
+	"github.com/cenkalti/backoff"
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/bus"
 	"golang.org/x/net/context"
+	"time"
 )
 
 type getBastionConfig struct{}
@@ -133,8 +135,29 @@ func (s getLatestImageID) Execute(launch *Launch) {
 type createTopic struct{}
 
 func (s createTopic) Execute(launch *Launch) {
-	topic, err := launch.snsClient.CreateTopic(&sns.CreateTopicInput{
-		Name: aws.String("opsee-stack-" + launch.User.CustomerId),
+	var (
+		topic *sns.CreateTopicOutput
+		err   error
+	)
+
+	err = backoff.Retry(func() error {
+		topic, err = launch.snsClient.CreateTopic(&sns.CreateTopicInput{
+			Name: aws.String("opsee-stack-" + launch.User.CustomerId),
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+
+	}, &backoff.ExponentialBackOff{
+		InitialInterval:     100 * time.Millisecond,
+		RandomizationFactor: 0.5,
+		Multiplier:          1.5,
+		MaxInterval:         time.Second,
+		MaxElapsedTime:      5 * time.Second,
+		Clock:               &systemClock{},
 	})
 
 	if err != nil {
@@ -155,8 +178,29 @@ func (s createTopic) Execute(launch *Launch) {
 type createQueue struct{}
 
 func (s createQueue) Execute(launch *Launch) {
-	queue, err := launch.sqsClient.CreateQueue(&sqs.CreateQueueInput{
-		QueueName: aws.String("opsee-bastion-launch-sqs" + launch.Bastion.ID),
+	var (
+		queue *sqs.CreateQueueOutput
+		err   error
+	)
+
+	err = backoff.Retry(func() error {
+		queue, err = launch.sqsClient.CreateQueue(&sqs.CreateQueueInput{
+			QueueName: aws.String("opsee-bastion-launch-sqs" + launch.Bastion.ID),
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+
+	}, &backoff.ExponentialBackOff{
+		InitialInterval:     100 * time.Millisecond,
+		RandomizationFactor: 0.5,
+		Multiplier:          1.5,
+		MaxInterval:         time.Second,
+		MaxElapsedTime:      5 * time.Second,
+		Clock:               &systemClock{},
 	})
 
 	if err != nil {
@@ -177,12 +221,34 @@ func (s createQueue) Execute(launch *Launch) {
 type getQueueAttributes struct{}
 
 func (s getQueueAttributes) Execute(launch *Launch) {
-	queueAttributes, err := launch.sqsClient.GetQueueAttributes(&sqs.GetQueueAttributesInput{
-		QueueUrl: launch.createQueueOutput.QueueUrl,
-		AttributeNames: []*string{
-			aws.String("QueueArn"),
-		},
+	var (
+		queueAttributes *sqs.GetQueueAttributesOutput
+		err             error
+	)
+
+	err = backoff.Retry(func() error {
+		queueAttributes, err = launch.sqsClient.GetQueueAttributes(&sqs.GetQueueAttributesInput{
+			QueueUrl: launch.createQueueOutput.QueueUrl,
+			AttributeNames: []*string{
+				aws.String("QueueArn"),
+			},
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+
+	}, &backoff.ExponentialBackOff{
+		InitialInterval:     100 * time.Millisecond,
+		RandomizationFactor: 0.5,
+		Multiplier:          1.5,
+		MaxInterval:         time.Second,
+		MaxElapsedTime:      5 * time.Second,
+		Clock:               &systemClock{},
 	})
+
 	if err != nil {
 		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
@@ -249,11 +315,31 @@ func (s setQueueAttributes) Execute(launch *Launch) {
 		return
 	}
 
-	sqa, err := launch.sqsClient.SetQueueAttributes(&sqs.SetQueueAttributesInput{
-		QueueUrl: launch.createQueueOutput.QueueUrl,
-		Attributes: map[string]*string{
-			"Policy": aws.String(buf.String()),
-		},
+	var (
+		sqa *sqs.SetQueueAttributesOutput
+	)
+
+	err = backoff.Retry(func() error {
+		sqa, err = launch.sqsClient.SetQueueAttributes(&sqs.SetQueueAttributesInput{
+			QueueUrl: launch.createQueueOutput.QueueUrl,
+			Attributes: map[string]*string{
+				"Policy": aws.String(buf.String()),
+			},
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+
+	}, &backoff.ExponentialBackOff{
+		InitialInterval:     100 * time.Millisecond,
+		RandomizationFactor: 0.5,
+		Multiplier:          1.5,
+		MaxInterval:         time.Second,
+		MaxElapsedTime:      5 * time.Second,
+		Clock:               &systemClock{},
 	})
 
 	if err != nil {
@@ -274,10 +360,31 @@ func (s setQueueAttributes) Execute(launch *Launch) {
 type subscribe struct{}
 
 func (s subscribe) Execute(launch *Launch) {
-	subscribeOutput, err := launch.snsClient.Subscribe(&sns.SubscribeInput{
-		Protocol: aws.String("sqs"),
-		TopicArn: launch.createTopicOutput.TopicArn,
-		Endpoint: launch.getQueueAttributesOutput.Attributes["QueueArn"],
+	var (
+		subscribeOutput *sns.SubscribeOutput
+		err             error
+	)
+
+	err = backoff.Retry(func() error {
+		subscribeOutput, err = launch.snsClient.Subscribe(&sns.SubscribeInput{
+			Protocol: aws.String("sqs"),
+			TopicArn: launch.createTopicOutput.TopicArn,
+			Endpoint: launch.getQueueAttributesOutput.Attributes["QueueArn"],
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+
+	}, &backoff.ExponentialBackOff{
+		InitialInterval:     100 * time.Millisecond,
+		RandomizationFactor: 0.5,
+		Multiplier:          1.5,
+		MaxInterval:         time.Second,
+		MaxElapsedTime:      5 * time.Second,
+		Clock:               &systemClock{},
 	})
 
 	if err != nil {
@@ -364,30 +471,50 @@ func (s createStack) Execute(launch *Launch) {
 		},
 	}
 
-	stack, err := launch.cloudformationClient.CreateStack(&cloudformation.CreateStackInput{
-		StackName:    aws.String("opsee-stack-" + launch.User.CustomerId),
-		TemplateBody: aws.String(string(templateBytes)),
-		Capabilities: []*string{
-			aws.String("CAPABILITY_IAM"),
-		},
-		Parameters: stackParameters,
-		Tags: []*cloudformation.Tag{
-			{
-				Key:   aws.String("Name"),
-				Value: aws.String("Opsee Stack"),
+	var (
+		stack *cloudformation.CreateStackOutput
+	)
+
+	err = backoff.Retry(func() error {
+		stack, err = launch.cloudformationClient.CreateStack(&cloudformation.CreateStackInput{
+			StackName:    aws.String("opsee-stack-" + launch.User.CustomerId),
+			TemplateBody: aws.String(string(templateBytes)),
+			Capabilities: []*string{
+				aws.String("CAPABILITY_IAM"),
 			},
-			{
-				Key:   aws.String("vendor"),
-				Value: aws.String("Opsee"),
+			Parameters: stackParameters,
+			Tags: []*cloudformation.Tag{
+				{
+					Key:   aws.String("Name"),
+					Value: aws.String("Opsee Stack"),
+				},
+				{
+					Key:   aws.String("vendor"),
+					Value: aws.String("Opsee"),
+				},
+				{
+					Key:   aws.String("opsee:customer-id"),
+					Value: aws.String(launch.User.CustomerId),
+				},
 			},
-			{
-				Key:   aws.String("opsee:customer-id"),
-				Value: aws.String(launch.User.CustomerId),
+			NotificationARNs: []*string{
+				launch.createTopicOutput.TopicArn,
 			},
-		},
-		NotificationARNs: []*string{
-			launch.createTopicOutput.TopicArn,
-		},
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+
+	}, &backoff.ExponentialBackOff{
+		InitialInterval:     100 * time.Millisecond,
+		RandomizationFactor: 0.5,
+		Multiplier:          1.5,
+		MaxInterval:         time.Second,
+		MaxElapsedTime:      5 * time.Second,
+		Clock:               &systemClock{},
 	})
 
 	if err != nil {
