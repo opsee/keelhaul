@@ -19,10 +19,12 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/aws/aws-sdk-go/service/sqs"
+	"github.com/cenkalti/backoff"
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/com"
 	"github.com/opsee/keelhaul/bus"
 	"golang.org/x/net/context"
+	"time"
 )
 
 type getBastionConfig struct{}

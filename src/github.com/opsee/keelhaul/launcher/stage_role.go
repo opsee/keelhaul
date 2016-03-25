@@ -101,4 +101,3 @@ func (s putRole) Execute(launch *Launch) {
 		Message: "created global opsee role",
 	})
 }
-
