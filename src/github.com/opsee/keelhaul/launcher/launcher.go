@@ -13,7 +13,14 @@ import (
 	"github.com/opsee/keelhaul/store"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"time"
 )
+
+type systemClock struct{}
+
+func (s *systemClock) Now() time.Time {
+	return time.Now()
+}
 
 type Launcher interface {
 	LaunchBastion(*session.Session, *schema.User, string, string, string, string) (*Launch, error)

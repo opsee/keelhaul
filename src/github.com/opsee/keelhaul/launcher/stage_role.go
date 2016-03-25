@@ -102,8 +102,3 @@ func (s putRole) Execute(launch *Launch) {
 	})
 }
 
-type systemClock struct{}
-
-func (s *systemClock) Now() time.Time {
-	return time.Now()
-}
