@@ -95,6 +95,7 @@ func (handler websocketHandler) readLoop(s *service) {
 
 			handler.userChan <- user
 
+		case "subscribe":
 		default:
 			log.Warnf("unrecognized command sent on websocket: %s", message.Command)
 		}

@@ -51,7 +51,9 @@ func New(cfg *config.Config) (*bus, error) {
 		lookupdAddrs = append(lookupdAddrs, strings.Trim(a, " "))
 	}
 
-	consumer, err := nsq.NewConsumer(cfg.NSQTopic, channel, nsq.NewConfig())
+	nsqCfg := nsq.NewConfig()
+	nsqCfg.MaxInFlight = 4
+	consumer, err := nsq.NewConsumer(cfg.NSQTopic, channel, nsqCfg)
 	if err != nil {
 		return nil, err
 	}

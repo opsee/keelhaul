@@ -144,7 +144,7 @@ func (s *service) ListBastions(user *schema.User, request *ListBastionsRequest) 
 			if err != router.ErrNotFound {
 				log.WithError(err).WithFields(log.Fields{"customer_id": user.CustomerId, "bastion_id": bastion.ID}).Error("bastion router error")
 			} else {
-				log.WithFields(log.Fields{"customer_id": user.CustomerId, "bastion_id": bastion.ID}).Warn("bastion not found in router")
+				log.WithFields(log.Fields{"customer_id": user.CustomerId, "bastion_id": bastion.ID}).Debug("bastion not found in router")
 			}
 		} else {
 			bastion.Connected = true
