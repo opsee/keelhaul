@@ -9,11 +9,9 @@ dependencies:
     - docker info
     - docker login -e $DOCKER_EMAIL -u $DOCKER_USERNAME -p $DOCKER_PASSWORD quay.io
     - sudo pip install --upgrade docker-compose==1.5.2 awscli
-    - git submodule update --init
 test:
   override:
-    - APPENV=testenv make docker
-    - docker tag quay.io/opsee/keelhaul quay.io/opsee/keelhaul:$CIRCLE_SHA1
+    - REV=${CIRCLE_SHA1} make
     - docker push quay.io/opsee/keelhaul:$CIRCLE_SHA1
 deployment:
   production:
