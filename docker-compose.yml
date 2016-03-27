@@ -45,4 +45,3 @@ postgres:
         - DB_PASS=postgres
         - DB_NAME=keelhaul_test
     container_name: keelhaul_postgresql
-
