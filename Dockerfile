@@ -1,4 +1,11 @@
-FROM quay.io/opsee/vinz:latest
+FROM alpine:3.3
+
+RUN apk add --update bash ca-certificates curl
+RUN mkdir -p /opt/bin && \
+		curl -Lo /opt/bin/s3kms https://s3-us-west-2.amazonaws.com/opsee-releases/go/vinz-clortho/s3kms-linux-amd64 && \
+    chmod 755 /opt/bin/s3kms && \
+    curl -Lo /opt/bin/migrate https://s3-us-west-2.amazonaws.com/opsee-releases/go/migrate/migrate-linux-amd64 && \
+    chmod 755 /opt/bin/migrate
 
 ENV KEELHAUL_POSTGRES_CONN ""
 ENV KEELHAUL_VAPE_KEYFILE ""
@@ -22,12 +29,6 @@ ENV KEELHAUL_BASTION_CF_TEMPLATE ""
 ENV KEELHAUL_CERT="cert.pem"
 ENV KEELHAUL_CERT_KEY="key.pem"
 ENV APPENV ""
-
-RUN apk add --update bash ca-certificates curl
-RUN curl -Lo /opt/bin/migrate https://s3-us-west-2.amazonaws.com/opsee-releases/go/migrate/migrate-linux-amd64 && \
-    chmod 755 /opt/bin/migrate
-RUN curl -Lo /opt/bin/ec2-env https://s3-us-west-2.amazonaws.com/opsee-releases/go/ec2-env/ec2-env && \
-    chmod 755 /opt/bin/ec2-env
 
 COPY run.sh /
 COPY target/linux/amd64/bin/* /

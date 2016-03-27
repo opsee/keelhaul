@@ -1,12 +1,8 @@
 APPENV ?= testenv
+PROJECT := keelhaul
+REV ?= latest
 
-all: fmt build
-
-build:
-	gb build
-
-clean:
-	rm -fr target bin pkg proto/bastion_proto
+all: build
 
 fmt:
 	@gofmt -w ./
@@ -18,22 +14,20 @@ deps:
 migrate:
 	migrate -url $(KEELHAUL_POSTGRES_CONN) -path ./migrations up
 
-docker: deps fmt dbuild
-
-run: docker drun
-
-dbuild:
+build: deps $(APPENV)
 	docker run \
 		--link keelhaul_postgresql:postgresql \
 		--link keelhaul_nsqd:nsqd \
 		--link keelhaul_lookupd:lookupd \
-		--env-file ./testenv \
+		--env-file ./$(APPENV) \
 		-e "TARGETS=linux/amd64" \
 		-e GODEBUG=netdns=cgo \
-		-v `pwd`:/build quay.io/opsee/build-go:go15 \
-		&& docker build -t quay.io/opsee/keelhaul .
+		-e PROJECT=github.com/opsee/$(PROJECT) \
+		-v `pwd`:/gopath/src/github.com/opsee/$(PROJECT) \
+		quay.io/opsee/build-go:16
+	docker build -t quay.io/opsee/$(PROJECT):$(REV) .
 
-drun:
+drun: deps $(APPENV)
 	docker run \
 		--link keelhaul_postgresql:postgresql \
 		--link keelhaul_nsqd:nsqd \
@@ -56,4 +50,4 @@ deploy-cf:
 		aws s3 cp --content-disposition inline --content-type application/json --source-region us-east-1 --region $$region --acl public-read s3://opsee-bastion-cf-us-east-1/beta/bastion-ingress-cf.template s3://opsee-bastion-cf-$$region/beta/ ; \
 	done
 
-.PHONY: docker dbuild drun run migrate clean all
+.PHONY: build run migrate all
