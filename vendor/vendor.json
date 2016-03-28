@@ -447,11 +447,11 @@
 			"revisionTime": "2015-12-14T17:01:16-08:00"
 		},
 		{
-			"checksumSHA1": "Oht/sOA/jOuurpAmst3cCRCIPaw=",
+			"checksumSHA1": "f/TbOYGU4VRvJa3PA7dmJ+zS9kE=",
 			"origin": "github.com/opsee/keelhaul/vendor/github.com/opsee/basic/clients/bartnet",
 			"path": "github.com/opsee/basic/clients/bartnet",
-			"revision": "86aa0fdde8de8ed2f5d456427bf808cf06d08ac2",
-			"revisionTime": "2016-03-27T18:54:57-07:00"
+			"revision": "7431a5ec9e192a356855f364fc7166a5758b4257",
+			"revisionTime": "2016-03-28T13:31:08-07:00"
 		},
 		{
 			"checksumSHA1": "1altANdLy8yIa6IP4WzwbmcYBB4=",

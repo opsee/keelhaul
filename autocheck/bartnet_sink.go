@@ -1,6 +1,7 @@
 package autocheck
 
 import (
+	"fmt"
 	"github.com/opsee/basic/clients/bartnet"
 	"github.com/opsee/basic/schema"
 )
@@ -25,8 +26,13 @@ func (s *bartnetSink) Send(check *schema.Check) error {
 		return err
 	}
 
+	id, ok := checkResp["id"].(string)
+	if !ok {
+		return fmt.Errorf("error getting check id from bartnet %#v", checkResp)
+	}
+
 	return s.hugsClient.CreateNotifications(s.user, &NotificationRequest{
-		CheckId: checkResp.Id,
+		CheckId: id,
 		Notifications: []*Notification{
 			{
 				Type:  "email",

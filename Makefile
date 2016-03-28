@@ -27,7 +27,7 @@ build: deps $(APPENV)
 		quay.io/opsee/build-go:16
 	docker build -t quay.io/opsee/$(PROJECT):$(REV) .
 
-drun: deps $(APPENV)
+run: deps $(APPENV)
 	docker run \
 		--link keelhaul_postgresql:postgresql \
 		--link keelhaul_nsqd:nsqd \
