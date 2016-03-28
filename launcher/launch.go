@@ -13,8 +13,8 @@ import (
 	"github.com/opsee/basic/com"
 	"github.com/opsee/basic/schema"
 	"github.com/opsee/basic/service"
+	"github.com/opsee/keelhaul/autocheck"
 	"github.com/opsee/keelhaul/bus"
-	"github.com/opsee/keelhaul/checkgen"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
@@ -29,7 +29,7 @@ type Stage interface {
 type Launch struct {
 	Bastion                  *com.Bastion
 	User                     *schema.User
-	CheckRequestFactory      *checkgen.CheckRequestFactory
+	Autochecks               *autocheck.Pool
 	EventChan                chan *Event
 	Err                      error
 	VPCEnvironment           *VPCEnvironment
@@ -84,24 +84,26 @@ const (
 )
 
 func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, spanx service.SpanxClient, cfg *config.Config, sess *session.Session, user *schema.User) *Launch {
+	logger := log.WithFields(log.Fields{
+		"customer_id": user.CustomerId,
+		"user_id":     user.Id,
+	})
+
 	return &Launch{
-		User:           user,
-		EventChan:      make(chan *Event),
-		VPCEnvironment: &VPCEnvironment{},
-		state:          3,
-		stateMut:       &sync.RWMutex{},
-		db:             db,
-		router:         router,
-		etcd:           etcdKAPI,
-		spanx:          spanx,
-		config:         cfg,
-		session:        sess,
-		logger: log.WithFields(log.Fields{
-			"customer-id": user.CustomerId,
-			"user-id":     user.Id,
-		}),
-		connectAttempts:     float64(1),
-		CheckRequestFactory: checkgen.NewCheckRequestFactoryWithConfig(cfg, user),
+		User:            user,
+		EventChan:       make(chan *Event),
+		VPCEnvironment:  &VPCEnvironment{},
+		Autochecks:      autocheck.NewPool(autocheck.NewBartnetSink(cfg.BartnetEndpoint, cfg.HugsEndpoint, user), logger),
+		state:           3,
+		stateMut:        &sync.RWMutex{},
+		db:              db,
+		router:          router,
+		etcd:            etcdKAPI,
+		spanx:           spanx,
+		config:          cfg,
+		session:         sess,
+		logger:          logger,
+		connectAttempts: float64(1),
 	}
 }
 
@@ -134,7 +136,7 @@ func (launch *Launch) NotifyVars() interface{} {
 		GroupID:        launch.Bastion.GroupID.String,
 		InstanceName:   "Opsee Instance",
 		GroupName:      "Opsee Instance Security Group",
-		CheckCount:     launch.CheckRequestFactory.CheckRequestPool.SuccessfulRequests,
+		CheckCount:     launch.Autochecks.SuccessCount(),
 	}
 
 	if launch.Err != nil {

@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/opsee/awscan"
 	"github.com/opsee/keelhaul/bus"
-	"github.com/opsee/keelhaul/checkgen"
 	"net/http"
 	"reflect"
 )
@@ -110,14 +109,13 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 				launch.VPCEnvironment.AutoscalingGroupCount++
 
 			case awscan.LoadBalancerType:
-				launch.CheckRequestFactory.ProduceCheckRequests(&checkgen.AWSObject{Type: messageType, Object: event.Result})
+				launch.Autochecks.AddTarget(event.Result)
 				launch.VPCEnvironment.LoadBalancerCount++
 			}
 
 			launch.logger.WithField("resource-type", messageType).Info("resource discovery")
 		}
 	}
-	close(launch.CheckRequestFactory.CheckRequestPool.RequestsChan)
 
 	if launch.VPCEnvironment.tooManyErrors() {
 		launch.error(launch.VPCEnvironment.LastError, &bus.Message{
