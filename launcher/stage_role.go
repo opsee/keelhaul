@@ -31,13 +31,32 @@ func (s putRole) Execute(launch *Launch) {
 		return
 	}
 
-	stscreds, err := launch.spanx.PutRole(context.Background(), &service.PutRoleRequest{
-		User: launch.User,
-		Credentials: &opseeawscredentials.Value{
-			AccessKeyID:     aws.String(credValue.AccessKeyID),
-			SecretAccessKey: aws.String(credValue.SecretAccessKey),
-		},
+	var stscreds *service.PutRoleResponse
+
+	err = backoff.Retry(func() error {
+		stscreds, err = launch.spanx.PutRole(context.Background(), &service.PutRoleRequest{
+			User: launch.User,
+			Credentials: &opseeawscredentials.Value{
+				AccessKeyID:     aws.String(credValue.AccessKeyID),
+				SecretAccessKey: aws.String(credValue.SecretAccessKey),
+			},
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+
+	}, &backoff.ExponentialBackOff{
+		InitialInterval:     100 * time.Millisecond,
+		RandomizationFactor: 0.5,
+		Multiplier:          1.5,
+		MaxInterval:         time.Second,
+		MaxElapsedTime:      5 * time.Second,
+		Clock:               &systemClock{},
 	})
+
 	if err != nil {
 		launch.error(
 			err,
