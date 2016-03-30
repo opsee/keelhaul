@@ -2,6 +2,7 @@ package service
 
 import (
 	"crypto/tls"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/opsee/basic/grpcutil"
 	"github.com/opsee/basic/schema"
 	opsee "github.com/opsee/basic/service"
@@ -72,16 +73,23 @@ func (s *service) scanVPCs() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
 		request, ok := ctx.Value(requestKey).(*ScanVPCsRequest)
 		if !ok {
-			return ctx, http.StatusBadRequest, errUnknown
+			return nil, http.StatusBadRequest, errBadRequest
 		}
 
 		user, ok := ctx.Value(userKey).(*schema.User)
 		if !ok {
-			return ctx, http.StatusUnauthorized, errUnknown
+			return nil, http.StatusUnauthorized, errUnauthorized
 		}
 
 		vpcs, err := s.DeprecatedScanVPCs(user, request)
 		if err != nil {
+			if awsErr, ok := err.(awserr.Error); ok {
+				switch awsErr.Code() {
+				case "AccessDenied", "AuthFailure":
+					return nil, http.StatusUnauthorized, errAWSUnauthorized
+				}
+			}
+
 			return nil, http.StatusInternalServerError, err
 		}
 
@@ -93,12 +101,12 @@ func (s *service) launchBastions() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
 		request, ok := ctx.Value(requestKey).(*LaunchBastionsRequest)
 		if !ok {
-			return ctx, http.StatusBadRequest, errUnknown
+			return nil, http.StatusBadRequest, errBadRequest
 		}
 
 		user, ok := ctx.Value(userKey).(*schema.User)
 		if !ok {
-			return ctx, http.StatusUnauthorized, errUnknown
+			return nil, http.StatusUnauthorized, errUnauthorized
 		}
 
 		bastions, err := s.LaunchBastions(user, request)
@@ -114,12 +122,12 @@ func (s *service) listBastions() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
 		request, ok := ctx.Value(requestKey).(*ListBastionsRequest)
 		if !ok {
-			return ctx, http.StatusBadRequest, errUnknown
+			return nil, http.StatusBadRequest, errBadRequest
 		}
 
 		user, ok := ctx.Value(userKey).(*schema.User)
 		if !ok {
-			return ctx, http.StatusUnauthorized, errUnknown
+			return nil, http.StatusUnauthorized, errUnauthorized
 		}
 
 		bastions, err := s.ListBastions(user, request)
@@ -135,7 +143,7 @@ func (s *service) authenticateBastion() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
 		request, ok := ctx.Value(requestKey).(*opsee.AuthenticateBastionRequest)
 		if !ok {
-			return ctx, http.StatusBadRequest, errUnknown
+			return nil, http.StatusBadRequest, errBadRequest
 		}
 
 		resp, err := s.AuthenticateBastion(ctx, request)
