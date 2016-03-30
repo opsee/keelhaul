@@ -616,10 +616,11 @@
 			"revisionTime": "2016-03-22T02:00:46Z"
 		},
 		{
-			"checksumSHA1": "iXpZ8WhiVSEULtAiqyL9oDly56k=",
+			"checksumSHA1": "tv1u5zxov+2dO83iba/fR7vRY3g=",
+			"origin": "github.com/opsee/keelhaul/vendor/google.golang.org/grpc",
 			"path": "google.golang.org/grpc",
-			"revision": "d3ddb4469d5a1b949fc7a7da7c1d6a0d1b6de994",
-			"revisionTime": "2016-03-17T10:50:43-07:00"
+			"revision": "33966f53914846447d9d7b970fe1fe9e258f8745",
+			"revisionTime": "2016-03-29T14:16:34-07:00"
 		},
 		{
 			"checksumSHA1": "08icuA15HRkdYCt6H+Cs90RPQsY=",
