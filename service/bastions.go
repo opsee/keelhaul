@@ -138,16 +138,22 @@ func (s *service) ListBastions(user *schema.User, request *ListBastionsRequest) 
 	}
 
 	for _, bastion := range response.Bastions {
-		_, err := s.router.GetServices(bastion)
+		logger := log.WithFields(log.Fields{"customer_id": user.CustomerId, "bastion_id": bastion.ID})
+		services, err := s.router.GetServices(bastion)
+		_, ok := services["checker"]
 
 		if err != nil {
 			if err != router.ErrNotFound {
-				log.WithError(err).WithFields(log.Fields{"customer_id": user.CustomerId, "bastion_id": bastion.ID}).Error("bastion router error")
+				logger.WithError(err).Error("bastion router error")
 			} else {
-				log.WithFields(log.Fields{"customer_id": user.CustomerId, "bastion_id": bastion.ID}).Debug("bastion not found in router")
+				logger.Debug("bastion not found in router")
 			}
 		} else {
-			bastion.Connected = true
+			if ok {
+				bastion.Connected = true
+			} else {
+				logger.Debug("bastion found but checker not running")
+			}
 		}
 	}
 
