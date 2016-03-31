@@ -30,9 +30,10 @@ func (s waitConnect) Execute(launch *Launch) {
 			return
 		}
 
-		_, err := launch.router.GetServices(launch.Bastion)
+		services, _ := launch.router.GetServices(launch.Bastion)
+		_, ok := services["checker"]
 
-		if launch.Bastion.State == com.BastionStateActive && err == nil {
+		if launch.Bastion.State == com.BastionStateActive && ok {
 			launch.event(&bus.Message{
 				State:   stateComplete,
 				Command: commandConnectBastion,
