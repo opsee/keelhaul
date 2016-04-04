@@ -23,7 +23,7 @@ func (s *systemClock) Now() time.Time {
 }
 
 type Launcher interface {
-	LaunchBastion(*session.Session, *schema.User, string, string, string, string) (*Launch, error)
+	LaunchBastion(*session.Session, *schema.User, string, string, string, string, string) (*Launch, error)
 }
 
 type launcher struct {
