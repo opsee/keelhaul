@@ -55,12 +55,12 @@ func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bu
 	}, nil
 }
 
-func (l *launcher) LaunchBastion(sess *session.Session, user *schema.User, vpcID, subnetID, subnetRouting, instanceType string) (*Launch, error) {
+func (l *launcher) LaunchBastion(sess *session.Session, user *schema.User, region, vpcID, subnetID, subnetRouting, instanceType string) (*Launch, error) {
 	launch := NewLaunch(l.db, l.router, l.etcd, l.spanx, l.config, sess, user)
 	go l.watchLaunch(launch)
 
 	// this is done synchronously so that we can return the bastion id
-	err := launch.CreateBastion(vpcID, subnetID, subnetRouting, instanceType)
+	err := launch.CreateBastion(region, vpcID, subnetID, subnetRouting, instanceType)
 	if err != nil {
 		return nil, err
 	}
