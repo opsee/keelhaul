@@ -111,7 +111,7 @@
                         "Fn::If": [
                             "AllowSSHAccess", 
                             [{
-                              "CidrIp": "0.0.0.0/0",
+                              "CidrIp": "52.32.119.223/32",
                               "FromPort": 22,
                               "ToPort": 22,
                               "IpProtocol": "tcp"
