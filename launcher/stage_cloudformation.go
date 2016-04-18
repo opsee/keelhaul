@@ -124,11 +124,11 @@ func (s getLatestImageID) Execute(launch *Launch) {
 
 	// sort in descending order
 	sort.Sort(ImageList(imageOutput.Images))
-	launch.imageID = *imageOutput.Images[0].ImageId
+	launch.ImageID = *imageOutput.Images[0].ImageId
 	launch.event(&bus.Message{
 		State:   stateInProgress,
 		Command: commandLaunchBastion,
-		Message: fmt.Sprintf("got latest stable bastion image: %s", launch.imageID),
+		Message: fmt.Sprintf("got latest stable bastion image: %s", launch.ImageID),
 	})
 }
 
@@ -405,7 +405,7 @@ func (s subscribe) Execute(launch *Launch) {
 type createStack struct{}
 
 func (s createStack) Execute(launch *Launch) {
-	userdata, err := launch.bastionConfig.GenerateUserData(launch.User, launch.Bastion)
+	userdata, err := launch.GenerateUserData()
 	if err != nil {
 		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
@@ -435,7 +435,7 @@ func (s createStack) Execute(launch *Launch) {
 	stackParameters := []*cloudformation.Parameter{
 		{
 			ParameterKey:   aws.String("ImageId"),
-			ParameterValue: aws.String(launch.imageID),
+			ParameterValue: aws.String(launch.ImageID),
 		},
 		{
 			ParameterKey:   aws.String("InstanceType"),
@@ -535,7 +535,7 @@ func (s createStack) Execute(launch *Launch) {
 type bastionLaunchingState struct{}
 
 func (s bastionLaunchingState) Execute(launch *Launch) {
-	err := launch.db.UpdateBastion(launch.Bastion.Launch(*launch.createStackOutput.StackId, launch.imageID))
+	err := launch.db.UpdateBastion(launch.Bastion.Launch(*launch.createStackOutput.StackId, launch.ImageID))
 	if err != nil {
 		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
