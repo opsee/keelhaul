@@ -26,13 +26,12 @@ func (s *bartnetSink) Send(check *schema.Check) error {
 		return err
 	}
 
-	id, ok := checkResp["id"].(string)
-	if !ok {
+	if checkResp.Id == "" {
 		return fmt.Errorf("error getting check id from bartnet %#v", checkResp)
 	}
 
 	return s.hugsClient.CreateNotifications(s.user, &NotificationRequest{
-		CheckId: id,
+		CheckId: checkResp.Id,
 		Notifications: []*Notification{
 			{
 				Type:  "email",

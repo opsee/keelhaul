@@ -4,6 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/opsee/basic/schema"
+	opsee_types "github.com/opsee/protobuf/opseeproto/types"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -60,7 +61,7 @@ func testChecks(lbName, name, protocol, path string, port int32) []*schema.Check
 		Verb:     "GET",
 	}
 
-	checkSpec, _ := schema.MarshalAny(httpCheck)
+	checkSpec, _ := opsee_types.MarshalAny(httpCheck)
 	check := &schema.Check{
 		Name:     name,
 		Interval: int32(30),

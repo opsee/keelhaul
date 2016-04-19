@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/opsee/basic/schema"
+	opsee_types "github.com/opsee/protobuf/opseeproto/types"
 	"regexp"
 	"strconv"
 	"strings"
@@ -70,7 +71,7 @@ func (l LoadBalancer) Generate() ([]*schema.Check, error) {
 			Verb:     "GET",
 		}
 
-		checkSpec, err := schema.MarshalAny(httpCheck)
+		checkSpec, err := opsee_types.MarshalAny(httpCheck)
 		if err != nil {
 			return nil, err
 		}
