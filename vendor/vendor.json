@@ -536,22 +536,25 @@
 			"revisionTime": "2016-03-16T10:15:20-07:00"
 		},
 		{
-			"checksumSHA1": "NGwjroMEC6PlYnxhLWtnQ1LxUpE=",
+			"checksumSHA1": "AdAlxYpERfxuIqtd5eQ0LumzbrE=",
+			"origin": "github.com/opsee/keelhaul/vendor/github.com/opsee/protobuf/opseeproto",
 			"path": "github.com/opsee/protobuf/opseeproto",
-			"revision": "1776823a8fe8856c8e3a75c9d4f846c9008c6935",
-			"revisionTime": "2016-02-26T14:29:09-08:00"
+			"revision": "fcd127be28d4536d18a88580598eb30664b5d68f",
+			"revisionTime": "2016-04-14T10:55:35-07:00"
 		},
 		{
-			"checksumSHA1": "dHsJsxV07QsDS3TUPM5fnOW9wwg=",
+			"checksumSHA1": "RZZ6IEyAPxiOou6pV3DmsYq/hIw=",
+			"origin": "github.com/opsee/keelhaul/vendor/github.com/opsee/protobuf/opseeproto/types",
 			"path": "github.com/opsee/protobuf/opseeproto/types",
-			"revision": "1776823a8fe8856c8e3a75c9d4f846c9008c6935",
-			"revisionTime": "2016-02-26T14:29:09-08:00"
+			"revision": "fcd127be28d4536d18a88580598eb30664b5d68f",
+			"revisionTime": "2016-04-14T10:55:35-07:00"
 		},
 		{
-			"checksumSHA1": "rQxhim+qKPhL/WBNMI/0kdBP30A=",
+			"checksumSHA1": "gSNMUmdN5l8Uvv7jRveoHH4SX+A=",
+			"origin": "github.com/opsee/keelhaul/vendor/github.com/opsee/protobuf/plugin/graphql/scalars",
 			"path": "github.com/opsee/protobuf/plugin/graphql/scalars",
-			"revision": "1776823a8fe8856c8e3a75c9d4f846c9008c6935",
-			"revisionTime": "2016-02-26T14:29:09-08:00"
+			"revision": "fcd127be28d4536d18a88580598eb30664b5d68f",
+			"revisionTime": "2016-04-14T10:55:35-07:00"
 		},
 		{
 			"checksumSHA1": "Hqn9bX1B1dMlG4p6WQcwAD+W2g8=",
