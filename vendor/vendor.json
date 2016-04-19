@@ -482,6 +482,12 @@
 			"revisionTime": "2016-04-19T15:32:08-07:00"
 		},
 		{
+			"checksumSHA1": "gv9KWZ2dEHSxmzyZebJN2tgODEw=",
+			"path": "github.com/opsee/basic/schema/aws/cloudwatch",
+			"revision": "528857b24020e7d852451377e5b3536e6bba2f3d",
+			"revisionTime": "2016-04-19T15:32:08-07:00"
+		},
+		{
 			"checksumSHA1": "+vaNkzRGuv1YFreB47sAf9h1xlA=",
 			"origin": "github.com/opsee/keelhaul/vendor/github.com/opsee/basic/schema/aws/credentials",
 			"path": "github.com/opsee/basic/schema/aws/credentials",
