@@ -170,10 +170,10 @@
       "Version": "1.0",
       "Properties": {
         "ServiceToken": { "Fn::FindInMap": ["ServiceTokenMap", { "Ref": "AWS::Region" }, "ServiceToken"] },
-        "RoleExternalID": "{{ .User.ExternalID }}"",
+        "RoleExternalID": "{{ .User.ExternalID }}",
         "RoleARN": { "Fn::GetAtt": [ "OpseeRole", "Arn" ] },
         "StackID": { "Ref": "AWS::StackId" },
-        "StackName": { "Ref": "AWS::StackName" },
+        "StackName": { "Ref": "AWS::StackName" }
       }
     }
   }
