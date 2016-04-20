@@ -98,6 +98,8 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 
 				dbInstances[*i.DBInstanceIdentifier] = true
 				launch.VPCEnvironment.DBInstanceCount = card(dbInstances)
+				rdsCloudWatch, error := NewRDSCloudWatch(event.Result, launch.cloudwatchClient)
+				launch.Autochecks.AddTarget(rdsCloudWatch)
 
 			case awscan.SecurityGroupType:
 				launch.VPCEnvironment.SecurityGroupCount++

@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
+	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/aws/aws-sdk-go/service/sns/snsiface"
 	"github.com/aws/aws-sdk-go/service/sqs"
@@ -117,6 +118,7 @@ type Launch struct {
 	sqsClient                 sqsiface.SQSAPI
 	snsClient                 snsiface.SNSAPI
 	cloudformationClient      cloudformationiface.CloudFormationAPI
+	cloudwatchClient          *cloudwatch.CloudWatch
 	subscribeOutput           *sns.SubscribeOutput
 	createTopicOutput         *sns.CreateTopicOutput
 	createQueueOutput         *sqs.CreateQueueOutput
