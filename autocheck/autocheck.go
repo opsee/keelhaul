@@ -20,8 +20,8 @@ func NewTarget(obj interface{}) Target {
 	switch o := obj.(type) {
 	case *elb.LoadBalancerDescription:
 		return LoadBalancer{o}
-	case *RDSCloudWatch:
-		return o
+	case *rds.DBInstance:
+		return RDSCloudWatch{o}
 	default:
 		return EmptyTarget{}
 	}

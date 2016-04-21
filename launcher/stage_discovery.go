@@ -95,11 +95,9 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 					s.handleError(fmt.Errorf("failed rds db instance type assertion"), launch)
 					continue
 				}
-
 				dbInstances[*i.DBInstanceIdentifier] = true
 				launch.VPCEnvironment.DBInstanceCount = card(dbInstances)
-				rdsCloudWatch, error := NewRDSCloudWatch(event.Result, launch.cloudwatchClient)
-				launch.Autochecks.AddTarget(rdsCloudWatch)
+				launch.Autochecks.AddTarget(event.Result)
 
 			case awscan.SecurityGroupType:
 				launch.VPCEnvironment.SecurityGroupCount++
