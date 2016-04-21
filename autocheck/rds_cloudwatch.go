@@ -58,7 +58,7 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 			{
 				Key:          "cloudwatch",
 				Relationship: "lessThan",
-				Operand:      fmt.Sprintf("%f", maxCPUUtil),
+				Operand:      fmt.Sprintf("%.3f", maxCPUUtil),
 				Value:        "CPUUtilization",
 			},
 		},

@@ -22,7 +22,10 @@ func TestRDSGenerate(t *testing.T) {
 	assert := assert.New(t)
 
 	for _, t := range rdsTests {
-		_, err := NewTarget(t.rds).Generate()
+		cz, err := NewTarget(t.rds).Generate()
 		assert.NoError(err)
+		assert.NotNil(cz[0])
+		assert.EqualValues(cz[0].Interval, 60)
+		assert.EqualValues(cz[0].Assertions[0].Operand, "0.950")
 	}
 }
