@@ -86,6 +86,7 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 
 				instances[*i.InstanceId] = true
 				launch.VPCEnvironment.InstanceCount = card(instances)
+				launch.Autochecks.AddTarget(event.Result)
 
 			case awscan.DBInstanceType:
 				// we'll have to de-dupe instances so use a ghetto set (map)
