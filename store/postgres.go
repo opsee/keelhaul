@@ -83,10 +83,10 @@ func (pg *Postgres) putBastion(q sqlx.Queryer, bastion *com.Bastion) error {
 	err := sqlx.Get(
 		q,
 		&id,
-		`insert into bastions (customer_id, user_id, stack_id, image_id, instance_type, vpc_id, subnet_id, subnet_routing, state, password_hash)
-		 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		`insert into bastions (customer_id, user_id, stack_id, image_id, instance_type, region, vpc_id, subnet_id, subnet_routing, state, password_hash)
+		 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		 returning id`,
-		bastion.CustomerID, bastion.UserID, bastion.StackID, bastion.ImageID, bastion.InstanceType,
+		bastion.CustomerID, bastion.UserID, bastion.StackID, bastion.ImageID, bastion.InstanceType, bastion.Region,
 		bastion.VPCID, bastion.SubnetID, bastion.SubnetRouting, bastion.State, bastion.PasswordHash,
 	)
 
