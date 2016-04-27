@@ -9,7 +9,7 @@ import (
 )
 
 func (s *service) ListBastionStates(ctx context.Context, req *opsee.ListBastionStatesRequest) (*opsee.ListBastionStatesResponse, error) {
-	bs, err := s.db.ListBastionStates(req.CustomerIds)
+	bs, err := s.db.ListBastionStates(req.CustomerIds, req.Filters...)
 	if err != nil {
 		log.WithError(err).Error("failed to list bastion states")
 		return nil, err
@@ -29,6 +29,8 @@ func (s *service) ListBastionStates(ctx context.Context, req *opsee.ListBastionS
 			CustomerId: s.CustomerID,
 			Status:     s.Status,
 			LastSeen:   ts,
+			Region:     s.Region,
+			VpcId:      s.VpcId,
 		}
 	}
 
