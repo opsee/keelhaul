@@ -20,7 +20,7 @@ func (s *systemClock) Now() time.Time {
 }
 
 type Launcher interface {
-	LaunchBastion(*session.Session, *schema.User, string, string, string, string, string) (*Launch, error)
+	LaunchBastion(*session.Session, *schema.User, string, string, string, string, string, string, bool) (*Launch, error)
 }
 
 type launcher struct {
@@ -45,7 +45,7 @@ func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bu
 	}, nil
 }
 
-func (l *launcher) LaunchBastion(sess *session.Session, user *schema.User, region, vpcID, subnetID, subnetRouting, instanceType string) (*Launch, error) {
+func (l *launcher) LaunchBastion(sess *session.Session, user *schema.User, region, vpcID, subnetID, subnetRouting, instanceType, imageTag string, createRole bool) (*Launch, error) {
 	launch := NewLaunch(l.db, l.router, l.etcd, l.spanx, l.config, sess, user)
 	go l.watchLaunch(launch)
 
@@ -55,7 +55,7 @@ func (l *launcher) LaunchBastion(sess *session.Session, user *schema.User, regio
 		return nil, err
 	}
 
-	go launch.Launch()
+	go launch.Launch(imageTag, createRole)
 
 	return launch, nil
 }

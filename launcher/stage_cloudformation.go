@@ -88,6 +88,11 @@ func (s getLatestImageID) Execute(launch *Launch) {
 		Region:      launch.session.Config.Region,
 	}))
 
+	tag := launch.ImageTag
+	if tag == "" {
+		tag = launch.bastionConfig.Tag
+	}
+
 	imageOutput, err := ec2client.DescribeImages(&ec2.DescribeImagesInput{
 		Owners: []*string{
 			aws.String(launch.bastionConfig.OwnerID),
@@ -95,7 +100,7 @@ func (s getLatestImageID) Execute(launch *Launch) {
 		Filters: []*ec2.Filter{
 			{
 				Name:   aws.String("tag:release"),
-				Values: []*string{aws.String(launch.bastionConfig.Tag)},
+				Values: []*string{aws.String(tag)},
 			},
 			{
 				Name:   aws.String("is-public"),
@@ -414,7 +419,14 @@ func (s createStack) Execute(launch *Launch) {
 		return
 	}
 
-	templateBytes, err := ioutil.ReadFile(launch.config.BastionCFTemplate)
+	var templateFile string
+	if launch.ImageTag == "beta" {
+		templateFile = "/bastion-beta-cf.template"
+	} else {
+		templateFile = launch.config.BastionCFTemplate
+	}
+
+	templateBytes, err := ioutil.ReadFile(templateFile)
 	if err != nil {
 		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
@@ -465,10 +477,13 @@ func (s createStack) Execute(launch *Launch) {
 			ParameterKey:   aws.String("BastionId"),
 			ParameterValue: aws.String(launch.Bastion.ID),
 		},
-		{
+	}
+
+	if launch.ImageTag != "beta" {
+		stackParameters = append(stackParameters, &cloudformation.Parameter{
 			ParameterKey:   aws.String("OpseeRole"),
 			ParameterValue: aws.String(awsAccount.RoleName()),
-		},
+		})
 	}
 
 	var (

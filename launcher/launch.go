@@ -102,6 +102,7 @@ type Launch struct {
 	VPCEnvironment            *VPCEnvironment
 	BastionIngressTemplateURL string
 	ImageID                   string
+	ImageTag                  string
 	InstanceType              string
 	state                     int
 	stateMut                  *sync.RWMutex
@@ -237,8 +238,12 @@ func (launch *Launch) CreateBastion(region, vpcID, subnetID, subnetRouting, inst
 	return nil
 }
 
-func (launch *Launch) Launch() {
-	launch.stage(putRole{})
+func (launch *Launch) Launch(imageTag string, createRole bool) {
+	if createRole {
+		launch.stage(putRole{})
+	}
+
+	launch.ImageTag = imageTag
 	launch.stage(getBastionConfig{})
 	launch.stage(getLatestImageID{})
 	launch.stage(createTopic{})

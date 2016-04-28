@@ -1,0 +1,196 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "The Opsee Stack",
+    "Parameters": {
+        "InstanceType": {
+            "Description": "EC2 Instance type (m3.medium, etc).",
+            "Type": "String",
+            "Default": "t2.micro",
+            "ConstraintDescription": "Must be a valid EC2 instance type."
+        },
+        "ImageId": {
+            "Description": "The Opsee Instance AMI",
+            "Type": "String",
+            "ConstraintDescription": "Must be a valid Opsee AMI."
+        },
+        "UserData": {
+            "Description": "Metadata to set for the instance",
+            "Type": "String"
+        },
+        "KeyName": {
+            "Description": "The name of a keypair to use (optional)",
+            "Default": "",
+            "Type": "String"
+        },
+        "VpcId": {
+            "Description": "The VPC in which to deploy the instance",
+            "Type": "String",
+            "ConstraintDescription": "Must be a valid VPC ID"
+        },
+        "SubnetId": {
+            "Description": "The subnet in which to deploy the instance (optional)",
+            "Default": "",
+            "Type": "String"
+        },
+        "AssociatePublicIpAddress": {
+            "Description": "Whether or not a public IP address should be associated (optional)",
+            "Default": "True",
+            "Type": "String",
+            "AllowedValues": ["True", "False"]
+        },
+        "CustomerId": {
+            "Description": "Customer ID",
+            "Type": "String"
+        },
+        "BastionId": {
+            "Description": "Bastion ID",
+            "Type": "String"
+        },
+        "BastionIngressTemplateUrl": {
+            "Description": "S3 URL for ingress cfn template.",
+            "Type": "String",
+            "Default": "https://s3.amazonaws.com/opsee-bastion-cf/beta/bastion-ingress-cf.template"
+        },
+        "AllowSSH": {
+            "Description": "Allow SSH access to the Bastion host.",
+            "Type": "String",
+            "Default": "False"
+        }
+    },
+    "Conditions": {
+        "NoKey": {
+            "Fn::Equals": [{
+                    "Ref": "KeyName"
+                },
+                ""
+            ]
+        },
+        "NoSubnet": {
+            "Fn::Equals": [{
+                    "Ref": "SubnetId"
+                },
+                ""
+            ]
+        },
+        "AssociatePublicIp": {
+            "Fn::Equals": [{
+                    "Ref": "AssociatePublicIpAddress"
+                },
+                "True"
+            ]
+        },
+        "AllowSSHAccess": {
+            "Fn::Equals": [
+                {
+                    "Ref": "AllowSSH"
+                },
+                "True"
+            ]
+        }
+    },
+    "Resources": {
+        "OpseeSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Opsee Instance SecurityGroup",
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": "Opsee Instance Security Group"
+                }, {
+                    "Key": "vendor",
+                    "Value": "Opsee"
+                }, {
+                    "Key": "opsee:customer-id",
+                    "Value": {"Ref": "CustomerId"}
+                }],
+                "SecurityGroupIngress": {
+                        "Fn::If": [
+                            "AllowSSHAccess", 
+                            [{
+                              "CidrIp": "52.32.119.223/32",
+                              "FromPort": 22,
+                              "ToPort": 22,
+                              "IpProtocol": "tcp"
+                            }],
+                            []
+                        ]
+                },
+                "SecurityGroupEgress": [{
+                    "CidrIp": "0.0.0.0/0",
+                    "FromPort": -1,
+                    "IpProtocol": -1,
+                    "ToPort": -1
+                }],
+                "VpcId": {
+                    "Ref": "VpcId"
+                }
+            }
+        },
+        "OpseeGroup" : {
+            "Type" : "AWS::AutoScaling::AutoScalingGroup",
+            "Properties" : {
+                "VPCZoneIdentifier" : [ { "Ref" : "SubnetId" } ], 
+                "LaunchConfigurationName" : { "Ref" : "OpseeLaunchConfig" },
+                "MinSize" : "1",
+                "MaxSize" : "1",
+                "Tags": [{
+                        "Key": "Name",
+                        "Value": "Opsee Instance",
+                        "PropagateAtLaunch": "true"
+                    }, {
+                        "Key": "vendor",
+                        "Value": "Opsee",
+                        "PropagateAtLaunch": "true"
+                    }, {
+                        "Key": "opsee:id",
+                        "Value": {"Ref": "BastionId"},
+                        "PropagateAtLaunch": "true"
+                    }, {
+                        "Key": "opsee:customer-id",
+                        "Value": {"Ref": "CustomerId"},
+                        "PropagateAtLaunch": "true"
+                }]
+            },
+            "UpdatePolicy": {
+                "AutoScalingRollingUpdate": {
+                    "MinInstancesInService": "0",
+                    "MaxBatchSize": "1"
+                }
+            }
+        },
+        "OpseeBastionIngressStack" : {
+           "Type" : "AWS::CloudFormation::Stack",
+           "Properties" : {
+                "Parameters" : { 
+                    "BastionSecurityGroupId": { 
+                        "Ref":"OpseeSecurityGroup" 
+                    },
+                    "VpcId": { 
+                        "Ref":"VpcId" 
+                    }
+                },
+                "TemplateURL" : { "Ref": "BastionIngressTemplateUrl" }
+            }
+        },
+        "OpseeLaunchConfig" : {
+            "Type" : "AWS::AutoScaling::LaunchConfiguration",
+               "Properties" : {
+                  "AssociatePublicIpAddress" : {"Ref": "AssociatePublicIpAddress"},
+                    "ImageId" : {"Ref": "ImageId"},
+                    "InstanceMonitoring" : "true",
+                    "InstanceType" : {"Ref":"InstanceType"},
+                    "KeyName": {
+                        "Fn::If": [
+                            "NoKey", {
+                                "Ref": "AWS::NoValue"
+                            }, {
+                                "Ref": "KeyName"
+                            }
+                        ]
+                    },
+                  "SecurityGroups" : [{ "Ref":"OpseeSecurityGroup" }],
+                  "UserData" : { "Ref": "UserData" }
+            }
+        }
+    }
+}
