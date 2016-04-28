@@ -65,7 +65,7 @@ func (s *service) DeprecatedScanVPCs(user *schema.User, request *ScanVPCsRequest
 	vpcRegions := make([]*com.Region, len(request.Regions))
 
 	for ri, region := range request.Regions {
-		r, err := scanner.ScanRegion(region, session.New(&aws.Config{
+		r, err := scanner.ScanRegionDeprecated(region, session.New(&aws.Config{
 			Credentials: creds,
 			Region:      aws.String(region),
 			MaxRetries:  aws.Int(11),
@@ -94,7 +94,7 @@ func (s *service) DeprecatedScanVPCs(user *schema.User, request *ScanVPCsRequest
 		for _, region := range vpcRegions {
 			region.CustomerID = user.CustomerId
 
-			err := s.db.PutRegion(region)
+			err := s.db.DeprecatedPutRegion(region)
 			if err != nil {
 				logger.WithError(err).Errorf("error saving region: %#v", *region)
 			}
@@ -107,5 +107,69 @@ func (s *service) DeprecatedScanVPCs(user *schema.User, request *ScanVPCsRequest
 }
 
 func (s *service) ScanVpcs(ctx context.Context, req *opsee.ScanVpcsRequest) (*opsee.ScanVpcsResponse, error) {
-	return nil, nil
+	if req.User == nil {
+		return nil, errMissingUser
+	}
+
+	err := req.User.Validate()
+	if err != nil {
+		return nil, err
+	}
+	
+	logger := log.WithFields(log.Fields{
+		"customer-id": req.User.CustomerId,
+		"user-id":     req.User.Id,
+	})
+
+	logger.Info("scan vpcs request")
+
+	if req.Region == "" {
+		return nil, errMissingRegion
+	}
+
+	// get creds from spanx
+	stscreds, err := s.spanx.GetCredentials(ctx, &opsee.GetCredentialsRequest{
+		User: req.User,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	sess := session.New(&aws.Config{
+		Credentials: credentials.NewStaticCredentials(
+			stscreds.Credentials.GetAccessKeyID(),
+			stscreds.Credentials.GetSecretAccessKey(),
+			stscreds.Credentials.GetSessionToken(),
+		),
+		Region:     aws.String(req.Region),
+		MaxRetries: aws.Int(11),
+	})
+
+	scannedRegion, err := scanner.ScanRegion(req.Region, sess)
+	if err != nil {
+		return nil, err
+	}
+
+	hasVPC := false
+	for _, sp := range scannedRegion.SupportedPlatforms {
+		if vpcRegexp.MatchString(sp) {
+			hasVPC = true
+			break
+		}
+	}
+
+	logger.Infof("region has VPC support: %t", hasVPC)
+
+	// let's save this data, but we'll have to ignore errors
+	go func() {
+		scannedRegion.CustomerId = req.User.CustomerId
+
+		err := s.db.PutRegion(scannedRegion)
+		if err != nil {
+			logger.WithError(err).Errorf("error saving region: %#v", *scannedRegion)
+		}
+	}()
+
+	return &opsee.ScanVpcsResponse{scannedRegion}, nil
 }

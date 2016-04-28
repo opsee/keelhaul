@@ -5,7 +5,9 @@ import (
 	"os"
 	"time"
 
+	"crypto/tls"
 	etcd "github.com/coreos/etcd/client"
+	opsee "github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
 	"github.com/opsee/keelhaul/launcher"
@@ -16,6 +18,8 @@ import (
 	"github.com/opsee/keelhaul/tracker"
 	"github.com/opsee/vaper"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 func main() {
@@ -70,10 +74,16 @@ func main() {
 	bus.Start()
 
 	router := router.New(etcdKeysAPI)
-
 	notifier := notifier.New(cfg)
 
-	launcher, err := launcher.New(db, router, etcdKeysAPI, bus, notifier, cfg)
+	spanxconn, err := grpc.Dial(cfg.SpanxEndpoint, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
+	if err != nil {
+		log.Fatalf("couldn't initialize spanx client: ", err)
+	}
+
+	spanxclient := opsee.NewSpanxClient(spanxconn)
+
+	launcher, err := launcher.New(db, router, etcdKeysAPI, bus, notifier, spanxclient, cfg)
 	if err != nil {
 		log.Fatalf("couldn't initialize launcher: ", err)
 	}
@@ -84,7 +94,7 @@ func main() {
 	certfile := mustEnvString("KEELHAUL_CERT")
 	certkeyfile := mustEnvString("KEELHAUL_CERT_KEY")
 
-	svc := service.New(db, bus, launcher, router, cfg)
+	svc := service.New(db, bus, launcher, router, spanxclient, cfg)
 	svc.StartMux(cfg.PublicHost, certfile, certkeyfile)
 
 	tracker.Stop()

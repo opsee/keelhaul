@@ -2,13 +2,15 @@ package store
 
 import (
 	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"time"
 )
 
 type Store interface {
 	PutBastion(*com.Bastion) error
 	UpdateBastion(*com.Bastion) error
-	PutRegion(*com.Region) error
+	PutRegion(*schema.Region) error
+	DeprecatedPutRegion(*com.Region) error
 
 	GetBastion(*GetBastionRequest) (*GetBastionResponse, error)
 	ListBastions(*ListBastionsRequest) (*ListBastionsResponse, error)

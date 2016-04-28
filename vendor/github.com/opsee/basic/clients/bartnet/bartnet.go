@@ -20,6 +20,8 @@ type Client interface {
 	ListChecks(user *schema.User) ([]*schema.Check, error)
 	CreateCheck(user *schema.User, check *schema.Check) (*schema.Check, error)
 	UpdateCheck(user *schema.User, check *schema.Check) (*schema.Check, error)
+	DeleteCheck(user *schema.User, id string) error
+	TestCheck(user *schema.User, check *schema.Check) (*service.TestCheckResponse, error)
 }
 
 type client struct {
@@ -53,6 +55,28 @@ func (c *client) GetCheck(user *schema.User, id string) (*schema.Check, error) {
 	}
 
 	return check, nil
+}
+
+func (c *client) TestCheck(user *schema.User, check *schema.Check) (*service.TestCheckResponse, error) {
+	checkJson, err := check.MarshalCrappyJSON()
+	if err != nil {
+		return nil, err
+	}
+
+	testCheckJson := fmt.Sprintf(`{"max_hosts": 3, "deadline": "30s", "check": %s}`, string(checkJson))
+
+	body, err := c.do(user, "POST", "application/x-protobuf", "/bastions/test-check", bytes.NewBufferString(testCheckJson))
+	if err != nil {
+		return nil, err
+	}
+
+	testCheckResp := &service.TestCheckResponse{}
+	err = proto.Unmarshal(body, testCheckResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return testCheckResp, nil
 }
 
 // ListChecks lists the checks + assertions for a user's customer account, without the results
@@ -119,6 +143,19 @@ func (c *client) UpdateCheck(user *schema.User, check *schema.Check) (*schema.Ch
 	}
 
 	return checkResponse, nil
+}
+
+func (c *client) DeleteCheck(user *schema.User, id string) error {
+	if id == "" {
+		return fmt.Errorf("can't delete a check without id")
+	}
+
+	_, err := c.do(user, "DELETE", "application/json", fmt.Sprintf("/checks/%s", id), nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *client) do(user *schema.User, method, accept, path string, body io.Reader) ([]byte, error) {

@@ -1,7 +1,6 @@
 package launcher
 
 import (
-	"crypto/tls"
 	"github.com/aws/aws-sdk-go/aws/session"
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/basic/schema"
@@ -11,8 +10,6 @@ import (
 	"github.com/opsee/keelhaul/notifier"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"time"
 )
 
@@ -36,14 +33,7 @@ type launcher struct {
 	notifier notifier.Notifier
 }
 
-func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bus, notifier notifier.Notifier, cfg *config.Config) (*launcher, error) {
-	spanxconn, err := grpc.Dial(cfg.SpanxEndpoint, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
-	if err != nil {
-		return nil, err
-	}
-
-	spanxclient := service.NewSpanxClient(spanxconn)
-
+func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bus, notifier notifier.Notifier, spanxclient service.SpanxClient, cfg *config.Config) (*launcher, error) {
 	return &launcher{
 		db:       db,
 		router:   router,
