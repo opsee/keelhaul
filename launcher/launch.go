@@ -243,7 +243,7 @@ func (launch *Launch) Launch(imageTag string, createRole bool) {
 		launch.stage(putRole{})
 	}
 
-	launch.ImageTag = "beta"
+	launch.ImageTag = imageTag
 	launch.stage(getBastionConfig{})
 	launch.stage(getLatestImageID{})
 	launch.stage(createTopic{})
