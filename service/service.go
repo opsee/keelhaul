@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	opsee "github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/bus"
 	"github.com/opsee/keelhaul/config"
@@ -9,16 +8,6 @@ import (
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
 	"google.golang.org/grpc"
-)
-
-var (
-	errUnauthorized     = errors.New("unauthorized.")
-	errAWSUnauthorized  = errors.New("Your AWS credentials could not be validated, please check to ensure they are correct.")
-	errMissingAccessKey = errors.New("missing access_key.")
-	errMissingSecretKey = errors.New("missing secret_key.")
-	errMissingRegion    = errors.New("missing region.")
-	errBadRequest       = errors.New("bad request.")
-	errUnknown          = errors.New("unknown error.")
 )
 
 var instanceSizes = map[string]bool{
@@ -56,14 +45,16 @@ type service struct {
 	router     router.Router
 	config     *config.Config
 	grpcServer *grpc.Server
+	spanx      opsee.SpanxClient
 }
 
-func New(db store.Store, bus bus.Bus, launch launcher.Launcher, router router.Router, cfg *config.Config) *service {
+func New(db store.Store, bus bus.Bus, launch launcher.Launcher, router router.Router, spanxclient opsee.SpanxClient, cfg *config.Config) *service {
 	s := &service{
 		db:       db,
 		launcher: launch,
 		bus:      bus,
 		router:   router,
+		spanx:    spanxclient,
 		config:   cfg,
 	}
 
