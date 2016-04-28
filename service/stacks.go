@@ -57,7 +57,7 @@ func (s *service) LaunchStack(ctx context.Context, req *opsee.LaunchStackRequest
 		MaxRetries: aws.Int(11),
 	})
 
-	_, err = s.launcher.LaunchBastion(sess, req.User, req.Region, req.VpcId, req.SubnetId, req.SubnetRouting, req.InstanceSize)
+	_, err = s.launcher.LaunchBastion(sess, req.User, req.Region, req.VpcId, req.SubnetId, req.SubnetRouting, req.InstanceSize, "beta", false)
 	if err != nil {
 		return nil, err
 	}
