@@ -8,21 +8,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-// message LaunchStackRequest {
-//   User user = 1;
-// 	string access_key = 2; NO
-// 	string secret_key = 3; NO
-// 	string region = 4;
-// 	string vpc_id = 5;
-// 	string subnet_id = 6;
-// 	string instance_size = 7;
-// }
-//
-// message LaunchStackResponse {
-// 	string stack_id = 1;
-// }
-//
-
 func (s *service) LaunchStack(ctx context.Context, req *opsee.LaunchStackRequest) (*opsee.LaunchStackResponse, error) {
 	if req.User == nil {
 		return nil, errMissingUser

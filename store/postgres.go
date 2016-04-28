@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"strings"
 )
 
@@ -36,8 +37,12 @@ func (pg *Postgres) UpdateBastion(bastion *com.Bastion) error {
 	return pg.updateBastion(pg.db, bastion)
 }
 
-func (pg *Postgres) PutRegion(region *com.Region) error {
+func (pg *Postgres) PutRegion(region *schema.Region) error {
 	return pg.putRegion(pg.db, region)
+}
+
+func (pg *Postgres) DeprecatedPutRegion(region *com.Region) error {
+	return pg.deprecatedPutRegion(pg.db, region)
 }
 
 func (pg *Postgres) GetBastion(request *GetBastionRequest) (*GetBastionResponse, error) {
@@ -105,7 +110,33 @@ func (pg *Postgres) updateBastion(x sqlx.Ext, bastion *com.Bastion) error {
 	return err
 }
 
-func (pg *Postgres) putRegion(x sqlx.Ext, region *com.Region) error {
+func (pg *Postgres) putRegion(x sqlx.Ext, region *schema.Region) error {
+	data, err := json.Marshal(region)
+	if err != nil {
+		return err
+	}
+
+	insert := map[string]interface{}{
+		"customer_id": region.CustomerId,
+		"region":      region.Region,
+		"data":        data,
+	}
+
+	_, err = sqlx.NamedExec(
+		x,
+		`with update_regions as (update regions set (data) = (:data) where region = :region
+		 and customer_id = :customer_id returning region),
+		 insert_regions as (insert into regions (region, customer_id, data)
+		 select :region as region, :customer_id as customer_id, :data as data
+		 where not exists (select region from update_regions limit 1) returning region)
+		 select * from update_regions union all select * from insert_regions`,
+		insert,
+	)
+
+	return err
+}
+
+func (pg *Postgres) deprecatedPutRegion(x sqlx.Ext, region *com.Region) error {
 	data, err := json.Marshal(region)
 	if err != nil {
 		return err
