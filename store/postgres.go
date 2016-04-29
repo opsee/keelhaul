@@ -5,11 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/opsee/basic/com"
 	"github.com/opsee/basic/schema"
-	"strings"
+	opsee "github.com/opsee/basic/service"
+	log "github.com/sirupsen/logrus"
 )
 
 type Postgres struct {
@@ -205,9 +208,37 @@ func (pg *Postgres) ListTrackingStates(offset int, limit int) (*TrackingStateRes
 	return &TrackingStateResponse{States: states}, nil
 }
 
-func (pg *Postgres) ListBastionStates(customers []string) (*TrackingStateResponse, error) {
-	query := "select id,customer_id,status,last_seen from bastion_tracking where customer_id in"
+func (pg *Postgres) ListBastionStates(customers []string, filters ...*opsee.Filter) (*TrackingStateResponse, error) {
+	if len(customers) == 0 {
+		query := "select bastion_tracking.id,bastion_tracking.customer_id,bastion_tracking.status,bastion_tracking.last_seen,bastions.region,bastions.vpc_id from bastion_tracking inner join bastions on (bastion_tracking.id = bastions.id)"
+		if len(filters) > 0 {
+			query += " WHERE 1=1 " // no-op to avoid AND logic
+			for _, filter := range filters {
+				switch filter.Key {
+				case "status":
+					query += fmt.Sprintf("AND bastion_tracking.status = '%s'", filter.Value)
+				case "region":
+					query += fmt.Sprintf("AND bastions.region = '%s'", filter.Value)
+				case "customer_id":
+					query += fmt.Sprintf("AND bastions.customer_id = '%s'", filter.Value)
+				case "vpc_id":
+					query += fmt.Sprintf("AND bastions.vpc_id = '%s'", filter.Value)
+				}
+			}
+			query += ";"
+			log.Debugf("Created filtered query: %s", query)
 
+		}
+		states := make([]*TrackingState, 0)
+		args := make([]interface{}, 0)
+
+		err := pg.db.Select(&states, query, args...)
+		if err != nil && err != sql.ErrNoRows {
+			return nil, err
+		}
+		return &TrackingStateResponse{States: states}, nil
+	}
+	query := "select id,customer_id,status,last_seen from bastion_tracking where customer_id in"
 	casted := make([]string, 0, len(customers))
 	for _, b := range customers {
 		casted = append(casted, fmt.Sprintf("cast('%s' as uuid)", b))
