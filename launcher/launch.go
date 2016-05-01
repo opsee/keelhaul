@@ -241,6 +241,10 @@ func (launch *Launch) CreateBastion(region, vpcID, subnetID, subnetRouting, inst
 func (launch *Launch) Launch(imageTag string, createRole bool) {
 	if createRole {
 		launch.stage(putRole{})
+	} else {
+		launch.sqsClient = sqs.New(launch.session)
+		launch.snsClient = sns.New(launch.session)
+		launch.cloudformationClient = cloudformation.New(launch.session)
 	}
 
 	launch.ImageTag = imageTag
