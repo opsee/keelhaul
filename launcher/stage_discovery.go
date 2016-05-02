@@ -86,7 +86,8 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 
 				instances[*i.InstanceId] = true
 				launch.VPCEnvironment.InstanceCount = card(instances)
-				launch.Autochecks.AddTarget(event.Result)
+				// disable until frontend is ready (mike)
+				//launch.Autochecks.AddTarget(event.Result)
 
 			case awscan.DBInstanceType:
 				// we'll have to de-dupe instances so use a ghetto set (map)
@@ -98,7 +99,8 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 				}
 				dbInstances[*i.DBInstanceIdentifier] = true
 				launch.VPCEnvironment.DBInstanceCount = card(dbInstances)
-				launch.Autochecks.AddTarget(event.Result)
+				// disable until frontend is ready (mike)
+				// launch.Autochecks.AddTarget(event.Result)
 
 			case awscan.SecurityGroupType:
 				launch.VPCEnvironment.SecurityGroupCount++
