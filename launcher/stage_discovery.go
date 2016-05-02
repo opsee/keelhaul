@@ -86,6 +86,8 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 
 				instances[*i.InstanceId] = true
 				launch.VPCEnvironment.InstanceCount = card(instances)
+				// disable until frontend is ready (mike)
+				//launch.Autochecks.AddTarget(event.Result)
 
 			case awscan.DBInstanceType:
 				// we'll have to de-dupe instances so use a ghetto set (map)
@@ -95,9 +97,10 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 					s.handleError(fmt.Errorf("failed rds db instance type assertion"), launch)
 					continue
 				}
-
 				dbInstances[*i.DBInstanceIdentifier] = true
 				launch.VPCEnvironment.DBInstanceCount = card(dbInstances)
+				// disable until frontend is ready (mike)
+				// launch.Autochecks.AddTarget(event.Result)
 
 			case awscan.SecurityGroupType:
 				launch.VPCEnvironment.SecurityGroupCount++
