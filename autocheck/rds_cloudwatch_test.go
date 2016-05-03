@@ -52,7 +52,7 @@ func writeChecks(dbName string, dbclass string) []*schema.Check {
 		{
 			checkName: "CPUUtilization",
 			rel:       "lessThan",
-			op:        0.950,
+			op:        95.000,
 			dispName:  "CPU Utilization",
 		},
 		{
