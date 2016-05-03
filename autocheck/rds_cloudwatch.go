@@ -50,7 +50,7 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 		Interval: int32(60),
 		Target: &schema.Target{
 			Name: dbName,
-			Type: "cloudwatch",
+			Type: "dbinstance",
 			Id:   dbName,
 		},
 		CheckSpec: checkSpec,
@@ -88,7 +88,7 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 			Interval: int32(60),
 			Target: &schema.Target{
 				Name: dbName,
-				Type: "cloudwatch",
+				Type: "dbinstance",
 				Id:   dbName,
 			},
 			CheckSpec: checkSpec,
@@ -125,7 +125,7 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 			Interval: int32(60),
 			Target: &schema.Target{
 				Name: dbName,
-				Type: "cloudwatch",
+				Type: "dbinstance",
 				Id:   dbName,
 			},
 			CheckSpec: checkSpec,

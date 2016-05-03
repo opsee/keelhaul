@@ -87,7 +87,7 @@ func writeChecks(dbName string, dbclass string) []*schema.Check {
 			Interval: int32(60),
 			Target: &schema.Target{
 				Name: dbName,
-				Type: "cloudwatch",
+				Type: "dbinstance",
 				Id:   dbName,
 			},
 			CheckSpec: checkSpec,
