@@ -97,7 +97,7 @@ func (s *service) LaunchBastions(user *schema.User, request *LaunchBastionsReque
 		})
 
 		for _, vpc := range region.VPCs {
-			launch, err := s.launcher.LaunchBastion(sess, user, region.Region, vpc.ID, vpc.SubnetID, vpc.SubnetRouting, request.InstanceSize, "stable", true)
+			launch, err := s.launcher.LaunchBastion(sess, user, region.Region, vpc.ID, vpc.SubnetID, vpc.SubnetRouting, request.InstanceSize, "stable")
 			if err != nil {
 				// multiple region launch isn't going to be atomic rn
 				return nil, err
