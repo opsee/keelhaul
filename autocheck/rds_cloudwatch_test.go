@@ -41,7 +41,6 @@ func TestRDSGenerate(t *testing.T) {
 }
 
 func writeChecks(dbName string, dbclass string) []*schema.Check {
-	checks := make([]*schema.Check, 0)
 	instanceMem := GetInstanceClassMemory(dbclass)
 	cwMetrics := []struct {
 		checkName string
