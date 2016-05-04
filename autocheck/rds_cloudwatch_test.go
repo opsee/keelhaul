@@ -69,39 +69,38 @@ func writeChecks(dbName string, dbclass string) []*schema.Check {
 		},
 	}
 
+	rdsCheck := &schema.CloudWatchCheck{}
+
+	check := &schema.Check{
+		Name:     fmt.Sprintf("RDS (%s) %s (auto)", dbName, m.dispName),
+		Interval: int32(60),
+		Target: &schema.Target{
+			Name: dbName,
+			Type: "dbinstance",
+			Id:   dbName,
+		},
+	}
+
 	for _, m := range cwMetrics {
 		if m.op == 0.0 {
 			continue
 		}
-		rdsCheck := &schema.CloudWatchCheck{
-			Metrics: []*schema.CloudWatchMetric{
-				&schema.CloudWatchMetric{
-					Namespace: "AWS/RDS",
-					Name:      m.checkName,
-				},
-			},
-		}
-		checkSpec, _ := opsee_types.MarshalAny(rdsCheck)
-		check := &schema.Check{
-			Name:     fmt.Sprintf("RDS (%s) %s (auto)", dbName, m.dispName),
-			Interval: int32(60),
-			Target: &schema.Target{
-				Name: dbName,
-				Type: "dbinstance",
-				Id:   dbName,
-			},
-			CheckSpec: checkSpec,
-			Assertions: []*schema.Assertion{
-				{
-					Key:          "cloudwatch",
-					Relationship: m.rel,
-					Operand:      fmt.Sprintf("%.3f", m.op),
-					Value:        m.checkName,
-				},
-			},
-		}
-		checks = append(checks, check)
+
+		rdsCheck.Metrics = append(rdsCheck.Metrics, &schema.CloudWatchMetric{
+			Namespace: "AWS/RDS",
+			Name:      m.checkName,
+		})
+
+		check.Assertions = append(check.Assertions, &schema.Assertion{
+			Key:          "cloudwatch",
+			Relationship: m.rel,
+			Operand:      fmt.Sprintf("%.3f", m.op),
+			Value:        m.checkName,
+		})
 	}
 
-	return checks
+	checkSpec, _ := opsee_types.MarshalAny(rdsCheck)
+	check.CheckSpec = checkSpec
+
+	return []*schema.Check{check}
 }
