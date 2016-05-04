@@ -72,7 +72,7 @@ func writeChecks(dbName string, dbclass string) []*schema.Check {
 	rdsCheck := &schema.CloudWatchCheck{}
 
 	check := &schema.Check{
-		Name:     fmt.Sprintf("RDS (%s) %s (auto)", dbName, m.dispName),
+		Name:     fmt.Sprintf("RDS metrics for %s (auto)", dbName),
 		Interval: int32(60),
 		Target: &schema.Target{
 			Name: dbName,
