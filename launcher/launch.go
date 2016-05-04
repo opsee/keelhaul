@@ -162,9 +162,9 @@ func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, span
 		spanx:                spanx,
 		config:               cfg,
 		session:              sess,
-		sqsClient:            sqs.New(launch.session),
-		snsClient:            sns.New(launch.session),
-		cloudformationClient: cloudformation.New(launch.session),
+		sqsClient:            sqs.New(sess),
+		snsClient:            sns.New(sess),
+		cloudformationClient: cloudformation.New(sess),
 		logger:               logger,
 		connectAttempts:      float64(1),
 	}
