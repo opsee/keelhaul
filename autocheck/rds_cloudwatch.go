@@ -13,7 +13,7 @@ var (
 	errNoDB      = errors.New("no rds db")
 	maxConnRatio = 0.85
 	minMemRatio  = 0.10
-	maxCPUUtil   = 95
+	maxCPUUtil   = 95.0
 )
 
 type RDSCloudWatch struct {
