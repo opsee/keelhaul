@@ -119,7 +119,7 @@ func (s getLatestImageID) Execute(launch *Launch) {
 
 	if len(imageOutput.Images) == 0 {
 		launch.error(
-			fmt.Errorf("No images with ownerID=%s and tag:release=%s found.", launch.bastionConfig.OwnerID, launch.bastionConfig.Tag),
+			fmt.Errorf("No images with ownerID=%s and tag:release=%s found.", launch.bastionConfig.OwnerID, tag),
 			&bus.Message{
 				Command: commandLaunchBastion,
 				Message: "failed to get list of bastion images",

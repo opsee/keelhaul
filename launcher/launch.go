@@ -150,20 +150,23 @@ func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, span
 	})
 
 	return &Launch{
-		User:            user,
-		EventChan:       make(chan *Event),
-		VPCEnvironment:  &VPCEnvironment{},
-		Autochecks:      autocheck.NewPool(autocheck.NewBartnetSink(cfg.BartnetEndpoint, cfg.HugsEndpoint, user), logger),
-		state:           3,
-		stateMut:        &sync.RWMutex{},
-		db:              db,
-		router:          router,
-		etcd:            etcdKAPI,
-		spanx:           spanx,
-		config:          cfg,
-		session:         sess,
-		logger:          logger,
-		connectAttempts: float64(1),
+		User:                 user,
+		EventChan:            make(chan *Event),
+		VPCEnvironment:       &VPCEnvironment{},
+		Autochecks:           autocheck.NewPool(autocheck.NewBartnetSink(cfg.BartnetEndpoint, cfg.HugsEndpoint, user), logger),
+		state:                3,
+		stateMut:             &sync.RWMutex{},
+		db:                   db,
+		router:               router,
+		etcd:                 etcdKAPI,
+		spanx:                spanx,
+		config:               cfg,
+		session:              sess,
+		sqsClient:            sqs.New(launch.session),
+		snsClient:            sns.New(launch.session),
+		cloudformationClient: cloudformation.New(launch.session),
+		logger:               logger,
+		connectAttempts:      float64(1),
 	}
 }
 
@@ -238,15 +241,7 @@ func (launch *Launch) CreateBastion(region, vpcID, subnetID, subnetRouting, inst
 	return nil
 }
 
-func (launch *Launch) Launch(imageTag string, createRole bool) {
-	if createRole {
-		launch.stage(putRole{})
-	} else {
-		launch.sqsClient = sqs.New(launch.session)
-		launch.snsClient = sns.New(launch.session)
-		launch.cloudformationClient = cloudformation.New(launch.session)
-	}
-
+func (launch *Launch) Launch(imageTag string) {
 	launch.ImageTag = imageTag
 	launch.stage(getBastionConfig{})
 	launch.stage(getLatestImageID{})
