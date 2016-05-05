@@ -27,19 +27,56 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 	}
 
 	var (
-		checks = make([]*schema.Check, 0, 3)
 		dbName = aws.StringValue(dbinst.DBInstanceIdentifier)
+		name   = fmt.Sprintf("RDS metrics for %s (auto)", dbName)
+		// RDS DB instance max connections are proporitional to instance class resources, i.e.,
+		// 		max_connections = DBInstanceClassMemoryBytes / 12582880
+		maxConnections = GetInstanceClassMemory(*rc.DBInstance.DBInstanceClass) / 12582880
+		minFreeMem     = GetInstanceClassMemory(*rc.DBInstance.DBInstanceClass) * minMemRatio
+
+		metrics    []*schema.CloudWatchMetric
+		assertions []*schema.Assertion
 	)
 
-	// CPU Util check
-	name := fmt.Sprintf("RDS (%s) CPU Utilization (auto)", dbName)
+	metrics = append(metrics, &schema.CloudWatchMetric{
+		Namespace: "AWS/RDS",
+		Name:      "CPUUtilization",
+	})
+	assertions = append(assertions, &schema.Assertion{
+		Key:          "cloudwatch",
+		Relationship: "lessThan",
+		Operand:      fmt.Sprintf("%.3f", maxCPUUtil),
+		Value:        "CPUUtilization",
+	})
+
+	if maxConnections > 0 {
+		metrics = append(metrics, &schema.CloudWatchMetric{
+			Namespace: "AWS/RDS",
+			Name:      "DatabaseConnections",
+		})
+		assertions = append(assertions, &schema.Assertion{
+			Key:          "cloudwatch",
+			Relationship: "lessThan",
+			Operand:      fmt.Sprintf("%.3f", (maxConnections * maxConnRatio)),
+			Value:        "DatabaseConnections",
+		})
+	}
+
+	if minFreeMem > 0 {
+		metrics = append(metrics, &schema.CloudWatchMetric{
+			Namespace: "AWS/RDS",
+			Name:      "FreeableMemory",
+		})
+		assertions = append(assertions, &schema.Assertion{
+			Key:          "cloudwatch",
+			Relationship: "greaterThan",
+			Operand:      fmt.Sprintf("%.3f", minFreeMem),
+			Value:        "FreeableMemory",
+		})
+	}
+
 	clwCheck := &schema.CloudWatchCheck{
-		Metrics: []*schema.CloudWatchMetric{
-			&schema.CloudWatchMetric{
-				Namespace: "AWS/RDS",
-				Name:      "CPUUtilization",
-			},
-		},
+		Metrics: metrics,
 	}
 	checkSpec, err := opsee_types.MarshalAny(clwCheck)
 	if err != nil {
@@ -53,95 +90,11 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 			Type: "dbinstance",
 			Id:   dbName,
 		},
-		CheckSpec: checkSpec,
-		Assertions: []*schema.Assertion{
-			{
-				Key:          "cloudwatch",
-				Relationship: "lessThan",
-				Operand:      fmt.Sprintf("%.3f", maxCPUUtil),
-				Value:        "CPUUtilization",
-			},
-		},
-	}
-	checks = append(checks, check)
-
-	// connection count check
-	name = fmt.Sprintf("RDS (%s) Connection Count (auto)", dbName)
-	clwCheck = &schema.CloudWatchCheck{
-		Metrics: []*schema.CloudWatchMetric{
-			&schema.CloudWatchMetric{
-				Namespace: "AWS/RDS",
-				Name:      "DatabaseConnections",
-			},
-		},
-	}
-	checkSpec, err = opsee_types.MarshalAny(clwCheck)
-	if err != nil {
-		return nil, err
-	}
-	// RDS DB instance max connections are proporitional to instance class resources, i.e.,
-	// 		max_connections = DBInstanceClassMemoryBytes / 12582880
-	maxConnections := GetInstanceClassMemory(*rc.DBInstance.DBInstanceClass) / 12582880
-	if maxConnections > 0 {
-		check = &schema.Check{
-			Name:     name,
-			Interval: int32(60),
-			Target: &schema.Target{
-				Name: dbName,
-				Type: "dbinstance",
-				Id:   dbName,
-			},
-			CheckSpec: checkSpec,
-			Assertions: []*schema.Assertion{
-				{
-					Key:          "cloudwatch",
-					Relationship: "lessThan",
-					Operand:      fmt.Sprintf("%.3f", (maxConnections * maxConnRatio)),
-					Value:        "DatabaseConnections",
-				},
-			},
-		}
-		checks = append(checks, check)
+		CheckSpec:  checkSpec,
+		Assertions: assertions,
 	}
 
-	// avail memory check
-	name = fmt.Sprintf("RDS (%s) Available Memory (auto)", dbName)
-	clwCheck = &schema.CloudWatchCheck{
-		Metrics: []*schema.CloudWatchMetric{
-			&schema.CloudWatchMetric{
-				Namespace: "AWS/RDS",
-				Name:      "FreeableMemory",
-			},
-		},
-	}
-	checkSpec, err = opsee_types.MarshalAny(clwCheck)
-	if err != nil {
-		return nil, err
-	}
-	minFreeMem := GetInstanceClassMemory(*rc.DBInstance.DBInstanceClass) * minMemRatio
-	if minFreeMem > 0 {
-		check = &schema.Check{
-			Name:     name,
-			Interval: int32(60),
-			Target: &schema.Target{
-				Name: dbName,
-				Type: "dbinstance",
-				Id:   dbName,
-			},
-			CheckSpec: checkSpec,
-			Assertions: []*schema.Assertion{
-				{
-					Key:          "cloudwatch",
-					Relationship: "greaterThan",
-					Operand:      fmt.Sprintf("%.3f", minFreeMem),
-					Value:        "FreeableMemory",
-				},
-			},
-		}
-		checks = append(checks, check)
-	}
-
-	return checks, nil
+	return []*schema.Check{check}, nil
 }
 
 func GetInstanceClassMemory(dbInstClass string) float64 {
