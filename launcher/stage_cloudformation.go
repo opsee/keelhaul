@@ -433,10 +433,6 @@ func (s createStack) Execute(launch *Launch) {
 		associateIP = "True"
 	}
 
-	awsAccount := &com.Account{
-		CustomerID: launch.User.CustomerId,
-	}
-
 	stackParameters := []*cloudformation.Parameter{
 		{
 			ParameterKey:   aws.String("ImageId"),
