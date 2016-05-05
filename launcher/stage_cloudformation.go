@@ -419,14 +419,7 @@ func (s createStack) Execute(launch *Launch) {
 		return
 	}
 
-	var templateFile string
-	if launch.ImageTag == "beta" {
-		templateFile = "/bastion-beta-cf.template"
-	} else {
-		templateFile = launch.config.BastionCFTemplate
-	}
-
-	templateBytes, err := ioutil.ReadFile(templateFile)
+	templateBytes, err := ioutil.ReadFile("/bastion-beta-cf.template")
 	if err != nil {
 		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
@@ -477,13 +470,6 @@ func (s createStack) Execute(launch *Launch) {
 			ParameterKey:   aws.String("BastionId"),
 			ParameterValue: aws.String(launch.Bastion.ID),
 		},
-	}
-
-	if launch.ImageTag != "beta" {
-		stackParameters = append(stackParameters, &cloudformation.Parameter{
-			ParameterKey:   aws.String("OpseeRole"),
-			ParameterValue: aws.String(awsAccount.RoleName()),
-		})
 	}
 
 	var (
