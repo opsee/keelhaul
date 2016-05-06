@@ -9,6 +9,7 @@ import (
 	"github.com/opsee/basic/schema"
 	opsee "github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/scanner"
+	"github.com/opsee/spanx/spanxcreds"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"regexp"
@@ -115,7 +116,7 @@ func (s *service) ScanVpcs(ctx context.Context, req *opsee.ScanVpcsRequest) (*op
 	if err != nil {
 		return nil, err
 	}
-	
+
 	logger := log.WithFields(log.Fields{
 		"customer-id": req.User.CustomerId,
 		"user-id":     req.User.Id,
@@ -127,23 +128,10 @@ func (s *service) ScanVpcs(ctx context.Context, req *opsee.ScanVpcsRequest) (*op
 		return nil, errMissingRegion
 	}
 
-	// get creds from spanx
-	stscreds, err := s.spanx.GetCredentials(ctx, &opsee.GetCredentialsRequest{
-		User: req.User,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
 	sess := session.New(&aws.Config{
-		Credentials: credentials.NewStaticCredentials(
-			stscreds.Credentials.GetAccessKeyID(),
-			stscreds.Credentials.GetSecretAccessKey(),
-			stscreds.Credentials.GetSessionToken(),
-		),
-		Region:     aws.String(req.Region),
-		MaxRetries: aws.Int(11),
+		Credentials: spanxcreds.NewSpanxCredentials(req.User, s.spanx),
+		Region:      aws.String(req.Region),
+		MaxRetries:  aws.Int(11),
 	})
 
 	scannedRegion, err := scanner.ScanRegion(req.Region, sess)
