@@ -28,6 +28,7 @@ var instanceSizes = map[string]bool{
 
 var regions = map[string]bool{
 	"ap-northeast-1": true,
+	"ap-northeast-2": true,
 	"ap-southeast-1": true,
 	"ap-southeast-2": true,
 	"eu-central-1":   true,
