@@ -44,11 +44,9 @@ run: deps $(APPENV)
 
 deploy-cf:
 	aws s3 cp --content-disposition inline --content-type application/json --region us-east-1 --acl public-read etc/bastion-cf.template s3://opsee-bastion-cf-us-east-1/beta/
-	aws s3 cp --content-disposition inline --content-type application/json --region us-east-1 --acl public-read etc/bastion-beta-cf.template s3://opsee-bastion-cf-us-east-1/beta/
 	aws s3 cp --content-disposition inline --content-type application/json --region us-east-1 --acl public-read etc/bastion-ingress-cf.template s3://opsee-bastion-cf-us-east-1/beta/
 	for region in ap-northeast-1 ap-northeast-2 ap-southeast-1 ap-southeast-2 eu-central-1 eu-west-1 sa-east-1 us-west-1 us-west-2; do \
 		aws s3 cp --content-disposition inline --content-type application/json --source-region us-east-1 --region $$region --acl public-read s3://opsee-bastion-cf-us-east-1/beta/bastion-cf.template s3://opsee-bastion-cf-$$region/beta/ ; \
-		aws s3 cp --content-disposition inline --content-type application/json --source-region us-east-1 --region $$region --acl public-read s3://opsee-bastion-cf-us-east-1/beta/bastion-beta-cf.template s3://opsee-bastion-cf-$$region/beta/ ; \
 		aws s3 cp --content-disposition inline --content-type application/json --source-region us-east-1 --region $$region --acl public-read s3://opsee-bastion-cf-us-east-1/beta/bastion-ingress-cf.template s3://opsee-bastion-cf-$$region/beta/ ; \
 	done
 
