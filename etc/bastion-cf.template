@@ -46,10 +46,6 @@
             "Description": "Bastion ID",
             "Type": "String"
         },
-        "OpseeRole": {
-            "Description": "Opsee Role",
-            "Type": "String"
-        },
         "BastionIngressTemplateUrl": {
             "Description": "S3 URL for ingress cfn template.",
             "Type": "String",
@@ -130,13 +126,6 @@
                 }
             }
         },
-        "OpseeInstanceProfile": {
-            "Type": "AWS::IAM::InstanceProfile",
-            "Properties": {
-                "Path": "/",
-                "Roles": [{"Ref": "OpseeRole"}]
-            }
-        },
         "OpseeGroup" : {
             "Type" : "AWS::AutoScaling::AutoScalingGroup",
             "Properties" : {
@@ -187,7 +176,6 @@
             "Type" : "AWS::AutoScaling::LaunchConfiguration",
                "Properties" : {
                   "AssociatePublicIpAddress" : {"Ref": "AssociatePublicIpAddress"},
-                    "IamInstanceProfile" : { "Ref": "OpseeInstanceProfile" },
                     "ImageId" : {"Ref": "ImageId"},
                     "InstanceMonitoring" : "true",
                     "InstanceType" : {"Ref":"InstanceType"},
