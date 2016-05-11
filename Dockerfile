@@ -34,7 +34,6 @@ COPY run.sh /
 COPY target/linux/amd64/bin/* /
 COPY migrations /migrations
 COPY etc/bastion-cf.template /
-COPY etc/bastion-beta-cf.template /
 COPY vape.test.key /
 COPY cert.pem /
 COPY key.pem /

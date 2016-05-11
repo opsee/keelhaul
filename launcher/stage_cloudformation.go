@@ -419,7 +419,7 @@ func (s createStack) Execute(launch *Launch) {
 		return
 	}
 
-	templateBytes, err := ioutil.ReadFile("/bastion-beta-cf.template")
+	templateBytes, err := ioutil.ReadFile("/bastion-cf.template")
 	if err != nil {
 		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,
