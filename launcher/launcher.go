@@ -68,7 +68,6 @@ func (l *launcher) watchLaunch(launch *Launch) {
 	if launch.Err != nil {
 		l.notifier.NotifyError(int(launch.User.Id), launch.NotifyVars())
 	} else {
-		launch.Autochecks.Drain()
 		l.notifier.NotifySuccess(int(launch.User.Id), launch.NotifyVars())
 	}
 }
