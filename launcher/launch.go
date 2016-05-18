@@ -365,6 +365,11 @@ func (launch *Launch) cleanup() {
 		launch.EventChan = nil
 	}()
 
+	// we are cool, so let's sync our autochecks
+	if launch.Err == nil {
+		launch.Autochecks.Drain()
+	}
+
 	var err error
 	if launch.createTopicOutput != nil {
 		_, err = launch.snsClient.DeleteTopic(&sns.DeleteTopicInput{
