@@ -1,6 +1,7 @@
 package tracker
 
 import (
+	"encoding/json"
 	"path"
 	"regexp"
 	"time"
@@ -152,6 +153,19 @@ func (t *tracker) updateSeen() {
 				log.WithError(err).Warnf("invalid bastID: %s", bastID)
 				continue
 			}
+
+			// right herr we check if the checker service has registered
+			services := make(map[string]interface{})
+			err := json.Unmarshal([]byte(bastNode.Value), &services)
+			if err != nil {
+				log.WithError(err).Warnf("couldn't unmarshal services for bastion: %s", bastID)
+				continue
+			}
+
+			if _, ok := services["checker"]; !ok {
+				continue
+			}
+
 			bastBatch = append(bastBatch, bastID)
 			custBatch = append(custBatch, custID)
 			if len(bastBatch) == updateBatchSize {
