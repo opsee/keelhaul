@@ -3,19 +3,21 @@ package autocheck
 import (
 	"fmt"
 	"github.com/opsee/basic/clients/bartnet"
+	"github.com/opsee/basic/clients/hugs"
 	"github.com/opsee/basic/schema"
 )
 
 type bartnetSink struct {
 	bartnetClient bartnet.Client
-	hugsClient    *hugsClient
+	hugsClient    hugs.Client
 	user          *schema.User
+	defaultNotifs []*hugs.Notification
 }
 
 func NewBartnetSink(bartnetEndpoint, hugsEndpoint string, user *schema.User) *bartnetSink {
 	return &bartnetSink{
 		bartnetClient: bartnet.New(bartnetEndpoint),
-		hugsClient:    newHugsClient(hugsEndpoint),
+		hugsClient:    hugs.New(hugsEndpoint),
 		user:          user,
 	}
 }
@@ -30,13 +32,23 @@ func (s *bartnetSink) Send(check *schema.Check) error {
 		return fmt.Errorf("error getting check id from bartnet %#v", checkResp)
 	}
 
-	return s.hugsClient.CreateNotifications(s.user, &NotificationRequest{
-		CheckId: checkResp.Id,
-		Notifications: []*Notification{
-			{
-				Type:  "email",
-				Value: s.user.Email,
-			},
-		},
+	if s.defaultNotifs == nil {
+		notifs, err := s.hugsClient.ListNotificationsDefault(s.user)
+		if err != nil || len(notifs) == 0 {
+			// just default to the user's email
+			notifs = []*hugs.Notification{
+				{
+					Type:  "email",
+					Value: s.user.Email,
+				},
+			}
+		}
+
+		s.defaultNotifs = notifs
+	}
+
+	return s.hugsClient.CreateNotifications(s.user, &hugs.NotificationRequest{
+		CheckId:       checkResp.Id,
+		Notifications: s.defaultNotifs,
 	})
 }
