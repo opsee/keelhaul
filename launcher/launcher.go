@@ -31,9 +31,10 @@ type launcher struct {
 	spanx    service.SpanxClient
 	config   *config.Config
 	notifier notifier.Notifier
+	bezos    service.BezosClient
 }
 
-func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bus, notifier notifier.Notifier, spanxclient service.SpanxClient, cfg *config.Config) (*launcher, error) {
+func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bus, notifier notifier.Notifier, spanxclient service.SpanxClient, bezos service.BezosClient, cfg *config.Config) (*launcher, error) {
 	return &launcher{
 		db:       db,
 		router:   router,
@@ -42,11 +43,12 @@ func New(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, bus bus.Bu
 		spanx:    spanxclient,
 		config:   cfg,
 		notifier: notifier,
+		bezos:    bezos,
 	}, nil
 }
 
 func (l *launcher) LaunchBastion(sess *session.Session, user *schema.User, region, vpcID, subnetID, subnetRouting, instanceType, imageTag string) (*Launch, error) {
-	launch := NewLaunch(l.db, l.router, l.etcd, l.spanx, l.config, sess, user)
+	launch := NewLaunch(l.db, l.router, l.etcd, l.spanx, l.bezos, l.config, sess, user)
 	go l.watchLaunch(launch)
 
 	// this is done synchronously so that we can return the bastion id

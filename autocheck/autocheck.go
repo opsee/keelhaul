@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/opsee/basic/schema"
+	opsee_cloudwatch "github.com/opsee/basic/schema/aws/cloudwatch"
 )
 
 type Target interface {
@@ -24,8 +25,19 @@ func NewTarget(obj interface{}) Target {
 	case *ec2.Instance:
 		return EC2CloudWatch{o}
 	case *rds.DBInstance:
-		return RDSCloudWatch{o}
+		return RDSCloudWatch{o, nil}
 	default:
 		return EmptyTarget{}
 	}
+}
+
+func NewTargetWithAlarms(obj interface{}, alarms interface{}) Target {
+	switch o := obj.(type) {
+	case *rds.DBInstance:
+		switch a := alarms.(type) {
+		case []*opsee_cloudwatch.MetricAlarm:
+			return RDSCloudWatch{o, a}
+		}
+	}
+	return EmptyTarget{}
 }

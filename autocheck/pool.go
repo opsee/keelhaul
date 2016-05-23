@@ -27,6 +27,10 @@ func (p *Pool) AddTarget(obj interface{}) {
 	p.targets = append(p.targets, NewTarget(obj))
 }
 
+func (p *Pool) AddTargetWithAlarms(obj interface{}, alarms interface{}) {
+	p.targets = append(p.targets, NewTargetWithAlarms(obj, alarms))
+}
+
 func (p *Pool) Drain() {
 	for _, target := range p.targets {
 		checks, err := target.Generate()
