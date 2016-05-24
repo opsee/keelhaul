@@ -69,6 +69,11 @@ coreos:
           content: |
             [Service]
             FailureAction=reboot-force
+    - name: update-engine.service
+      command: stop
+    - name: locksmithd.service
+      command: stop
+
   update:
     reboot-strategy: "off"
     group: "beta"
