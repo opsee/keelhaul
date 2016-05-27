@@ -1,4 +1,7 @@
 package slack
+
+import "github.com/hoisie/mustache"
+
 var NewCustomer = `{
   "text": "*NEW CUSTOMER*",
   "username": "CustomerBot",
@@ -83,3 +86,11 @@ var NewCustomer = `{
   ]
 }
 `
+
+func init() {
+	tmpl, err := mustache.ParseString(NewCustomer)
+	if err != nil {
+		panic(err)
+	}
+	Templates["new-customer"] = tmpl
+}
