@@ -1,4 +1,7 @@
 package slack
+
+import "github.com/hoisie/mustache"
+
 var NewSignup = `{
   "text": ":moneybag: :rollin: NEW SIGNUP :pepe-trump: :moneybag:",
   "username": "CustomerBot",
@@ -18,3 +21,11 @@ var NewSignup = `{
   ]
 }
 `
+
+func init() {
+	tmpl, err := mustache.ParseString(NewSignup)
+	if err != nil {
+		panic(err)
+	}
+	Templates["new-signup"] = tmpl
+}

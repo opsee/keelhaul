@@ -1,4 +1,7 @@
 package slack
+
+import "github.com/hoisie/mustache"
+
 var LaunchError = `{
   "text": "*BASTION LAUNCH ERROR*",
   "username": "ErrorBot",
@@ -67,3 +70,11 @@ var LaunchError = `{
   ]
 }
 `
+
+func init() {
+	tmpl, err := mustache.ParseString(LaunchError)
+	if err != nil {
+		panic(err)
+	}
+	Templates["launch-error"] = tmpl
+}

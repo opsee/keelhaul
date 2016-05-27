@@ -1,4 +1,7 @@
 package slack
+
+import "github.com/hoisie/mustache"
+
 var BastionOnline = `{
   "text": "*BASTION ONLINE*",
   "username": "BastionTracker",
@@ -42,3 +45,11 @@ var BastionOnline = `{
   ]
 }
 `
+
+func init() {
+	tmpl, err := mustache.ParseString(BastionOnline)
+	if err != nil {
+		panic(err)
+	}
+	Templates["bastion-online"] = tmpl
+}
