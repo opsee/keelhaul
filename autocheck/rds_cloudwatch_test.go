@@ -163,6 +163,11 @@ func writeChecks(dbName string, dbclass string, cpuThresh float64, dbConns float
 			continue
 		}
 
+		stringOp := fmt.Sprintf("%.3f", m.op)
+		if m.checkName == "DatabaseConnections" {
+			stringOp = fmt.Sprintf("%d", int(m.op))
+		}
+
 		rdsCheck.Metrics = append(rdsCheck.Metrics, &schema.CloudWatchMetric{
 			Namespace: "AWS/RDS",
 			Name:      m.checkName,
@@ -171,7 +176,7 @@ func writeChecks(dbName string, dbclass string, cpuThresh float64, dbConns float
 		check.Assertions = append(check.Assertions, &schema.Assertion{
 			Key:          "cloudwatch",
 			Relationship: m.rel,
-			Operand:      fmt.Sprintf("%.3f", m.op),
+			Operand:      stringOp,
 			Value:        m.checkName,
 		})
 	}

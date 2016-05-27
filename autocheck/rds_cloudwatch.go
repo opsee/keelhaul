@@ -91,7 +91,7 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 		assertions = append(assertions, &schema.Assertion{
 			Key:          "cloudwatch",
 			Relationship: "lessThan",
-			Operand:      fmt.Sprintf("%.3f", maxConnections),
+			Operand:      fmt.Sprintf("%d", int(maxConnections)),
 			Value:        "DatabaseConnections",
 		})
 	}
