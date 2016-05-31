@@ -117,6 +117,7 @@ type Launch struct {
 	router                    router.Router
 	etcd                      etcd.KeysAPI
 	spanx                     service.SpanxClient
+	bezos                     service.BezosClient
 	config                    *config.Config
 	bastionConfig             *BastionConfig
 	sqsClient                 sqsiface.SQSAPI
@@ -148,7 +149,7 @@ type VPCEnvironment struct {
 	LastError             error `json:"last_error"`
 }
 
-func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, spanx service.SpanxClient, cfg *config.Config, sess *session.Session, user *schema.User) *Launch {
+func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, spanx service.SpanxClient, bezos service.BezosClient, cfg *config.Config, sess *session.Session, user *schema.User) *Launch {
 	logger := log.WithFields(log.Fields{
 		"customer_id": user.CustomerId,
 		"user_id":     user.Id,
@@ -165,6 +166,7 @@ func NewLaunch(db store.Store, router router.Router, etcdKAPI etcd.KeysAPI, span
 		router:               router,
 		etcd:                 etcdKAPI,
 		spanx:                spanx,
+		bezos:                bezos,
 		config:               cfg,
 		session:              sess,
 		sqsClient:            sqs.New(sess),

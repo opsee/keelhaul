@@ -20,4 +20,6 @@ type Config struct {
 	BeavisEndpoint             string
 	HugsEndpoint               string
 	SpanxEndpoint              string
+	BezosEndpoint              string
+	SkipVerify                 bool
 }

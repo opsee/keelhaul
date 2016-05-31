@@ -7,15 +7,22 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/opsee/awscan"
+	opsee_cloudwatch "github.com/opsee/basic/schema/aws/cloudwatch"
+	"github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/bus"
+	opsee_types "github.com/opsee/protobuf/opseeproto/types"
+	"golang.org/x/net/context"
 	"net/http"
 	"reflect"
+	"time"
 )
 
 type vpcDiscovery struct{}
 
 const (
 	instanceErrorThreshold = 0.3
+	defaultTTL             = time.Second * time.Duration(5)
+	maxPages               = 10
 )
 
 func (s vpcDiscovery) Execute(launch *Launch) {
@@ -31,6 +38,9 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 		Command: commandDiscovery,
 		Message: "starting vpc environment discovery",
 	})
+
+	// fetch all cloudwatch alarms up-front for use in autocheck creation
+	cwAlarms := fetchAlarms(launch)
 
 	for event := range disco.Discover() {
 		if event.Err != nil {
@@ -99,7 +109,12 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 				}
 				dbInstances[*i.DBInstanceIdentifier] = true
 				launch.VPCEnvironment.DBInstanceCount = card(dbInstances)
-				launch.Autochecks.AddTarget(event.Result)
+				rdsAlarms := filterAlarms(cwAlarms, "AWS/RDS")
+				if rdsAlarms != nil {
+					launch.Autochecks.AddTargetWithAlarms(event.Result, rdsAlarms)
+				} else {
+					launch.Autochecks.AddTarget(event.Result)
+				}
 
 			case awscan.SecurityGroupType:
 				launch.VPCEnvironment.SecurityGroupCount++
@@ -156,4 +171,57 @@ func card(m map[string]bool) int {
 		i++
 	}
 	return i
+}
+
+func fetchAlarms(launch *Launch) []*opsee_cloudwatch.MetricAlarm {
+	var (
+		next      *string
+		cwAlarms  = make([]*opsee_cloudwatch.MetricAlarm, 0)
+		timestamp = &opsee_types.Timestamp{}
+	)
+	timestamp.Scan(time.Now().UTC().Add(defaultTTL * -1))
+	for i := 0; i < maxPages; i++ {
+		params := &opsee_cloudwatch.DescribeAlarmsInput{
+			NextToken: next,
+		}
+		resp, err := launch.bezos.Get(
+			context.Background(),
+			&service.BezosRequest{
+				User:   launch.User,
+				Region: *launch.session.Config.Region,
+				VpcId:  launch.Bastion.VPCID,
+				MaxAge: timestamp,
+				Input:  &service.BezosRequest_Cloudwatch_DescribeAlarmsInput{params},
+			})
+		if err != nil {
+			launch.logger.WithError(err).Error("describe alarms request error")
+			return cwAlarms
+		}
+		output := resp.GetCloudwatch_DescribeAlarmsOutput()
+		if output == nil {
+			launch.logger.WithError(err).Error("describe alarms output error")
+			return cwAlarms
+		}
+		cwAlarms = append(cwAlarms, output.MetricAlarms...)
+		if output.NextToken != nil {
+			next = output.NextToken
+			continue
+		}
+		return cwAlarms
+	}
+
+	launch.logger.WithField("cust", launch.User.CustomerId).Info("describe alarms max pages reached")
+	return cwAlarms
+}
+
+func filterAlarms(alarms []*opsee_cloudwatch.MetricAlarm, namespace string) []*opsee_cloudwatch.MetricAlarm {
+	filtered := make([]*opsee_cloudwatch.MetricAlarm, 0, len(alarms))
+
+	for _, a := range alarms {
+		if *a.Namespace == namespace {
+			filtered = append(filtered, a)
+		}
+	}
+
+	return filtered
 }

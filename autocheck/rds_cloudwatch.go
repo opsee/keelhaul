@@ -6,18 +6,23 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/opsee/basic/schema"
+	opsee_cloudwatch "github.com/opsee/basic/schema/aws/cloudwatch"
 	opsee_types "github.com/opsee/protobuf/opseeproto/types"
 )
 
-var (
-	errNoDB      = errors.New("no rds db")
+const (
 	maxConnRatio = 0.85
 	minMemRatio  = 0.10
 	maxCPUUtil   = 95.0
 )
 
+var (
+	errNoDB = errors.New("no rds db")
+)
+
 type RDSCloudWatch struct {
 	*rds.DBInstance
+	metricAlarms []*opsee_cloudwatch.MetricAlarm
 }
 
 func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
@@ -27,16 +32,45 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 	}
 
 	var (
-		dbName = aws.StringValue(dbinst.DBInstanceIdentifier)
-		name   = fmt.Sprintf("RDS metrics for %s (auto)", dbName)
-		// RDS DB instance max connections are proporitional to instance class resources, i.e.,
-		// 		max_connections = DBInstanceClassMemoryBytes / 12582880
-		maxConnections = GetInstanceClassMemory(*rc.DBInstance.DBInstanceClass) / 12582880
-		minFreeMem     = GetInstanceClassMemory(*rc.DBInstance.DBInstanceClass) * minMemRatio
-
-		metrics    []*schema.CloudWatchMetric
-		assertions []*schema.Assertion
+		metrics        []*schema.CloudWatchMetric
+		assertions     []*schema.Assertion
+		importedAlarms = make([]*opsee_cloudwatch.MetricAlarm, 0)
 	)
+
+	dbName := aws.StringValue(dbinst.DBInstanceIdentifier)
+	name := fmt.Sprintf("RDS metrics for %s (auto)", dbName)
+	maxCPU := maxCPUUtil
+	// RDS DB instance max connections are proporitional to instance class resources, i.e.,
+	// 		max_connections = DBInstanceClassMemoryBytes / 12582880
+	maxConnections := (GetInstanceClassMemory(*rc.DBInstance.DBInstanceClass) / 12582880.0) * maxConnRatio
+	minFreeMem := GetInstanceClassMemory(*rc.DBInstance.DBInstanceClass) * minMemRatio
+
+	// if any found cloudwatch alarms are for this RDS instance then
+	//   use their thresholds in either the default metric assertions
+	//	 or append new assertions for other RDS metrics
+	if rc.metricAlarms != nil {
+		for _, alarm := range rc.metricAlarms {
+			if aws.StringValue(alarm.Namespace) != "AWS/RDS" {
+				continue
+			}
+			for _, dim := range alarm.Dimensions {
+				if aws.StringValue(dim.Name) == "DBInstanceIdentifier" {
+					if aws.StringValue(dim.Value) == dbName {
+						switch aws.StringValue(alarm.MetricName) {
+						case "CPUUtilization":
+							maxCPU = aws.Float64Value(alarm.Threshold)
+						case "DatabaseConnections":
+							maxConnections = aws.Float64Value(alarm.Threshold)
+						case "FreeableMemory":
+							minFreeMem = aws.Float64Value(alarm.Threshold)
+						default:
+							importedAlarms = append(importedAlarms, alarm)
+						}
+					}
+				}
+			}
+		}
+	}
 
 	metrics = append(metrics, &schema.CloudWatchMetric{
 		Namespace: "AWS/RDS",
@@ -45,7 +79,7 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 	assertions = append(assertions, &schema.Assertion{
 		Key:          "cloudwatch",
 		Relationship: "lessThan",
-		Operand:      fmt.Sprintf("%.3f", maxCPUUtil),
+		Operand:      fmt.Sprintf("%.3f", maxCPU),
 		Value:        "CPUUtilization",
 	})
 
@@ -57,7 +91,7 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 		assertions = append(assertions, &schema.Assertion{
 			Key:          "cloudwatch",
 			Relationship: "lessThan",
-			Operand:      fmt.Sprintf("%.3f", (maxConnections * maxConnRatio)),
+			Operand:      fmt.Sprintf("%d", int(maxConnections)),
 			Value:        "DatabaseConnections",
 		})
 	}
@@ -72,6 +106,25 @@ func (rc RDSCloudWatch) Generate() ([]*schema.Check, error) {
 			Relationship: "greaterThan",
 			Operand:      fmt.Sprintf("%.3f", minFreeMem),
 			Value:        "FreeableMemory",
+		})
+	}
+
+	for _, alarm := range importedAlarms {
+		if aws.StringValue(alarm.Statistic) != "Average" {
+			// (mike) should we be able to support other aggregations?
+			//    e.g. SampleCount|Sum|Min|Max
+			//    also should we handle specific Periods, EvalPeriods and Units?
+			continue
+		}
+		metrics = append(metrics, &schema.CloudWatchMetric{
+			Namespace: "AWS/RDS",
+			Name:      aws.StringValue(alarm.MetricName),
+		})
+		assertions = append(assertions, &schema.Assertion{
+			Key:          "cloudwatch",
+			Relationship: getRelationship(aws.StringValue(alarm.ComparisonOperator)),
+			Operand:      fmt.Sprintf("%.3f", aws.Float64Value(alarm.Threshold)),
+			Value:        aws.StringValue(alarm.MetricName),
 		})
 	}
 
@@ -152,4 +205,13 @@ func GetInstanceClassMemory(dbInstClass string) float64 {
 	}
 
 	return instClassMemGB * 1e9
+}
+
+func getRelationship(awsRel string) string {
+	switch awsRel {
+	case "GreaterThanOrEqualToThreshold", "GreaterThanThreshold":
+		return "greaterThan"
+	default:
+		return "lessThan"
+	}
 }

@@ -43,6 +43,8 @@ func main() {
 		BeavisEndpoint:             mustEnvString("KEELHAUL_BEAVIS_ENDPOINT"),
 		HugsEndpoint:               mustEnvString("KEELHAUL_HUGS_ENDPOINT"),
 		SpanxEndpoint:              mustEnvString("KEELHAUL_SPANX_ENDPOINT"),
+		BezosEndpoint:              mustEnvString("KEELHAUL_BEZOS_ENDPOINT"),
+		SkipVerify:                 mustEnvBool("KEELHAUL_SKIP_VERIFY"),
 	}
 
 	key, err := ioutil.ReadFile(cfg.VapeKey)
@@ -76,14 +78,20 @@ func main() {
 	router := router.New(etcdKeysAPI)
 	notifier := notifier.New(cfg)
 
-	spanxconn, err := grpc.Dial(cfg.SpanxEndpoint, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
+	spanxconn, err := grpcConn(cfg.SpanxEndpoint, cfg.SkipVerify)
 	if err != nil {
 		log.Fatalf("couldn't initialize spanx client: ", err)
 	}
 
 	spanxclient := opsee.NewSpanxClient(spanxconn)
 
-	launcher, err := launcher.New(db, router, etcdKeysAPI, bus, notifier, spanxclient, cfg)
+	bezosConn, err := grpcConn(cfg.BezosEndpoint, cfg.SkipVerify)
+	if err != nil {
+		log.Fatalf("couldn't initialize bezos client: ", err)
+	}
+	bezosClient := opsee.NewBezosClient(bezosConn)
+
+	launcher, err := launcher.New(db, router, etcdKeysAPI, bus, notifier, spanxclient, bezosClient, cfg)
 	if err != nil {
 		log.Fatalf("couldn't initialize launcher: ", err)
 	}
@@ -107,4 +115,26 @@ func mustEnvString(envVar string) string {
 		log.Fatal(envVar, "must be set")
 	}
 	return out
+}
+
+func mustEnvBool(envVar string) bool {
+	out := os.Getenv(envVar)
+	if out == "true" {
+		return true
+	}
+	if out != "false" {
+		log.Fatal(envVar, "must be set true||false")
+	}
+	return false
+}
+
+func grpcConn(addr string, skipVerify bool) (*grpc.ClientConn, error) {
+	return grpc.Dial(
+		addr,
+		grpc.WithTransportCredentials(
+			credentials.NewTLS(&tls.Config{
+				InsecureSkipVerify: skipVerify,
+			}),
+		),
+	)
 }
