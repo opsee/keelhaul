@@ -1,8 +1,6 @@
 package launcher
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/rds"
@@ -12,7 +10,6 @@ import (
 	"github.com/opsee/keelhaul/bus"
 	opsee_types "github.com/opsee/protobuf/opseeproto/types"
 	"golang.org/x/net/context"
-	"net/http"
 	"reflect"
 	"time"
 )
@@ -30,7 +27,6 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 		instances   = make(map[string]bool)
 		dbInstances = make(map[string]bool)
 		disco       = awscan.NewDiscoverer(awscan.NewScanner(launch.session, launch.Bastion.VPCID))
-		httpclient  = &http.Client{}
 	)
 
 	launch.event(&bus.Message{
@@ -56,33 +52,6 @@ func (s vpcDiscovery) Execute(launch *Launch) {
 			s.handleError(event.Err, launch)
 		} else {
 			messageType := reflect.ValueOf(event.Result).Elem().Type().Name()
-			messageBody, err := json.Marshal(event.Result)
-			if err != nil {
-				s.handleError(err, launch)
-				continue
-			}
-
-			request, err := http.NewRequest("POST", launch.config.FieriEndpoint+"/entity/"+messageType, bytes.NewBuffer(messageBody))
-			if err != nil {
-				s.handleError(err, launch)
-				continue
-			}
-
-			request.Header.Set("Content-Type", "application/json")
-			request.Header.Set("Accept", "application/json")
-			request.Header.Set("Customer-Id", launch.User.CustomerId)
-
-			resp, err := httpclient.Do(request)
-			if err != nil {
-				s.handleError(err, launch)
-				continue
-			}
-
-			resp.Body.Close()
-			if resp.StatusCode != 201 {
-				s.handleError(fmt.Errorf("bad response from fieri: %s", resp.Status), launch)
-				continue
-			}
 
 			switch messageType {
 			case awscan.InstanceType:
