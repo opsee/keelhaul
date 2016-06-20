@@ -2,7 +2,6 @@ package service
 
 import (
 	"crypto/tls"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/opsee/basic/grpcutil"
 	"github.com/opsee/basic/schema"
 	opsee "github.com/opsee/basic/service"
@@ -32,8 +31,6 @@ func (s *service) StartMux(addr, certfile, certkeyfile string) error {
 	router.Handle("GET", "/api/swagger.json", []tp.DecodeFunc{}, s.swagger())
 
 	// json api
-	router.Handle("POST", "/vpcs/scan", decoders(schema.User{}, ScanVPCsRequest{}), s.scanVPCs())
-	router.Handle("POST", "/vpcs/launch", decoders(schema.User{}, LaunchBastionsRequest{}), s.launchBastions())
 	router.Handle("GET", "/vpcs/bastions", decoders(schema.User{}, ListBastionsRequest{}), s.listBastions())
 	router.Handle("POST", "/bastions/authenticate", []tp.DecodeFunc{tp.RequestDecodeFunc(requestKey, opsee.AuthenticateBastionRequest{})}, s.authenticateBastion())
 
@@ -66,55 +63,6 @@ func decoders(userType interface{}, requestType interface{}) []tp.DecodeFunc {
 func (s *service) swagger() tp.HandleFunc {
 	return func(ctx context.Context) (interface{}, int, error) {
 		return swaggerMap, http.StatusOK, nil
-	}
-}
-
-func (s *service) scanVPCs() tp.HandleFunc {
-	return func(ctx context.Context) (interface{}, int, error) {
-		request, ok := ctx.Value(requestKey).(*ScanVPCsRequest)
-		if !ok {
-			return nil, http.StatusBadRequest, errBadRequest
-		}
-
-		user, ok := ctx.Value(userKey).(*schema.User)
-		if !ok {
-			return nil, http.StatusUnauthorized, errUnauthorized
-		}
-
-		vpcs, err := s.DeprecatedScanVPCs(user, request)
-		if err != nil {
-			if awsErr, ok := err.(awserr.Error); ok {
-				switch awsErr.Code() {
-				case "AccessDenied", "AuthFailure":
-					return nil, http.StatusUnauthorized, errAWSUnauthorized
-				}
-			}
-
-			return nil, http.StatusInternalServerError, err
-		}
-
-		return vpcs, http.StatusOK, nil
-	}
-}
-
-func (s *service) launchBastions() tp.HandleFunc {
-	return func(ctx context.Context) (interface{}, int, error) {
-		request, ok := ctx.Value(requestKey).(*LaunchBastionsRequest)
-		if !ok {
-			return nil, http.StatusBadRequest, errBadRequest
-		}
-
-		user, ok := ctx.Value(userKey).(*schema.User)
-		if !ok {
-			return nil, http.StatusUnauthorized, errUnauthorized
-		}
-
-		bastions, err := s.LaunchBastions(user, request)
-		if err != nil {
-			return nil, http.StatusInternalServerError, err
-		}
-
-		return bastions, http.StatusOK, nil
 	}
 }
 

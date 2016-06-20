@@ -1,10 +1,6 @@
 package service
 
 import (
-	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/opsee/basic/com"
 	"github.com/opsee/basic/schema"
 	opsee "github.com/opsee/basic/service"
@@ -13,102 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )
-
-type LaunchBastionsRequest struct {
-	AccessKey    string          `json:"access_key"`
-	SecretKey    string          `json:"secret_key"`
-	Regions      []*LaunchRegion `json:"regions"`
-	InstanceSize string          `json:"instance_size"`
-}
-
-type LaunchRegion struct {
-	Region string       `json:"region"`
-	VPCs   []*LaunchVPC `json:"vpcs"`
-}
-
-type LaunchVPC struct {
-	ID            string `json:"id"`
-	SubnetID      string `json:"subnet_id"`
-	SubnetRouting string `json:"subnet_routing"`
-	BastionID     string `json:"bastion_id"`
-}
-
-type LaunchBastionsResponse struct {
-	Regions []*LaunchRegion `json:"regions"`
-}
-
-func (r *LaunchBastionsRequest) Validate() error {
-	if r.AccessKey == "" {
-		return fmt.Errorf("access_key is required.")
-	}
-
-	if r.SecretKey == "" {
-		return fmt.Errorf("secret_key is required.")
-	}
-
-	if len(r.Regions) < 1 {
-		return fmt.Errorf("must specify at least one region.")
-	}
-
-	for _, reg := range r.Regions {
-		if regions[reg.Region] != true {
-			return fmt.Errorf("provided region is not valid: %s", reg)
-		}
-
-		for _, vpc := range reg.VPCs {
-			if vpc.ID == "" {
-				return fmt.Errorf("vpc id is required.")
-			}
-
-			if vpc.SubnetID == "" {
-				return fmt.Errorf("vpc subnet_id is required.")
-			}
-
-			if vpc.SubnetRouting == "" {
-				return fmt.Errorf("vpc subnet_routing is required.")
-			}
-
-			_, ok := com.RoutingPreference[vpc.SubnetRouting]
-			if !ok {
-				return fmt.Errorf("vpc subnet_routing: %s is not valid.", vpc.SubnetRouting)
-			}
-		}
-	}
-
-	if instanceSizes[r.InstanceSize] != true {
-		return fmt.Errorf("provided instance_size is not valid: %s", r.InstanceSize)
-	}
-
-	return nil
-}
-
-func (s *service) LaunchBastions(user *schema.User, request *LaunchBastionsRequest) (*LaunchBastionsResponse, error) {
-	creds := credentials.NewStaticCredentials(
-		request.AccessKey,
-		request.SecretKey,
-		"",
-	)
-
-	for _, region := range request.Regions {
-		sess := session.New(&aws.Config{
-			Credentials: creds,
-			Region:      aws.String(region.Region),
-			MaxRetries:  aws.Int(11),
-		})
-
-		for _, vpc := range region.VPCs {
-			launch, err := s.launcher.LaunchBastion(sess, user, region.Region, vpc.ID, vpc.SubnetID, vpc.SubnetRouting, request.InstanceSize, "stable")
-			if err != nil {
-				// multiple region launch isn't going to be atomic rn
-				return nil, err
-			}
-
-			vpc.BastionID = launch.Bastion.ID
-		}
-	}
-
-	return &LaunchBastionsResponse{request.Regions}, nil
-}
 
 type ListBastionsRequest struct {
 	State []string `json:"state"`

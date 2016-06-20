@@ -21,7 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/cenkalti/backoff"
 	etcd "github.com/coreos/etcd/client"
-	"github.com/opsee/basic/com"
+	"github.com/opsee/basic/schema"
 	"github.com/opsee/keelhaul/bus"
 	"golang.org/x/net/context"
 	"time"
@@ -429,7 +429,7 @@ func (s createStack) Execute(launch *Launch) {
 	}
 
 	associateIP := "False"
-	if launch.Bastion.SubnetRouting == com.RoutingStatePublic {
+	if launch.Bastion.SubnetRouting == schema.RoutingStatePublic {
 		associateIP = "True"
 	}
 
