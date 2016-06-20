@@ -13,7 +13,6 @@ type Store interface {
 	PutBastion(*com.Bastion) error
 	UpdateBastion(*com.Bastion) error
 	PutRegion(*schema.Region) error
-	DeprecatedPutRegion(*com.Region) error
 
 	GetBastion(*GetBastionRequest) (*GetBastionResponse, error)
 	ListBastions(*ListBastionsRequest) (*ListBastionsResponse, error)
