@@ -41,6 +41,7 @@ write_files:
     owner: "root"
     content: |
       CUSTOMER_ID={{.User.CustomerId}}
+      EXECUTION_GROUP_ID={{.Bastion.ExecutionGroupId}}
       CUSTOMER_EMAIL={{.User.Email}}
       BASTION_VERSION={{.Config.Tag}}
       BASTION_ID={{.Bastion.ID}}
@@ -213,9 +214,8 @@ func (launch *Launch) NotifyVars() interface{} {
 }
 
 // these events happen synchronously in the request cycle, so they are not part of launch stages
-func (launch *Launch) CreateBastion(region, vpcID, subnetID, subnetRouting, instanceType string) error {
-	exgroupId := launch.User.CustomerId
-	bastion, err := com.NewBastion(int(launch.User.Id), launch.User.CustomerId, exgroupId, region, vpcID, subnetID, subnetRouting, instanceType)
+func (launch *Launch) CreateBastion(executionGroupId, region, vpcID, subnetID, subnetRouting, instanceType string) error {
+	bastion, err := com.NewBastion(int(launch.User.Id), launch.User.CustomerId, executionGroupId, region, vpcID, subnetID, subnetRouting, instanceType)
 	if err != nil {
 		launch.error(err, &bus.Message{
 			Command: commandLaunchBastion,

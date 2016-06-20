@@ -38,13 +38,17 @@ func (s *service) LaunchStack(ctx context.Context, req *opsee.LaunchStackRequest
 		req.InstanceSize = "t2.micro"
 	}
 
+	if req.ExecutionGroupId == "" {
+		req.ExecutionGroupId = req.User.CustomerId
+	}
+
 	sess := session.New(&aws.Config{
 		Credentials: spanxcreds.NewSpanxCredentials(req.User, s.spanx),
 		Region:      aws.String(req.Region),
 		MaxRetries:  aws.Int(11),
 	})
 
-	_, err = s.launcher.LaunchBastion(sess, req.User, req.Region, req.VpcId, req.SubnetId, req.SubnetRouting, req.InstanceSize, "stable")
+	_, err = s.launcher.LaunchBastion(sess, req.User, req.ExecutionGroupId, req.Region, req.VpcId, req.SubnetId, req.SubnetRouting, req.InstanceSize, "stable")
 	if err != nil {
 		return nil, err
 	}
