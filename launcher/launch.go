@@ -371,7 +371,10 @@ func (launch *Launch) cleanup() {
 
 	// we are cool, so let's sync our autochecks
 	if launch.Err == nil {
-		launch.Autochecks.Drain()
+		// but only for non-global bastions
+		if launch.User.CustomerId != MagicExgid {
+			launch.Autochecks.Drain()
+		}
 	}
 
 	var err error

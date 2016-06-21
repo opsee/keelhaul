@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+var MagicExgid = "127a7354-290e-11e6-b178-2bc1f6aefc14"
+
 type systemClock struct{}
 
 func (s *systemClock) Now() time.Time {
