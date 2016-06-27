@@ -6,7 +6,7 @@ import (
 	opsee "github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/router"
 	"github.com/opsee/keelhaul/store"
-	log "github.com/sirupsen/logrus"
+	log "github.com/opsee/logrus"
 	"golang.org/x/net/context"
 )
 

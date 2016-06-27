@@ -2,7 +2,7 @@ package autocheck
 
 import (
 	"github.com/opsee/basic/schema"
-	log "github.com/sirupsen/logrus"
+	log "github.com/opsee/logrus"
 )
 
 type Sink interface {

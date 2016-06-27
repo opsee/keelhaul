@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"crypto/tls"
+
 	etcd "github.com/coreos/etcd/client"
 	opsee "github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/bus"
@@ -16,8 +17,8 @@ import (
 	"github.com/opsee/keelhaul/service"
 	"github.com/opsee/keelhaul/store"
 	"github.com/opsee/keelhaul/tracker"
+	log "github.com/opsee/logrus"
 	"github.com/opsee/vaper"
-	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
