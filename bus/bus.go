@@ -3,13 +3,14 @@ package bus
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/nsqio/go-nsq"
 	"github.com/opsee/basic/schema"
 	"github.com/opsee/keelhaul/config"
+	log "github.com/opsee/logrus"
 	"github.com/satori/go.uuid"
-	log "github.com/sirupsen/logrus"
-	"strings"
-	"time"
 )
 
 type Bus interface {

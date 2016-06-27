@@ -1,14 +1,15 @@
 package service
 
 import (
+	"regexp"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	opsee "github.com/opsee/basic/service"
 	"github.com/opsee/keelhaul/scanner"
+	log "github.com/opsee/logrus"
 	"github.com/opsee/spanx/spanxcreds"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
-	"regexp"
 )
 
 var (

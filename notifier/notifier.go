@@ -10,8 +10,8 @@ import (
 
 	"github.com/hoisie/mustache"
 	"github.com/opsee/keelhaul/config"
+	log "github.com/opsee/logrus"
 	slacktmpl "github.com/opsee/notification-templates/dist/go/slack"
-	log "github.com/sirupsen/logrus"
 )
 
 type Notifier interface {

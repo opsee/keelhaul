@@ -3,13 +3,14 @@ package service
 import (
 	"encoding/base64"
 	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/gorilla/websocket"
 	"github.com/opsee/basic/schema"
 	"github.com/opsee/keelhaul/bus"
+	log "github.com/opsee/logrus"
 	"github.com/opsee/vaper"
-	log "github.com/sirupsen/logrus"
-	"net/http"
-	"time"
 )
 
 type websocketHandler struct {

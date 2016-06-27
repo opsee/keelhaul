@@ -9,8 +9,8 @@ import (
 	etcd "github.com/coreos/etcd/client"
 	"github.com/opsee/keelhaul/notifier"
 	"github.com/opsee/keelhaul/store"
+	log "github.com/opsee/logrus"
 	"github.com/satori/go.uuid"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )
 
